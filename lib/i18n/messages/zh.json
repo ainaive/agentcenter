@@ -108,6 +108,16 @@
     "en": "English",
     "zh": "中文"
   },
+  "cliAuth": {
+    "title": "授权 CLI",
+    "subtitle": "输入终端中显示的代码，将 AgentCenter CLI 连接到你的账号。",
+    "codePlaceholder": "XXXX-YYYY",
+    "submit": "授权",
+    "success": "CLI 已授权！你可以关闭此窗口并返回终端。",
+    "errorInvalid": "代码无效或已过期，请重新运行 agentcenter login。",
+    "errorGeneric": "出现错误，请重试。",
+    "signInRequired": "请先登录才能授权 CLI。"
+  },
   "auth": {
     "signIn": {
       "title": "登录",

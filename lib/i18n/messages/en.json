@@ -108,6 +108,16 @@
     "en": "English",
     "zh": "中文"
   },
+  "cliAuth": {
+    "title": "Authorize CLI",
+    "subtitle": "Enter the code shown in your terminal to connect the AgentCenter CLI to your account.",
+    "codePlaceholder": "XXXX-YYYY",
+    "submit": "Authorize",
+    "success": "CLI authorized! You can close this window and return to your terminal.",
+    "errorInvalid": "Invalid or expired code. Please run agentcenter login again.",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "signInRequired": "You must be signed in to authorize the CLI."
+  },
   "auth": {
     "signIn": {
       "title": "Sign in",

@@ -1,0 +1,21 @@
+{
+  "name": "@agentcenter/cli",
+  "version": "0.1.0",
+  "description": "AgentCenter CLI — install and manage AI agent extensions",
+  "bin": {
+    "agentcenter": "./dist/agentcenter"
+  },
+  "scripts": {
+    "build": "bun build --compile --minify src/index.ts --outfile dist/agentcenter",
+    "dev": "bun run src/index.ts"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "fflate": "^0.8.2",
+    "smol-toml": "^1.3.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "typescript": "^5"
+  }
+}
