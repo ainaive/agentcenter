@@ -2,6 +2,8 @@ import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 
+import "../globals.css";
+
 import { AppShell } from "@/components/layout/app-shell";
 import { getTheme } from "@/lib/theme.server";
 
