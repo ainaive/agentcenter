@@ -11,27 +11,16 @@ import {
   Plus,
   Zap,
 } from "lucide-react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { COLLECTIONS } from "@/lib/data/collections";
 import { EXTENSIONS } from "@/lib/data/extensions";
 import { FUNC_CAT_COLORS, FUNC_TAXONOMY } from "@/lib/taxonomy";
+import { Link } from "@/lib/i18n/navigation";
 import { cn } from "@/lib/utils";
 import type { ExtensionCategory } from "@/types";
-
-const BROWSE_ITEMS: {
-  key: ExtensionCategory | "all";
-  label: string;
-  Icon: React.ComponentType<{ className?: string }>;
-}[] = [
-  { key: "all", label: "All Extensions", Icon: Boxes },
-  { key: "skills", label: "Skills", Icon: Zap },
-  { key: "mcp", label: "MCP Servers", Icon: Globe2 },
-  { key: "slash", label: "Slash Commands", Icon: Command },
-  { key: "plugins", label: "Plugins", Icon: Plug },
-];
 
 const FUNC_CAT_LABELS: Record<string, string> = {
   workTask: "Work Task",
@@ -83,9 +72,20 @@ const L2_LABELS: Record<string, string> = {
 
 export function Sidebar({ collapsed }: { collapsed: boolean }) {
   const searchParams = useSearchParams();
+  const t = useTranslations("sidebar");
 
-  // Build a /extensions href that preserves other filter params and applies
-  // the requested updates. null clears the param.
+  const BROWSE_ITEMS: {
+    key: ExtensionCategory | "all";
+    label: string;
+    Icon: React.ComponentType<{ className?: string }>;
+  }[] = [
+    { key: "all", label: t("allExtensions"), Icon: Boxes },
+    { key: "skills", label: t("skills"), Icon: Zap },
+    { key: "mcp", label: t("mcpServers"), Icon: Globe2 },
+    { key: "slash", label: t("slashCommands"), Icon: Command },
+    { key: "plugins", label: t("plugins"), Icon: Plug },
+  ];
+
   function buildHref(updates: Record<string, string | null>): string {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("page");
@@ -126,7 +126,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
     >
       <div className="min-w-[200px] flex-1 overflow-y-auto p-3">
         <SidebarSection
-          title="Browse"
+          title={t("browse")}
           expanded={expandedSections.browse}
           onToggle={() =>
             setExpandedSections((p) => ({ ...p, browse: !p.browse }))
@@ -159,7 +159,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
         <Divider />
 
         <SidebarSection
-          title="Categories"
+          title={t("categories")}
           expanded={expandedSections.categories}
           onToggle={() =>
             setExpandedSections((p) => ({ ...p, categories: !p.categories }))
@@ -170,7 +170,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
             active={!activeFuncCat}
           >
             <span className="bg-sidebar-foreground/40 size-1.5 shrink-0 rounded-full" />
-            <span className="flex-1">All</span>
+            <span className="flex-1">{t("all")}</span>
             <span className="text-[11px] opacity-55">{EXTENSIONS.length}</span>
           </SidebarLink>
 
@@ -318,7 +318,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
         <Divider />
 
         <SidebarSection
-          title="Collections"
+          title={t("collections")}
           expanded={expandedSections.collections}
           onToggle={() =>
             setExpandedSections((p) => ({
@@ -329,12 +329,12 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
         >
           <SidebarStaticItem>
             <Folder className="size-[14px] shrink-0" />
-            <span className="flex-1">Installed</span>
+            <span className="flex-1">{t("installed")}</span>
             <span className="font-mono text-[11px] opacity-60">0</span>
           </SidebarStaticItem>
           <SidebarStaticItem>
             <Folder className="size-[14px] shrink-0" />
-            <span className="flex-1">Saved</span>
+            <span className="flex-1">{t("saved")}</span>
             <span className="font-mono text-[11px] opacity-60">0</span>
           </SidebarStaticItem>
           {COLLECTIONS.map((col) => (
@@ -348,7 +348,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
           ))}
           <SidebarStaticItem muted>
             <Plus className="size-[14px] shrink-0" />
-            <span className="flex-1">New Group</span>
+            <span className="flex-1">{t("newGroup")}</span>
           </SidebarStaticItem>
         </SidebarSection>
       </div>

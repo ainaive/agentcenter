@@ -1,7 +1,10 @@
+"use client";
+
 import { ExternalLink } from "lucide-react";
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 import { deptPath } from "@/lib/data/departments";
+import { Link } from "@/lib/i18n/navigation";
 import type { ExtensionDetail } from "@/lib/db/queries/extensions";
 import { tagLabel } from "@/lib/tags";
 import type { Locale } from "@/types";
@@ -11,42 +14,31 @@ interface ExtMetadataPanelProps {
   locale?: Locale;
 }
 
-const SCOPE_LABEL: Record<ExtensionDetail["scope"], string> = {
-  personal: "Personal",
-  org: "Organization",
-  enterprise: "Enterprise",
-};
-
-const FUNC_CAT_LABEL: Record<ExtensionDetail["funcCat"], string> = {
-  workTask: "Work Task",
-  business: "Business",
-  tools: "Tools",
-};
-
 export function ExtMetadataPanel({
   ext,
   locale = "en",
 }: ExtMetadataPanelProps) {
+  const t = useTranslations("metadata");
   const deptTrail = ext.deptId ? deptPath(ext.deptId, locale) : null;
 
   return (
     <aside className="text-[12.5px]">
-      <Section title="Metadata">
-        <Row label="Slug">
+      <Section title={t("sectionTitle")}>
+        <Row label={t("slug")}>
           <code className="bg-muted rounded px-1.5 py-0.5 font-mono text-[11.5px]">
             {ext.slug}
           </code>
         </Row>
-        <Row label="License">
+        <Row label={t("license")}>
           {ext.licenseSpdx ?? <Empty />}
         </Row>
-        <Row label="Homepage">
+        <Row label={t("homepage")}>
           {ext.homepageUrl ? <ExtLink href={ext.homepageUrl} /> : <Empty />}
         </Row>
-        <Row label="Repository">
+        <Row label={t("repository")}>
           {ext.repoUrl ? <ExtLink href={ext.repoUrl} /> : <Empty />}
         </Row>
-        <Row label="Compatibility">
+        <Row label={t("compatibility")}>
           {ext.compatibilityJson ? (
             <code className="bg-muted block rounded p-2 font-mono text-[11px] whitespace-pre-wrap">
               {JSON.stringify(ext.compatibilityJson, null, 2)}
@@ -57,11 +49,11 @@ export function ExtMetadataPanel({
         </Row>
       </Section>
 
-      <Section title="Categorization">
-        <Row label="Scope">{SCOPE_LABEL[ext.scope]}</Row>
-        <Row label="Functional">
+      <Section title={t("categorizationTitle")}>
+        <Row label={t("scope")}>{t(`scopeValues.${ext.scope}`)}</Row>
+        <Row label={t("functional")}>
           <span className="text-foreground font-semibold">
-            {FUNC_CAT_LABEL[ext.funcCat]}
+            {t(`funcCat.${ext.funcCat}`)}
           </span>
           <span className="text-muted-foreground"> / {ext.subCat}</span>
           {ext.l2 && (
@@ -69,7 +61,7 @@ export function ExtMetadataPanel({
           )}
         </Row>
         {deptTrail && (
-          <Row label="Department">
+          <Row label={t("department")}>
             <span className="text-muted-foreground">
               {deptTrail.slice(0, -1).join(" / ")}
               {deptTrail.length > 1 ? " / " : ""}
@@ -82,7 +74,7 @@ export function ExtMetadataPanel({
       </Section>
 
       {ext.tagIds.length > 0 && (
-        <Section title="Tags">
+        <Section title={t("tagsTitle")}>
           <div className="flex flex-wrap gap-1">
             {ext.tagIds.map((tag) => (
               <Link

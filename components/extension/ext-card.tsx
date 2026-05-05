@@ -1,5 +1,6 @@
 import { Building2, Download, Folder, Star } from "lucide-react";
-import Link from "next/link";
+
+import { Link } from "@/lib/i18n/navigation";
 
 import { deptPath, MY_DEPT_ID } from "@/lib/data/departments";
 import type { ExtensionListItem } from "@/lib/db/queries/extensions";

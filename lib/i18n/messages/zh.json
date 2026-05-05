@@ -1,0 +1,107 @@
+{
+  "common": {
+    "install": "安装",
+    "addToGroup": "添加到分组"
+  },
+  "nav": {
+    "explore": "探索",
+    "publish": "发布",
+    "docs": "文档"
+  },
+  "home": {
+    "featuredLabel": "· 本周精选",
+    "trendingTitle": "热门技能",
+    "browseAll": "浏览全部 {count} 个"
+  },
+  "extensions": {
+    "browseTitle": "浏览全部",
+    "count": "{count} 个扩展",
+    "breadcrumb": "浏览",
+    "noReadme": "该扩展尚未发布 README 文档。",
+    "versionsTitle": "版本历史",
+    "noVersions": "尚未发布任何版本。上传向导（阶段 10）上线后，版本历史将显示在此处。"
+  },
+  "filters": {
+    "sortLabel": "排序",
+    "sort": {
+      "downloads": "下载量",
+      "stars": "评分",
+      "newest": "最新添加"
+    },
+    "scope": {
+      "all": "全部",
+      "personal": "个人",
+      "org": "组织",
+      "enterprise": "企业"
+    },
+    "chips": {
+      "all": "全部",
+      "trending": "热门",
+      "new": "最新",
+      "official": "官方",
+      "oss": "开源"
+    },
+    "tags": {
+      "any": "任一",
+      "all": "全部",
+      "clear": "清除",
+      "showMore": "显示更多标签"
+    }
+  },
+  "badge": {
+    "official": "官方",
+    "popular": "热门",
+    "new": "最新"
+  },
+  "category": {
+    "skills": "技能",
+    "mcp": "MCP 服务器",
+    "slash": "斜杠命令",
+    "plugins": "插件"
+  },
+  "metadata": {
+    "sectionTitle": "元数据",
+    "slug": "标识",
+    "license": "许可证",
+    "homepage": "主页",
+    "repository": "代码库",
+    "compatibility": "兼容性",
+    "categorizationTitle": "分类",
+    "tagsTitle": "标签",
+    "scope": "范围",
+    "functional": "功能类别",
+    "department": "部门",
+    "scopeValues": {
+      "personal": "个人",
+      "org": "组织",
+      "enterprise": "企业"
+    },
+    "funcCat": {
+      "workTask": "工作任务",
+      "business": "业务",
+      "tools": "工具"
+    }
+  },
+  "sidebar": {
+    "browse": "浏览",
+    "categories": "分类",
+    "collections": "收藏夹",
+    "mine": "我的",
+    "allExtensions": "全部扩展",
+    "skills": "技能",
+    "mcpServers": "MCP 服务器",
+    "slashCommands": "斜杠命令",
+    "plugins": "插件",
+    "all": "全部",
+    "installed": "已安装",
+    "saved": "已收藏",
+    "newGroup": "新建分组"
+  },
+  "search": {
+    "placeholder": "搜索技能、MCP 服务器、斜杠命令…"
+  },
+  "locale": {
+    "en": "English",
+    "zh": "中文"
+  }
+}

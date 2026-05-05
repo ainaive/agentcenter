@@ -1,0 +1,107 @@
+{
+  "common": {
+    "install": "Install",
+    "addToGroup": "Add to group"
+  },
+  "nav": {
+    "explore": "Explore",
+    "publish": "Publish",
+    "docs": "Docs"
+  },
+  "home": {
+    "featuredLabel": "· Featured this week",
+    "trendingTitle": "Trending Skills",
+    "browseAll": "Browse all {count}"
+  },
+  "extensions": {
+    "browseTitle": "Browse all",
+    "count": "{count, plural, one {# extension} other {# extensions}}",
+    "breadcrumb": "Browse",
+    "noReadme": "No README has been published for this extension yet.",
+    "versionsTitle": "Versions",
+    "noVersions": "No versions have been published yet. Once the upload wizard ships in Phase 10, version history lands here."
+  },
+  "filters": {
+    "sortLabel": "Sort",
+    "sort": {
+      "downloads": "Downloads",
+      "stars": "Stars",
+      "newest": "Recently Added"
+    },
+    "scope": {
+      "all": "All",
+      "personal": "Personal",
+      "org": "Organization",
+      "enterprise": "Enterprise"
+    },
+    "chips": {
+      "all": "All",
+      "trending": "Trending",
+      "new": "New",
+      "official": "Official",
+      "oss": "Open Source"
+    },
+    "tags": {
+      "any": "Any",
+      "all": "All",
+      "clear": "Clear",
+      "showMore": "Show more tags"
+    }
+  },
+  "badge": {
+    "official": "Official",
+    "popular": "Popular",
+    "new": "New"
+  },
+  "category": {
+    "skills": "Skill",
+    "mcp": "MCP Server",
+    "slash": "Slash Command",
+    "plugins": "Plugin"
+  },
+  "metadata": {
+    "sectionTitle": "Metadata",
+    "slug": "Slug",
+    "license": "License",
+    "homepage": "Homepage",
+    "repository": "Repository",
+    "compatibility": "Compatibility",
+    "categorizationTitle": "Categorization",
+    "tagsTitle": "Tags",
+    "scope": "Scope",
+    "functional": "Functional",
+    "department": "Department",
+    "scopeValues": {
+      "personal": "Personal",
+      "org": "Organization",
+      "enterprise": "Enterprise"
+    },
+    "funcCat": {
+      "workTask": "Work Task",
+      "business": "Business",
+      "tools": "Tools"
+    }
+  },
+  "sidebar": {
+    "browse": "Browse",
+    "categories": "Categories",
+    "collections": "Collections",
+    "mine": "MINE",
+    "allExtensions": "All Extensions",
+    "skills": "Skills",
+    "mcpServers": "MCP Servers",
+    "slashCommands": "Slash Commands",
+    "plugins": "Plugins",
+    "all": "All",
+    "installed": "Installed",
+    "saved": "Saved",
+    "newGroup": "New Group"
+  },
+  "search": {
+    "placeholder": "Search skills, MCP servers, slash commands…"
+  },
+  "locale": {
+    "en": "English",
+    "zh": "中文"
+  }
+}

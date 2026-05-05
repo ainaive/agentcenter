@@ -1,13 +1,10 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 
-/**
- * Centralizes URL-based filter state for /extensions. Filters live in the
- * query string so the server renders results directly; client widgets use
- * this hook to read and update them.
- */
+import { usePathname, useRouter } from "@/lib/i18n/navigation";
+
 export function useFilterUrl() {
   const router = useRouter();
   const pathname = usePathname();
@@ -15,11 +12,13 @@ export function useFilterUrl() {
   const [pending, startTransition] = useTransition();
 
   function commit(params: URLSearchParams) {
-    // Reset pagination when any filter changes.
     params.delete("page");
     const qs = params.toString();
     startTransition(() => {
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      router.replace(
+        qs ? `${pathname}?${qs}` : pathname,
+        { scroll: false } as Parameters<typeof router.replace>[1],
+      );
     });
   }
 
