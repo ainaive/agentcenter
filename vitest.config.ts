@@ -1,13 +1,21 @@
 import { defineConfig } from "vitest/config";
 import { resolve } from "path";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
+  plugins: [react()],
   test: {
+    // Default environment for lib/ and cli/ unit tests.
+    // components/ tests use happy-dom (matched below).
     environment: "node",
+    environmentMatchGlobs: [
+      ["**/components/**/*.test.tsx", "happy-dom"],
+    ],
+    setupFiles: ["./vitest.setup.ts"],
     // Unit tests live next to their source files in lib/ and cli/.
-    // components/ and app/ are covered by tests/e2e/ (Playwright) — RSC and
-    // React components need a DOM environment and different tooling.
-    include: ["lib/**/*.test.ts", "cli/**/*.test.ts"],
+    // components/ client components are tested here too.
+    // app/ RSC pages and routes are covered by tests/e2e/ (Playwright).
+    include: ["lib/**/*.test.ts", "cli/**/*.test.ts", "components/**/*.test.tsx"],
     env: {
       // Prevents neon() from throwing at import time in unit tests.
       // No real DB connection is made — queries are never executed.
