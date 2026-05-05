@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { getTheme } from "@/lib/theme.server";
 import "./globals.css";
 
 const inter = Inter({
@@ -29,18 +30,19 @@ export const metadata: Metadata = {
   description: "Discover and extend your AI agents.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const theme = await getTheme();
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${fraunces.variable} ${jetbrainsMono.variable} h-full antialiased ${theme === "dark" ? "dark" : ""}`}
     >
       <body className="bg-background text-foreground h-full">
-        <AppShell>{children}</AppShell>
+        <AppShell theme={theme}>{children}</AppShell>
       </body>
     </html>
   );

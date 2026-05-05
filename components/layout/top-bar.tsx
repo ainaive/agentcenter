@@ -3,11 +3,16 @@
 import { Globe, Menu, Search, User } from "lucide-react";
 import Link from "next/link";
 
+import type { Theme } from "@/lib/theme";
+
+import { ThemeSwitch } from "./theme-switch";
+
 interface TopBarProps {
+  theme: Theme;
   onToggleSidebar: () => void;
 }
 
-export function TopBar({ onToggleSidebar }: TopBarProps) {
+export function TopBar({ theme, onToggleSidebar }: TopBarProps) {
   return (
     <header className="bg-background/80 border-border sticky top-0 z-10 flex h-[52px] flex-shrink-0 items-center gap-3 border-b px-5 backdrop-blur-xl backdrop-saturate-150">
       <button
@@ -51,6 +56,8 @@ export function TopBar({ onToggleSidebar }: TopBarProps) {
           </Link>
         ))}
       </nav>
+
+      <ThemeSwitch theme={theme} />
 
       <button
         type="button"
