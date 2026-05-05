@@ -154,5 +154,57 @@
       "signOut": "Sign out",
       "settings": "Settings"
     }
+  },
+  "publish": {
+    "dashboard": {
+      "title": "My Extensions",
+      "empty": "You haven't published any extensions yet.",
+      "newButton": "New extension",
+      "statusDraft": "Draft",
+      "statusPublished": "Published",
+      "statusArchived": "Archived"
+    },
+    "wizard": {
+      "step1Title": "Extension details",
+      "step2Title": "Upload bundle",
+      "step3Title": "Review & submit",
+      "nextButton": "Continue",
+      "backButton": "Back",
+      "submitButton": "Submit for review",
+      "submitting": "Submitting…",
+      "successTitle": "Submitted!",
+      "successBody": "Your extension is queued for review. We'll notify you when it's live.",
+      "backToDashboard": "Back to dashboard"
+    },
+    "form": {
+      "slug": "Slug",
+      "slugHint": "Lowercase letters, numbers and hyphens — permanent after publish",
+      "name": "Name (EN)",
+      "nameZh": "Name (ZH)",
+      "version": "Version",
+      "versionHint": "Semantic version, e.g. 1.0.0",
+      "category": "Category",
+      "scope": "Scope",
+      "funcCat": "Function category",
+      "subCat": "Subcategory",
+      "l2": "L2 (optional)",
+      "dept": "Department",
+      "tags": "Tags",
+      "tagsHint": "Up to 8 tags",
+      "description": "Description (EN)",
+      "descriptionZh": "Description (ZH)",
+      "tagline": "Tagline",
+      "homepageUrl": "Homepage URL",
+      "repoUrl": "Repository URL",
+      "licenseSpdx": "License (SPDX)"
+    },
+    "upload": {
+      "dropzone": "Drop your bundle ZIP here, or click to browse",
+      "maxSize": "Maximum 50 MB",
+      "uploading": "Uploading…",
+      "uploaded": "Uploaded",
+      "errorSize": "File exceeds 50 MB limit",
+      "errorType": "Only .zip bundles are accepted"
+    }
   }
 }

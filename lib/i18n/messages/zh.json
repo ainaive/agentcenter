@@ -154,5 +154,57 @@
       "signOut": "退出",
       "settings": "设置"
     }
+  },
+  "publish": {
+    "dashboard": {
+      "title": "我的扩展",
+      "empty": "您尚未发布任何扩展。",
+      "newButton": "新建扩展",
+      "statusDraft": "草稿",
+      "statusPublished": "已发布",
+      "statusArchived": "已归档"
+    },
+    "wizard": {
+      "step1Title": "扩展详情",
+      "step2Title": "上传包",
+      "step3Title": "审阅并提交",
+      "nextButton": "继续",
+      "backButton": "返回",
+      "submitButton": "提交审核",
+      "submitting": "提交中…",
+      "successTitle": "已提交！",
+      "successBody": "您的扩展已进入审核队列，发布后我们会通知您。",
+      "backToDashboard": "返回控制台"
+    },
+    "form": {
+      "slug": "标识符",
+      "slugHint": "小写字母、数字和连字符 — 发布后永久固定",
+      "name": "名称（英文）",
+      "nameZh": "名称（中文）",
+      "version": "版本",
+      "versionHint": "语义版本，例如 1.0.0",
+      "category": "分类",
+      "scope": "适用范围",
+      "funcCat": "功能分类",
+      "subCat": "子分类",
+      "l2": "L2（可选）",
+      "dept": "部门",
+      "tags": "标签",
+      "tagsHint": "最多 8 个标签",
+      "description": "简介（英文）",
+      "descriptionZh": "简介（中文）",
+      "tagline": "一句话介绍",
+      "homepageUrl": "官网地址",
+      "repoUrl": "代码仓库",
+      "licenseSpdx": "许可证（SPDX）"
+    },
+    "upload": {
+      "dropzone": "将 ZIP 包拖到此处，或点击浏览文件",
+      "maxSize": "最大 50 MB",
+      "uploading": "上传中…",
+      "uploaded": "已上传",
+      "errorSize": "文件超过 50 MB 限制",
+      "errorType": "仅接受 .zip 格式的包"
+    }
   }
 }
