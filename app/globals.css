@@ -136,3 +136,30 @@
     letter-spacing: -0.015em;
   }
 }
+
+@layer components {
+  .badge-official {
+    background: oklch(94% 0.025 70);
+    color: oklch(35% 0.07 35);
+  }
+  .badge-popular {
+    background: oklch(94% 0.04 145);
+    color: oklch(35% 0.12 145);
+  }
+  .badge-new {
+    background: oklch(95% 0.035 90);
+    color: oklch(38% 0.13 70);
+  }
+  .dark .badge-official {
+    background: oklch(22% 0.06 200);
+    color: oklch(72% 0.18 200);
+  }
+  .dark .badge-popular {
+    background: oklch(22% 0.05 280);
+    color: oklch(72% 0.16 280);
+  }
+  .dark .badge-new {
+    background: oklch(22% 0.05 50);
+    color: oklch(78% 0.16 50);
+  }
+}
