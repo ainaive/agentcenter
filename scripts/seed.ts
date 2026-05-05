@@ -53,6 +53,52 @@ function slugify(name: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+const CATEGORY_LABELS = {
+  skills: "skill",
+  mcp: "MCP server",
+  slash: "slash command",
+  plugins: "plugin",
+} as const;
+
+/**
+ * Placeholder README content. Real READMEs will arrive via the upload wizard
+ * (Phase 10) once the manifest spec is wired up.
+ */
+function generateReadme(ext: (typeof EXTENSIONS)[number]): string {
+  const kind = CATEGORY_LABELS[ext.category];
+  const installCmd =
+    ext.category === "slash"
+      ? `agentcenter install ${slugify(ext.name)}`
+      : `agentcenter install ${slugify(ext.name)}`;
+  return `# ${ext.name}
+
+${ext.desc}
+
+## Overview
+
+${ext.name} is a ${kind} published by **${ext.author}**. It plugs into your
+agent runtime so you can ${ext.desc.toLowerCase().replace(/\.$/, "")} without
+hand-rolling integrations.
+
+## Install
+
+\`\`\`bash
+${installCmd}
+\`\`\`
+
+After installing, restart your agent to pick up the new ${kind}.
+
+## Compatibility
+
+- **Claude** — supported on the latest agent runtimes
+- **Other agents** — install paths can be customized via \`agentcenter config\`
+
+## Tags
+
+${ext.tags.map((t) => `\`${t}\``).join(" · ")}
+`;
+}
+
 async function main() {
   console.log("seed: starting");
 
@@ -102,6 +148,7 @@ async function main() {
     nameZh: e.nameZh,
     description: e.desc,
     descriptionZh: e.descZh,
+    readmeMd: generateReadme(e),
     downloadsCount: e.downloads,
     starsAvg: String(e.stars),
     ratingsCount: 0,

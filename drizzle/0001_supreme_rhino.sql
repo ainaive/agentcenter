@@ -1,0 +1,1 @@
+ALTER TABLE "extensions" ADD COLUMN "readme_md" text;

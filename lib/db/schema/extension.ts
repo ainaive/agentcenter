@@ -88,6 +88,10 @@ export const extensions = pgTable(
     taglineZh: text(),
     description: text(),
     descriptionZh: text(),
+    // Long-form markdown body for the detail page. Not duplicated to ZH yet —
+    // most extensions will have an English README, with translations layered
+    // on later if needed.
+    readmeMd: text(),
     // metadata for detail page sidebar
     homepageUrl: text(),
     repoUrl: text(),

@@ -1,7 +1,8 @@
 import { Building2, Download, Folder, Star } from "lucide-react";
+import Link from "next/link";
 
-import type { ExtensionListItem } from "@/lib/db/queries/extensions";
 import { deptPath, MY_DEPT_ID } from "@/lib/data/departments";
+import type { ExtensionListItem } from "@/lib/db/queries/extensions";
 import { tagLabel } from "@/lib/tags";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/types";
@@ -53,7 +54,12 @@ export function ExtCard({ ext, locale = "en" }: ExtCardProps) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="mb-0.5 flex items-center gap-1.5">
-            <span className="truncate text-[14px] font-bold">{name}</span>
+            <Link
+              href={`/extensions/${ext.slug}`}
+              className="hover:text-primary truncate text-[14px] font-bold transition-colors"
+            >
+              {name}
+            </Link>
             {ext.badge && (
               <span
                 className={cn(

@@ -85,6 +85,52 @@ export async function getFeaturedExtension() {
   return row ?? null;
 }
 
+export async function getExtensionBySlug(slug: string) {
+  const [row] = await db
+    .select({
+      id: extensions.id,
+      slug: extensions.slug,
+      category: extensions.category,
+      badge: extensions.badge,
+      scope: extensions.scope,
+      funcCat: extensions.funcCat,
+      subCat: extensions.subCat,
+      l2: extensions.l2,
+      deptId: extensions.deptId,
+      iconEmoji: extensions.iconEmoji,
+      iconColor: extensions.iconColor,
+      name: extensions.name,
+      nameZh: extensions.nameZh,
+      tagline: extensions.tagline,
+      taglineZh: extensions.taglineZh,
+      description: extensions.description,
+      descriptionZh: extensions.descriptionZh,
+      readmeMd: extensions.readmeMd,
+      homepageUrl: extensions.homepageUrl,
+      repoUrl: extensions.repoUrl,
+      licenseSpdx: extensions.licenseSpdx,
+      compatibilityJson: extensions.compatibilityJson,
+      downloadsCount: extensions.downloadsCount,
+      starsAvg: extensions.starsAvg,
+      ratingsCount: extensions.ratingsCount,
+      publishedAt: extensions.publishedAt,
+      tagIds: sql<string[]>`coalesce(array_agg(${extensionTags.tagId}) FILTER (WHERE ${extensionTags.tagId} IS NOT NULL), '{}')`,
+    })
+    .from(extensions)
+    .leftJoin(
+      extensionTags,
+      eq(extensionTags.extensionId, extensions.id),
+    )
+    .where(eq(extensions.slug, slug))
+    .groupBy(extensions.id)
+    .limit(1);
+  return row ?? null;
+}
+
+export type ExtensionDetail = NonNullable<
+  Awaited<ReturnType<typeof getExtensionBySlug>>
+>;
+
 export async function countPublishedExtensions() {
   const [row] = await db
     .select({ count: count() })
