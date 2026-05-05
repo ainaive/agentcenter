@@ -1,8 +1,10 @@
 import { ExtGrid } from "@/components/extension/ext-grid";
+import { FilterBar } from "@/components/filters/filter-bar";
 import {
   countFilteredExtensions,
   listExtensions,
 } from "@/lib/db/queries/extensions";
+import { getTagsWithCounts } from "@/lib/db/queries/tags";
 import { parseFilters } from "@/lib/validators/filters";
 
 export default async function ExtensionsPage({
@@ -13,9 +15,10 @@ export default async function ExtensionsPage({
   const params = await searchParams;
   const filters = parseFilters(params);
 
-  const [items, total] = await Promise.all([
+  const [items, total, tags] = await Promise.all([
     listExtensions(filters),
     countFilteredExtensions(filters),
+    getTagsWithCounts(),
   ]);
 
   return (
@@ -26,6 +29,9 @@ export default async function ExtensionsPage({
           {total} extension{total === 1 ? "" : "s"}
         </span>
       </header>
+
+      <FilterBar tags={tags} />
+
       <ExtGrid items={items} />
     </div>
   );

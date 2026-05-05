@@ -1,8 +1,12 @@
 import { and, desc, eq, ilike, inArray, like, or, type SQL, sql } from "drizzle-orm";
 
+import { MY_DEPT_ID } from "@/lib/data/departments";
 import { db } from "@/lib/db/client";
 import { extensions, extensionTags } from "@/lib/db/schema";
 import type { Filters } from "@/lib/validators/filters";
+
+// Special token in the dept URL param meaning "show all departments".
+const ALL_DEPTS = "__all";
 
 /**
  * Compose a SQL WHERE expression from typed filters. Returns `undefined` when
@@ -20,12 +24,16 @@ export function buildExtensionWhere(filters: Filters): SQL | undefined {
     filters.l2 ? eq(extensions.l2, filters.l2) : undefined,
 
     // Dotted-path descendant filter — uses idx_ext_dept_path (text_pattern_ops).
-    filters.dept && filters.dept !== "__all"
-      ? or(
-          eq(extensions.deptId, filters.dept),
-          like(extensions.deptId, `${filters.dept}.%`),
-        )
-      : undefined,
+    // When no dept param is provided, default to the user's own department.
+    // TODO(phase-6): replace MY_DEPT_ID with session.user.defaultDeptId.
+    (() => {
+      const dept = filters.dept ?? MY_DEPT_ID;
+      if (dept === ALL_DEPTS) return undefined;
+      return or(
+        eq(extensions.deptId, dept),
+        like(extensions.deptId, `${dept}.%`),
+      );
+    })(),
 
     // Filter chips
     filters.filter === "trending"

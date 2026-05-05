@@ -14,7 +14,8 @@ export default async function Home() {
   const [featured, totalCount, trending] = await Promise.all([
     getFeaturedExtension(),
     countPublishedExtensions(),
-    listExtensions({ category: "skills", sort: "downloads" }),
+    // Home trending is cross-dept by design (discovery > scoping).
+    listExtensions({ category: "skills", sort: "downloads", dept: "__all" }),
   ]);
 
   return (
