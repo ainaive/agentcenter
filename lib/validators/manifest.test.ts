@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest";
+import type { z } from "zod";
 
 import { ManifestFormSchema } from "@/lib/validators/manifest";
 
-const VALID: Parameters<typeof ManifestFormSchema.parse>[0] = {
+const VALID: z.input<typeof ManifestFormSchema> = {
   slug: "my-skill",
   name: "My Skill",
   version: "1.0.0",

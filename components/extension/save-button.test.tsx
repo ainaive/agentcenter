@@ -32,7 +32,7 @@ describe("SaveButton", () => {
   });
 
   it("calls saveExtension with the extensionId when clicked", async () => {
-    vi.mocked(saveExtension).mockResolvedValue({ ok: true });
+    vi.mocked(saveExtension).mockResolvedValue({ ok: true, alreadySaved: false });
     const user = userEvent.setup();
 
     render(<SaveButton extensionId="ext-99" />);
@@ -42,7 +42,7 @@ describe("SaveButton", () => {
   });
 
   it("shows 'saved' aria-label after a successful save", async () => {
-    vi.mocked(saveExtension).mockResolvedValue({ ok: true });
+    vi.mocked(saveExtension).mockResolvedValue({ ok: true, alreadySaved: false });
     const user = userEvent.setup();
 
     render(<SaveButton extensionId="ext-1" />);

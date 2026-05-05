@@ -32,7 +32,7 @@ describe("InstallButton", () => {
   });
 
   it("calls installExtension with the extensionId when clicked", async () => {
-    vi.mocked(installExtension).mockResolvedValue({ ok: true });
+    vi.mocked(installExtension).mockResolvedValue({ ok: true, alreadyInstalled: false });
     const user = userEvent.setup();
 
     render(<InstallButton extensionId="ext-42" />);
@@ -42,7 +42,7 @@ describe("InstallButton", () => {
   });
 
   it("shows 'installed' label after a successful install", async () => {
-    vi.mocked(installExtension).mockResolvedValue({ ok: true });
+    vi.mocked(installExtension).mockResolvedValue({ ok: true, alreadyInstalled: false });
     const user = userEvent.setup();
 
     render(<InstallButton extensionId="ext-1" />);

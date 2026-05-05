@@ -6,11 +6,8 @@ export default defineConfig({
   plugins: [react()],
   test: {
     // Default environment for lib/ and cli/ unit tests.
-    // components/ tests use happy-dom (matched below).
+    // components/ tests carry a `// @vitest-environment happy-dom` pragma.
     environment: "node",
-    environmentMatchGlobs: [
-      ["**/components/**/*.test.tsx", "happy-dom"],
-    ],
     setupFiles: ["./vitest.setup.ts"],
     // Unit tests live next to their source files in lib/ and cli/.
     // components/ client components are tested here too.
