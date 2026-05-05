@@ -1,5 +1,3 @@
-import { and, gt, eq } from "drizzle-orm";
-
 import { db } from "@/lib/db/client";
 import { verifications } from "@/lib/db/schema/auth";
 import { jsonError } from "@/lib/api/auth";
