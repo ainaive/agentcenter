@@ -1,6 +1,10 @@
 {
   "common": {
     "install": "Install",
+    "installing": "Installing…",
+    "installed": "Installed",
+    "save": "Save",
+    "saved": "Saved",
     "addToGroup": "Add to group"
   },
   "nav": {

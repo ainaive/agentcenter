@@ -1,5 +1,7 @@
 import { Building2, Download, Star } from "lucide-react";
 
+import { InstallButton } from "./install-button";
+
 import { deptPath, MY_DEPT_ID } from "@/lib/data/departments";
 import type { ExtensionDetail } from "@/lib/db/queries/extensions";
 import { cn } from "@/lib/utils";
@@ -133,13 +135,7 @@ export function ExtHero({ ext, locale = "en" }: ExtHeroProps) {
           </div>
         </div>
 
-        <button
-          type="button"
-          className="bg-primary text-primary-foreground hover:opacity-90 inline-flex shrink-0 items-center gap-1.5 rounded-md px-4 py-2 text-[13px] font-bold transition"
-        >
-          <Download className="size-3.5" />
-          Install
-        </button>
+        <InstallButton extensionId={ext.id} size="lg" />
       </div>
     </header>
   );

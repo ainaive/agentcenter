@@ -1,4 +1,4 @@
-import { Building2, Download, Folder, Star } from "lucide-react";
+import { Building2, Download, Star } from "lucide-react";
 
 import { Link } from "@/lib/i18n/navigation";
 
@@ -7,6 +7,9 @@ import type { ExtensionListItem } from "@/lib/db/queries/extensions";
 import { tagLabel } from "@/lib/tags";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/types";
+
+import { InstallButton } from "./install-button";
+import { SaveButton } from "./save-button";
 
 interface ExtCardProps {
   ext: ExtensionListItem;
@@ -121,20 +124,8 @@ export function ExtCard({ ext, locale = "en" }: ExtCardProps) {
           </span>
         </div>
         <div className="ml-auto flex gap-1.5">
-          <button
-            type="button"
-            aria-label="Add to group"
-            className="bg-secondary border-border hover:bg-accent flex size-7 items-center justify-center rounded-md border transition-colors"
-          >
-            <Folder className="text-muted-foreground size-3.5" />
-          </button>
-          <button
-            type="button"
-            className="bg-primary text-primary-foreground flex items-center gap-1 rounded-md px-3 py-1 text-[12px] font-bold transition hover:opacity-90"
-          >
-            <Download className="size-3" />
-            Install
-          </button>
+          <SaveButton extensionId={ext.id} />
+          <InstallButton extensionId={ext.id} size="sm" />
         </div>
       </div>
     </article>

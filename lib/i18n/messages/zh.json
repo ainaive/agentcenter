@@ -1,6 +1,10 @@
 {
   "common": {
     "install": "安装",
+    "installing": "安装中…",
+    "installed": "已安装",
+    "save": "收藏",
+    "saved": "已收藏",
     "addToGroup": "添加到分组"
   },
   "nav": {
