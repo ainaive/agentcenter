@@ -44,7 +44,7 @@ export default async function ExtensionsPage({
 
       <FilterBar tags={tags} />
 
-      <ExtGrid items={items} locale={locale as Locale} />
+      <ExtGrid items={items} locale={locale as Locale} query={filters.q} />
     </div>
   );
 }

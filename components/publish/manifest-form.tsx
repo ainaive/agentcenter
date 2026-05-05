@@ -87,9 +87,9 @@ export function ManifestForm({ onSubmit, defaultValues }: Props) {
   }
 
   const inputCls =
-    "w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]";
-  const labelCls = "block text-sm font-medium text-[var(--color-text-secondary)] mb-1";
-  const errorCls = "mt-1 text-xs text-red-500";
+    "w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
+  const labelCls = "block text-sm font-medium text-muted-foreground mb-1";
+  const errorCls = "mt-1 text-xs text-destructive";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -99,7 +99,7 @@ export function ManifestForm({ onSubmit, defaultValues }: Props) {
           <label className={labelCls}>{t("slug")} *</label>
           <input className={inputCls} {...field("slug")} placeholder="my-extension" />
           {errors.slug && <p className={errorCls}>{errors.slug}</p>}
-          <p className="mt-1 text-xs text-[var(--color-text-muted)]">{t("slugHint")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("slugHint")}</p>
         </div>
         <div>
           <label className={labelCls}>{t("version")} *</label>
@@ -175,7 +175,7 @@ export function ManifestForm({ onSubmit, defaultValues }: Props) {
 
       {/* Tags */}
       <div>
-        <label className={labelCls}>{t("tags")} <span className="text-[var(--color-text-muted)] font-normal">({t("tagsHint")})</span></label>
+        <label className={labelCls}>{t("tags")} <span className="text-muted-foreground font-normal">({t("tagsHint")})</span></label>
         <div className="flex flex-wrap gap-2 mt-1">
           {TAG_OPTIONS.map(({ id, label }) => {
             const active = values.tagIds.includes(id);
@@ -186,8 +186,8 @@ export function ManifestForm({ onSubmit, defaultValues }: Props) {
                 onClick={() => toggleTag(id)}
                 className={`rounded-full px-3 py-1 text-xs border transition-colors ${
                   active
-                    ? "bg-[var(--color-accent)] text-white border-[var(--color-accent)]"
-                    : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-accent)]"
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "border-border text-muted-foreground hover:border-primary"
                 }`}
               >
                 {label}
@@ -234,7 +234,7 @@ export function ManifestForm({ onSubmit, defaultValues }: Props) {
       <div className="pt-2 flex justify-end">
         <button
           type="submit"
-          className="rounded-md bg-[var(--color-accent)] px-5 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
+          className="rounded-md bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
         >
           {tw("nextButton")}
         </button>

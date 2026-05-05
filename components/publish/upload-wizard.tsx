@@ -89,8 +89,8 @@ export function UploadWizard() {
       <div className="flex flex-col items-center gap-4 py-16 text-center">
         <CheckCircle className="h-12 w-12 text-green-500" />
         <h2 className="text-xl font-semibold">{tw("successTitle")}</h2>
-        <p className="text-[var(--color-text-secondary)] max-w-sm">{tw("successBody")}</p>
-        <Link href="/publish" className="mt-4 text-sm underline text-[var(--color-accent)]">
+        <p className="text-muted-foreground max-w-sm">{tw("successBody")}</p>
+        <Link href="/publish" className="mt-4 text-sm underline text-primary">
           {tw("backToDashboard")}
         </Link>
       </div>
@@ -105,15 +105,15 @@ export function UploadWizard() {
           <div key={s} className="flex items-center gap-2">
             <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold border ${
               s === step
-                ? "bg-[var(--color-accent)] text-white border-[var(--color-accent)]"
+                ? "bg-primary text-primary-foreground border-primary"
                 : s < step
                   ? "bg-green-100 text-green-700 border-green-300"
-                  : "border-[var(--color-border)] text-[var(--color-text-muted)]"
+                  : "border-border text-muted-foreground"
             }`}>{s < step ? "✓" : s}</span>
-            <span className={`text-sm ${s === step ? "font-medium" : "text-[var(--color-text-muted)]"}`}>
+            <span className={`text-sm ${s === step ? "font-medium" : "text-muted-foreground"}`}>
               {stepLabels[s - 1]}
             </span>
-            {s < 3 && <span className="text-[var(--color-text-muted)] mx-1">›</span>}
+            {s < 3 && <span className="text-muted-foreground mx-1">›</span>}
           </div>
         ))}
       </div>
@@ -131,7 +131,7 @@ export function UploadWizard() {
       {step === 2 && (
         <div className="space-y-6">
           <div
-            className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--color-border)] p-12 text-center cursor-pointer hover:border-[var(--color-accent)] transition-colors"
+            className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-border p-12 text-center cursor-pointer hover:border-primary transition-colors"
             onClick={() => fileRef.current?.click()}
           >
             {uploadProgress === "done" ? (
@@ -141,14 +141,14 @@ export function UploadWizard() {
               </>
             ) : uploadProgress === "uploading" ? (
               <>
-                <Upload className="h-10 w-10 text-[var(--color-accent)] mb-3 animate-pulse" />
+                <Upload className="h-10 w-10 text-primary mb-3 animate-pulse" />
                 <p className="font-medium">{tu("uploading")}</p>
               </>
             ) : (
               <>
-                <Upload className="h-10 w-10 text-[var(--color-text-muted)] mb-3" />
+                <Upload className="h-10 w-10 text-muted-foreground mb-3" />
                 <p className="font-medium">{tu("dropzone")}</p>
-                <p className="mt-1 text-xs text-[var(--color-text-muted)]">{tu("maxSize")}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{tu("maxSize")}</p>
               </>
             )}
             <input ref={fileRef} type="file" accept=".zip" className="hidden" onChange={handleFileChange} />
@@ -158,7 +158,7 @@ export function UploadWizard() {
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="rounded-md border border-[var(--color-border)] px-4 py-2 text-sm hover:bg-[var(--color-surface-raised)] transition-colors"
+              className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted transition-colors"
             >
               {tw("backButton")}
             </button>
@@ -166,7 +166,7 @@ export function UploadWizard() {
               type="button"
               disabled={!fileUploaded}
               onClick={() => setStep(3)}
-              className="rounded-md bg-[var(--color-accent)] px-5 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-40 transition-opacity"
+              className="rounded-md bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40 transition-opacity"
             >
               {tw("nextButton")}
             </button>
@@ -177,17 +177,17 @@ export function UploadWizard() {
       {/* Step 3: Review & submit */}
       {step === 3 && draft && (
         <div className="space-y-6">
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-6 space-y-2 text-sm">
+          <div className="rounded-xl border border-border bg-card p-6 space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-[var(--color-text-secondary)]">Slug</span>
+              <span className="text-muted-foreground">Slug</span>
               <span className="font-mono font-medium">{draft.slug}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--color-text-secondary)]">Version</span>
+              <span className="text-muted-foreground">Version</span>
               <span className="font-mono font-medium">{draft.version}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--color-text-secondary)]">Bundle</span>
+              <span className="text-muted-foreground">Bundle</span>
               <span className="text-green-600 font-medium">✓ Uploaded</span>
             </div>
           </div>
@@ -196,7 +196,7 @@ export function UploadWizard() {
             <button
               type="button"
               onClick={() => setStep(2)}
-              className="rounded-md border border-[var(--color-border)] px-4 py-2 text-sm hover:bg-[var(--color-surface-raised)] transition-colors"
+              className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted transition-colors"
             >
               {tw("backButton")}
             </button>
@@ -204,7 +204,7 @@ export function UploadWizard() {
               type="button"
               onClick={handleSubmit}
               disabled={submitting}
-              className="rounded-md bg-[var(--color-accent)] px-5 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-40 transition-opacity"
+              className="rounded-md bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-40 transition-opacity"
             >
               {submitting ? tw("submitting") : tw("submitButton")}
             </button>
