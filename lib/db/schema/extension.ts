@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   bigint,
+  customType,
   index,
   integer,
   jsonb,
@@ -15,6 +16,13 @@ import {
 
 import { users } from "./auth";
 import { departments, organizations } from "./org";
+
+// tsvector is a Postgres-native type; Drizzle doesn't ship a built-in helper.
+// We declare it as a custom type so the ORM can reference it in WHERE clauses
+// via sql``. It is GENERATED ALWAYS (read-only); never written by app code.
+const tsvector = customType<{ data: string }>({
+  dataType() { return "tsvector"; },
+});
 
 export const extensionCategoryEnum = pgEnum("extension_category", [
   "skills",
@@ -104,6 +112,7 @@ export const extensions = pgTable(
     publishedAt: timestamp({ withTimezone: true }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    searchVector: tsvector("search_vector"),
   },
   (t) => [
     index("idx_ext_category").on(t.category),

@@ -2,8 +2,11 @@
 
 import { Menu, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useRef, type FormEvent } from "react";
 
-import { Link } from "@/lib/i18n/navigation";
+import { useSearchParams } from "next/navigation";
+
+import { Link, useRouter } from "@/lib/i18n/navigation";
 import type { Theme } from "@/lib/theme";
 import type { Locale } from "@/types";
 
@@ -20,6 +23,22 @@ interface TopBarProps {
 export function TopBar({ theme, locale, onToggleSidebar }: TopBarProps) {
   const t = useTranslations("nav");
   const ts = useTranslations("search");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function handleSearch(e: FormEvent) {
+    e.preventDefault();
+    const q = inputRef.current?.value.trim();
+    const params = new URLSearchParams(searchParams.toString());
+    if (q) {
+      params.set("q", q);
+    } else {
+      params.delete("q");
+    }
+    params.delete("page");
+    router.push(`/extensions?${params.toString()}`);
+  }
 
   return (
     <header className="bg-background/80 border-border sticky top-0 z-10 flex h-[52px] flex-shrink-0 items-center gap-3 border-b px-5 backdrop-blur-xl backdrop-saturate-150">
@@ -42,27 +61,38 @@ export function TopBar({ theme, locale, onToggleSidebar }: TopBarProps) {
         </span>
       </Link>
 
-      <div className="relative max-w-[520px] flex-1">
+      <form onSubmit={handleSearch} className="relative max-w-[520px] flex-1">
         <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-[15px] -translate-y-1/2" />
         <input
+          ref={inputRef}
           type="search"
+          defaultValue={searchParams.get("q") ?? ""}
           placeholder={ts("placeholder")}
           className="bg-muted border-input placeholder:text-muted-foreground focus:border-ring focus:ring-ring/20 w-full rounded-lg border py-1.5 pr-3 pl-9 text-[13px] outline-none transition-colors focus:ring-3"
         />
-      </div>
+      </form>
 
       <div className="flex-1" />
 
       <nav className="flex items-center gap-0.5">
-        {(["explore", "publish", "docs"] as const).map((key) => (
-          <Link
-            key={key}
-            href="#"
-            className="text-muted-foreground hover:text-foreground rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-colors"
-          >
-            {t(key)}
-          </Link>
-        ))}
+        <Link
+          href="/extensions"
+          className="text-muted-foreground hover:text-foreground rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-colors"
+        >
+          {t("explore")}
+        </Link>
+        <Link
+          href="/publish"
+          className="text-muted-foreground hover:text-foreground rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-colors"
+        >
+          {t("publish")}
+        </Link>
+        <Link
+          href="#"
+          className="text-muted-foreground hover:text-foreground rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-colors"
+        >
+          {t("docs")}
+        </Link>
       </nav>
 
       <ThemeSwitch theme={theme} />

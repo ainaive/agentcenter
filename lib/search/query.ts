@@ -51,13 +51,13 @@ export function buildExtensionWhere(
       ? sql`${extensions.licenseSpdx} IS NOT NULL`
       : undefined,
 
-    // Search — naive ILIKE on name/nameZh/description for now. Phase 12 swaps
-    // to tsvector @@ websearch_to_tsquery + pg_trgm for fuzzy + CJK matches.
+    // FTS via tsvector (set weight A/B/C in the GENERATED column) with
+    // pg_trgm ILIKE fallback for short queries and CJK substrings.
     filters.q
       ? or(
+          sql`${extensions.searchVector} @@ websearch_to_tsquery('simple', ${filters.q})`,
           ilike(extensions.name, `%${filters.q}%`),
           ilike(extensions.nameZh, `%${filters.q}%`),
-          ilike(extensions.description, `%${filters.q}%`),
         )
       : undefined,
 
