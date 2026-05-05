@@ -121,6 +121,15 @@ export async function submitForReview(versionId: string): Promise<SubmitResult> 
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) return { ok: false, error: "unauthenticated" };
 
+  // Load bundleFileId needed by the scan job
+  const [version] = await db
+    .select({ bundleFileId: extensionVersions.bundleFileId })
+    .from(extensionVersions)
+    .where(eq(extensionVersions.id, versionId))
+    .limit(1);
+
+  if (!version?.bundleFileId) return { ok: false, error: "no_bundle" };
+
   try {
     await db
       .update(extensionVersions)
@@ -130,7 +139,12 @@ export async function submitForReview(versionId: string): Promise<SubmitResult> 
     return { ok: false, error: "db_error" };
   }
 
-  // Inngest event will be wired in P11; for now the row status flip is the signal.
+  const { inngest } = await import("@/lib/jobs/client");
+  await inngest.send({
+    name: "extension/scan.requested",
+    data: { versionId, fileId: version.bundleFileId },
+  });
+
   return { ok: true };
 }
 
@@ -147,4 +161,13 @@ export async function getMyExtensions(userId: string) {
     .from(extensions)
     .where(eq(extensions.publisherUserId, userId))
     .orderBy(extensions.createdAt);
+}
+
+export async function getVersionStatus(versionId: string) {
+  const [row] = await db
+    .select({ status: extensionVersions.status })
+    .from(extensionVersions)
+    .where(eq(extensionVersions.id, versionId))
+    .limit(1);
+  return row?.status ?? null;
 }
