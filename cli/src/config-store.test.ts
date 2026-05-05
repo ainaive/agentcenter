@@ -42,12 +42,12 @@ describe("loadConfig", () => {
 
 describe("getConfigValue", () => {
   it("returns the value for a known key", async () => {
-    vi.mocked(readFile).mockRejectedValue(new Error("ENOENT"));
+    vi.mocked(readFile).mockRejectedValue(Object.assign(new Error("ENOENT"), { code: "ENOENT" }));
     expect(await getConfigValue("agent")).toBe("claude");
   });
 
   it("returns undefined for an unknown key", async () => {
-    vi.mocked(readFile).mockRejectedValue(new Error("ENOENT"));
+    vi.mocked(readFile).mockRejectedValue(Object.assign(new Error("ENOENT"), { code: "ENOENT" }));
     expect(await getConfigValue("nonexistent")).toBeUndefined();
   });
 });
@@ -64,7 +64,7 @@ describe("saveConfig", () => {
 
 describe("setConfigValue", () => {
   it("persists a new key-value pair", async () => {
-    vi.mocked(readFile).mockRejectedValue(new Error("ENOENT"));
+    vi.mocked(readFile).mockRejectedValue(Object.assign(new Error("ENOENT"), { code: "ENOENT" }));
     await setConfigValue("installDir", "/custom/path");
     expect(vi.mocked(writeFile)).toHaveBeenCalledOnce();
     const written = vi.mocked(writeFile).mock.calls[0][1] as string;

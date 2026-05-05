@@ -74,7 +74,7 @@ This allows browsers on `localhost:3000`, `*.vercel.app`, and your production do
 1. Create an Inngest account and a new **app**.
 2. Copy the **Event Key** and **Signing Key** from the app settings.
 3. After deploying to Vercel, register the webhook URL in the Inngest dashboard:
-   ```
+   ```text
    https://yourdomain.com/api/inngest
    ```
    Inngest will verify it by calling the endpoint. The scan-bundle and reindex-search functions will appear as registered functions.
@@ -173,7 +173,7 @@ bun run build            # produces cli/dist/agentcenter
 
 ## Architecture overview
 
-```
+```text
 Browser → Vercel (Next.js)
             ├── App Router pages (RSC + client islands)
             ├── /api/auth/...          Better Auth

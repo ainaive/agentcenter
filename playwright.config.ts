@@ -5,6 +5,8 @@ import { defineConfig, devices } from "@playwright/test";
  * Locally: ensure DATABASE_URL is set in .env.local and run `bun run db:seed`.
  * CI: the e2e.yml workflow handles Postgres + seed + server startup automatically.
  */
+const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
+
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: true,
@@ -13,7 +15,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? "github" : "html",
   use: {
-    baseURL: process.env.BASE_URL ?? "http://localhost:3000",
+    baseURL: BASE_URL,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
@@ -28,7 +30,7 @@ export default defineConfig({
   // so reuseExistingServer is true and no command is launched here.
   webServer: {
     command: "bun run dev",
-    url: "http://localhost:3000",
+    url: BASE_URL,
     reuseExistingServer: true,
     timeout: 120_000,
   },

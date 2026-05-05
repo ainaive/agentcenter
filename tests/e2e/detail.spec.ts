@@ -31,9 +31,11 @@ test.describe("Extension detail page", () => {
     await expect(page.locator("aside, [data-panel]")).toBeVisible();
   });
 
-  test("save button is present for authenticated actions", async ({ page }) => {
+  test("save button renders on the detail page", async ({ page }) => {
+    // SaveButton is rendered for all visitors; clicking it while logged out
+    // redirects to /sign-in. We only assert the button is present here —
+    // authenticated flows are covered separately once auth fixtures land.
     await page.goto(detailUrl);
-    // SaveButton renders an aria-labeled button for adding to a group
     await expect(page.getByRole("button", { name: /save|group|folder/i })).toBeVisible();
   });
 });
