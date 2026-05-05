@@ -4,7 +4,8 @@ Internal-flavored marketplace for AI agent extensions: Skills, MCP servers, slas
 
 ## Tech stack
 
-- TypeScript, Next.js 15 (App Router, RSC), Tailwind CSS v4, shadcn/ui + Radix
+- TypeScript, Next.js 16 (App Router, RSC, Turbopack dev), Tailwind CSS v4, shadcn/ui + Radix
+  - Next 16 has breaking changes from earlier versions; consult `node_modules/next/dist/docs/` and the project's top-level `AGENTS.md` before writing Next-specific code.
 - Bun for local dev and CLI build; Vercel + Node runtime for the web app in prod
 - PostgreSQL (Neon hosted) with Drizzle ORM
 - Better Auth (cookie sessions, Drizzle adapter)

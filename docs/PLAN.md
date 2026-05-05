@@ -2,7 +2,7 @@
 
 Marketplace for AI agent extensions (Skills, MCP servers, slash commands, plugins) with internal-enterprise features (departments, scope, tags, collections) and a companion CLI for actual machine-side install.
 
-Built on Next.js 15 RSC + Drizzle/Postgres + Tailwind v4 with the prototype's "Editorial Ivory" aesthetic.
+Built on Next.js 16 (RSC, Turbopack) + Drizzle/Postgres + Tailwind v4 with the prototype's "Editorial Ivory" aesthetic.
 
 This document is the living plan. When a binding decision changes, update it in the same commit as the code change.
 
