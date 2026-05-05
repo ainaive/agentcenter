@@ -1,6 +1,6 @@
 import { and, desc, eq, ilike, inArray, like, or, type SQL, sql } from "drizzle-orm";
 
-import { MY_DEPT_ID } from "@/lib/data/departments";
+import { MY_DEPT_ID } from "@/lib/data/departments"; // fallback for unauthenticated users
 import { db } from "@/lib/db/client";
 import { extensions, extensionTags } from "@/lib/db/schema";
 import type { Filters } from "@/lib/validators/filters";
@@ -12,7 +12,10 @@ const ALL_DEPTS = "__all";
  * Compose a SQL WHERE expression from typed filters. Returns `undefined` when
  * no clauses are active so callers can omit `.where()` entirely.
  */
-export function buildExtensionWhere(filters: Filters): SQL | undefined {
+export function buildExtensionWhere(
+  filters: Filters,
+  fallbackDeptId?: string,
+): SQL | undefined {
   const clauses = [
     // Always limit to published extensions.
     eq(extensions.visibility, "published"),
@@ -24,10 +27,11 @@ export function buildExtensionWhere(filters: Filters): SQL | undefined {
     filters.l2 ? eq(extensions.l2, filters.l2) : undefined,
 
     // Dotted-path descendant filter — uses idx_ext_dept_path (text_pattern_ops).
-    // When no dept param is provided, default to the user's own department.
-    // TODO(phase-6): replace MY_DEPT_ID with session.user.defaultDeptId.
+    // When no dept param is provided, fall back to the authenticated user's
+    // defaultDeptId (passed in from the page via getSession), then to MY_DEPT_ID
+    // for unauthenticated visitors.
     (() => {
-      const dept = filters.dept ?? MY_DEPT_ID;
+      const dept = filters.dept ?? fallbackDeptId ?? MY_DEPT_ID;
       if (dept === ALL_DEPTS) return undefined;
       return or(
         eq(extensions.deptId, dept),

@@ -103,5 +103,42 @@
   "locale": {
     "en": "English",
     "zh": "中文"
+  },
+  "auth": {
+    "signIn": {
+      "title": "登录",
+      "subtitle": "欢迎回到 AgentCenter",
+      "email": "邮箱",
+      "password": "密码",
+      "submit": "登录",
+      "noAccount": "还没有账号？",
+      "signUpLink": "注册",
+      "errorInvalid": "邮箱或密码不正确。",
+      "errorGeneric": "出现错误，请重试。"
+    },
+    "signUp": {
+      "title": "创建账号",
+      "subtitle": "加入 AgentCenter",
+      "name": "姓名",
+      "email": "邮箱",
+      "password": "密码",
+      "submit": "创建账号",
+      "hasAccount": "已有账号？",
+      "signInLink": "登录",
+      "errorExists": "该邮箱已注册。",
+      "errorGeneric": "出现错误，请重试。"
+    },
+    "onboard": {
+      "title": "选择你的部门",
+      "subtitle": "这将帮助 AgentCenter 为你推荐与团队相关的扩展。你可以稍后在设置中更改。",
+      "submit": "继续",
+      "skip": "暂时跳过",
+      "placeholder": "选择部门…"
+    },
+    "userMenu": {
+      "signIn": "登录",
+      "signOut": "退出",
+      "settings": "设置"
+    }
   }
 }

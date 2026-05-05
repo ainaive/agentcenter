@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, Search, User } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/lib/i18n/navigation";
@@ -9,6 +9,7 @@ import type { Locale } from "@/types";
 
 import { LocaleSwitch } from "./locale-switch";
 import { ThemeSwitch } from "./theme-switch";
+import { UserButton } from "./user-button";
 
 interface TopBarProps {
   theme: Theme;
@@ -68,9 +69,7 @@ export function TopBar({ theme, locale, onToggleSidebar }: TopBarProps) {
 
       <LocaleSwitch locale={locale} />
 
-      <div className="bg-primary/10 border-primary/40 flex size-8 cursor-pointer items-center justify-center rounded-full border-[1.5px]">
-        <User className="text-primary size-[15px]" />
-      </div>
+      <UserButton />
     </header>
   );
 }

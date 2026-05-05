@@ -103,5 +103,42 @@
   "locale": {
     "en": "English",
     "zh": "中文"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in",
+      "subtitle": "Welcome back to AgentCenter",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Sign up",
+      "errorInvalid": "Invalid email or password.",
+      "errorGeneric": "Something went wrong. Please try again."
+    },
+    "signUp": {
+      "title": "Create account",
+      "subtitle": "Join AgentCenter",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "signInLink": "Sign in",
+      "errorExists": "An account with this email already exists.",
+      "errorGeneric": "Something went wrong. Please try again."
+    },
+    "onboard": {
+      "title": "Pick your department",
+      "subtitle": "This lets AgentCenter surface extensions relevant to your team. You can change it later in settings.",
+      "submit": "Continue",
+      "skip": "Skip for now",
+      "placeholder": "Select a department…"
+    },
+    "userMenu": {
+      "signIn": "Sign in",
+      "signOut": "Sign out",
+      "settings": "Settings"
+    }
   }
 }

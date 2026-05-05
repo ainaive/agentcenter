@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 
 import { ExtGrid } from "@/components/extension/ext-grid";
 import { FilterBar } from "@/components/filters/filter-bar";
+import { getSession } from "@/lib/auth/session";
 import {
   countFilteredExtensions,
   listExtensions,
@@ -17,13 +18,18 @@ export default async function ExtensionsPage({
   params: Promise<{ locale: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const [{ locale }, rawParams] = await Promise.all([params, searchParams]);
+  const [{ locale }, rawParams, session] = await Promise.all([
+    params,
+    searchParams,
+    getSession(),
+  ]);
   const t = await getTranslations("extensions");
   const filters = parseFilters(rawParams);
+  const userDeptId = session?.user.defaultDeptId ?? undefined;
 
   const [items, total, tags] = await Promise.all([
-    listExtensions(filters),
-    countFilteredExtensions(filters),
+    listExtensions(filters, userDeptId),
+    countFilteredExtensions(filters, userDeptId),
     getTagsWithCounts(),
   ]);
 

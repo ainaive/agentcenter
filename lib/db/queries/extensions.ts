@@ -34,8 +34,11 @@ const listSelect = {
   tagIds: sql<string[]>`coalesce(array_agg(${extensionTags.tagId}) FILTER (WHERE ${extensionTags.tagId} IS NOT NULL), '{}')`,
 };
 
-export async function listExtensions(filters: Filters) {
-  const where = buildExtensionWhere(filters);
+export async function listExtensions(
+  filters: Filters,
+  userDeptId?: string,
+) {
+  const where = buildExtensionWhere(filters, userDeptId);
   const order = buildExtensionOrder(filters.sort);
 
   return db
@@ -56,8 +59,11 @@ export type ExtensionListItem = Awaited<
   ReturnType<typeof listExtensions>
 >[number];
 
-export async function countFilteredExtensions(filters: Filters) {
-  const where = buildExtensionWhere(filters);
+export async function countFilteredExtensions(
+  filters: Filters,
+  userDeptId?: string,
+) {
+  const where = buildExtensionWhere(filters, userDeptId);
   const [row] = await db
     .select({ count: count() })
     .from(extensions)
