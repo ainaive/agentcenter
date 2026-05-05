@@ -4,7 +4,7 @@ import { resolve } from "path";
 export default defineConfig({
   test: {
     environment: "node",
-    include: ["**/__tests__/**/*.test.ts"],
+    include: ["lib/**/*.test.ts"],
     env: {
       // Prevents neon() from throwing at import time in unit tests.
       // No real DB connection is made — queries are never executed.
@@ -13,7 +13,7 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["lib/**/*.ts"],
-      exclude: ["lib/db/schema/**", "lib/jobs/client.ts"],
+      exclude: ["lib/db/schema/**", "lib/jobs/client.ts", "lib/**/*.test.ts"],
     },
   },
   resolve: {
