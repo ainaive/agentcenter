@@ -1,0 +1,5 @@
+cli/dist/
+cli/node_modules/
+drizzle/
+scripts/
+docs/

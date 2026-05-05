@@ -2,6 +2,7 @@
   "name": "agentcenter",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "bun@1.3.12",
   "workspaces": ["cli"],
   "scripts": {
     "dev": "next dev",
@@ -12,7 +13,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "bun run scripts/seed.ts"
+    "db:seed": "bun run scripts/seed.ts",
+    "r2:cors": "bun run scripts/set-r2-cors.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1042.0",
