@@ -11,6 +11,8 @@ import {
   Plus,
   Zap,
 } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 import { COLLECTIONS } from "@/lib/data/collections";
@@ -80,10 +82,27 @@ const L2_LABELS: Record<string, string> = {
 };
 
 export function Sidebar({ collapsed }: { collapsed: boolean }) {
-  const [activeCategory, setActiveCategory] = useState<ExtensionCategory | "all">("all");
-  const [activeFuncCat, setActiveFuncCat] = useState<string | null>(null);
-  const [activeSubCat, setActiveSubCat] = useState<string | null>(null);
-  const [activeL2, setActiveL2] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+
+  // Build a /extensions href that preserves other filter params and applies
+  // the requested updates. null clears the param.
+  function buildHref(updates: Record<string, string | null>): string {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("page");
+    for (const [k, v] of Object.entries(updates)) {
+      if (v === null) params.delete(k);
+      else params.set(k, v);
+    }
+    const qs = params.toString();
+    return `/extensions${qs ? `?${qs}` : ""}`;
+  }
+
+  const activeCategory: ExtensionCategory | "all" =
+    (searchParams.get("category") as ExtensionCategory | null) ?? "all";
+  const activeFuncCat = searchParams.get("funcCat");
+  const activeSubCat = searchParams.get("subCat");
+  const activeL2 = searchParams.get("l2");
+
   const [expandedSections, setExpandedSections] = useState({
     browse: true,
     categories: true,
@@ -91,8 +110,12 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
   });
   const [expandedFuncCats, setExpandedFuncCats] = useState<
     Record<string, boolean>
-  >({ workTask: true });
-  const [expandedL1, setExpandedL1] = useState<Record<string, boolean>>({});
+  >(() => ({
+    [activeFuncCat ?? "workTask"]: true,
+  }));
+  const [expandedL1, setExpandedL1] = useState<Record<string, boolean>>(() =>
+    activeSubCat ? { [activeSubCat]: true } : {},
+  );
 
   return (
     <aside
@@ -110,22 +133,25 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
           }
         >
           {BROWSE_ITEMS.map((item) => {
+            const isActive = activeCategory === item.key;
+            const next = isActive
+              ? null
+              : item.key === "all"
+                ? null
+                : item.key;
+            const href = buildHref({ category: next });
             const count =
               item.key === "all"
                 ? null
                 : EXTENSIONS.filter((e) => e.category === item.key).length;
             return (
-              <SidebarItem
-                key={item.key}
-                active={activeCategory === item.key}
-                onClick={() => setActiveCategory(item.key)}
-              >
+              <SidebarLink key={item.key} href={href} active={isActive}>
                 <item.Icon className="size-[14px] shrink-0" />
                 <span className="flex-1 truncate">{item.label}</span>
                 {count !== null && (
                   <span className="text-[11px] opacity-55">{count}</span>
                 )}
-              </SidebarItem>
+              </SidebarLink>
             );
           })}
         </SidebarSection>
@@ -139,18 +165,14 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
             setExpandedSections((p) => ({ ...p, categories: !p.categories }))
           }
         >
-          <SidebarItem
+          <SidebarLink
+            href={buildHref({ funcCat: null, subCat: null, l2: null })}
             active={!activeFuncCat}
-            onClick={() => {
-              setActiveFuncCat(null);
-              setActiveSubCat(null);
-              setActiveL2(null);
-            }}
           >
             <span className="bg-sidebar-foreground/40 size-1.5 shrink-0 rounded-full" />
             <span className="flex-1">All</span>
             <span className="text-[11px] opacity-55">{EXTENSIONS.length}</span>
-          </SidebarItem>
+          </SidebarLink>
 
           {FUNC_TAXONOMY.map((cat) => {
             const isCatActive =
@@ -160,17 +182,16 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
             const catCount = EXTENSIONS.filter(
               (e) => e.funcCat === cat.key,
             ).length;
+            const catHref = buildHref({
+              funcCat: isCatActive ? null : cat.key,
+              subCat: null,
+              l2: null,
+            });
             return (
               <div key={cat.key}>
                 <div className="flex items-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const willActivate = !isCatActive;
-                      setActiveFuncCat(willActivate ? cat.key : null);
-                      setActiveSubCat(null);
-                      setActiveL2(null);
-                    }}
+                  <Link
+                    href={catHref}
                     className={cn(
                       "flex flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-left text-[13px] font-semibold transition",
                       isCatActive
@@ -184,7 +205,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                     />
                     <span className="flex-1">{FUNC_CAT_LABELS[cat.key]}</span>
                     <span className="text-[11px] opacity-55">{catCount}</span>
-                  </button>
+                  </Link>
                   <button
                     type="button"
                     aria-label={isExpanded ? "Collapse" : "Expand"}
@@ -212,16 +233,16 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                     const l1Count = EXTENSIONS.filter(
                       (e) => e.subCat === l1.key,
                     ).length;
+                    const l1Href = buildHref({
+                      funcCat: cat.key,
+                      subCat: isL1Active ? null : l1.key,
+                      l2: null,
+                    });
                     return (
                       <div key={l1.key} className="ml-2">
                         <div className="flex items-center">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveFuncCat(cat.key);
-                              setActiveSubCat(isL1Active ? null : l1.key);
-                              setActiveL2(null);
-                            }}
+                          <Link
+                            href={l1Href}
                             className={cn(
                               "flex flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-left text-[12.5px] font-medium transition",
                               isL1Active
@@ -240,7 +261,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                             <span className="text-[11px] opacity-50">
                               {l1Count}
                             </span>
-                          </button>
+                          </Link>
                           {l1.l2.length > 0 && (
                             <button
                               type="button"
@@ -263,26 +284,29 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                         </div>
 
                         {isL1Expanded &&
-                          l1.l2.map((l2key) => (
-                            <button
-                              key={l2key}
-                              type="button"
-                              onClick={() => {
-                                setActiveFuncCat(cat.key);
-                                setActiveSubCat(l1.key);
-                                setActiveL2(activeL2 === l2key ? null : l2key);
-                              }}
-                              className={cn(
-                                "flex w-full items-center gap-1.5 rounded-md py-1 pr-2 pl-6 text-left text-[12px] transition",
-                                activeL2 === l2key
-                                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                                  : "text-sidebar-foreground/85 hover:bg-sidebar-accent/50",
-                              )}
-                            >
-                              <span className="bg-sidebar-foreground/40 size-[3px] shrink-0 rounded-full" />
-                              {L2_LABELS[l2key]}
-                            </button>
-                          ))}
+                          l1.l2.map((l2key) => {
+                            const isL2Active = activeL2 === l2key;
+                            const l2Href = buildHref({
+                              funcCat: cat.key,
+                              subCat: l1.key,
+                              l2: isL2Active ? null : l2key,
+                            });
+                            return (
+                              <Link
+                                key={l2key}
+                                href={l2Href}
+                                className={cn(
+                                  "flex w-full items-center gap-1.5 rounded-md py-1 pr-2 pl-6 text-left text-[12px] transition",
+                                  isL2Active
+                                    ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                                    : "text-sidebar-foreground/85 hover:bg-sidebar-accent/50",
+                                )}
+                              >
+                                <span className="bg-sidebar-foreground/40 size-[3px] shrink-0 rounded-full" />
+                                {L2_LABELS[l2key]}
+                              </Link>
+                            );
+                          })}
                       </div>
                     );
                   })}
@@ -303,29 +327,29 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
             }))
           }
         >
-          <SidebarItem onClick={() => {}}>
+          <SidebarStaticItem>
             <Folder className="size-[14px] shrink-0" />
             <span className="flex-1">Installed</span>
             <span className="font-mono text-[11px] opacity-60">0</span>
-          </SidebarItem>
-          <SidebarItem onClick={() => {}}>
+          </SidebarStaticItem>
+          <SidebarStaticItem>
             <Folder className="size-[14px] shrink-0" />
             <span className="flex-1">Saved</span>
             <span className="font-mono text-[11px] opacity-60">0</span>
-          </SidebarItem>
+          </SidebarStaticItem>
           {COLLECTIONS.map((col) => (
-            <SidebarItem key={col.id} onClick={() => {}}>
+            <SidebarStaticItem key={col.id}>
               <span className="bg-sidebar-primary size-1.5 shrink-0 rounded-full" />
               <span className="flex-1 truncate">{col.name}</span>
               <span className="font-mono text-[11px] opacity-60">
                 {col.count}
               </span>
-            </SidebarItem>
+            </SidebarStaticItem>
           ))}
-          <SidebarItem onClick={() => {}} muted>
+          <SidebarStaticItem muted>
             <Plus className="size-[14px] shrink-0" />
             <span className="flex-1">New Group</span>
-          </SidebarItem>
+          </SidebarStaticItem>
         </SidebarSection>
       </div>
     </aside>
@@ -364,23 +388,43 @@ function SidebarSection({
   );
 }
 
-interface SidebarItemProps {
+function SidebarLink({
+  href,
+  active,
+  children,
+}: {
+  href: string;
   active?: boolean;
-  muted?: boolean;
-  onClick: () => void;
   children: React.ReactNode;
-}
-
-function SidebarItem({ active, muted, onClick, children }: SidebarItemProps) {
+}) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <Link
+      href={href}
+      scroll={false}
       className={cn(
         "flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition",
         active
           ? "bg-sidebar-accent text-sidebar-accent-foreground font-semibold"
           : "text-sidebar-foreground hover:bg-sidebar-accent/50",
+      )}
+    >
+      {children}
+    </Link>
+  );
+}
+
+function SidebarStaticItem({
+  muted,
+  children,
+}: {
+  muted?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className={cn(
+        "text-sidebar-foreground hover:bg-sidebar-accent/50 flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition",
         muted && "opacity-60",
       )}
     >
