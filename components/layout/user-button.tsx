@@ -39,10 +39,15 @@ export function UserButton() {
   }
 
   async function handleSignOut() {
-    await authClient.signOut();
-    setOpen(false);
-    router.push("/");
-    router.refresh();
+    try {
+      await authClient.signOut();
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      console.error("Sign-out failed:", err);
+    } finally {
+      setOpen(false);
+    }
   }
 
   const initials = session.user.name

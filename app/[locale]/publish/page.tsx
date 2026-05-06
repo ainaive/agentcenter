@@ -46,13 +46,13 @@ export default async function PublishDashboardPage() {
           {exts.map((ext) => (
             <li
               key={ext.id}
-              className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-4"
+              className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-5 py-4"
             >
-              <div>
+              <div className="min-w-0 flex-1 truncate">
                 <span className="font-medium">{ext.name}</span>
                 <span className="ml-2 font-mono text-xs text-muted-foreground">{ext.slug}</span>
               </div>
-              <span className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground">
+              <span className="shrink-0 rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground">
                 {statusLabel[ext.visibility] ?? ext.visibility}
               </span>
             </li>
