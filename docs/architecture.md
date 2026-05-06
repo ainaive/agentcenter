@@ -1,0 +1,167 @@
+# Architecture
+
+How AgentCenter fits together today. For *what we plan to build next*, see [`plan.md`](./plan.md). For deployment, see [`deploy.md`](./deploy.md).
+
+## Topology
+
+```text
+Browser ──── Vercel (Next.js 16) ──── Neon (Postgres)
+                ├── App Router pages (RSC + client islands)
+                ├── /api/auth/...        Better Auth cookie sessions
+                ├── /api/v1/...          Public registry API (CLI)
+                ├── /api/upload/sign     R2 presigned PUT
+                └── /api/inngest         Inngest webhook
+                                              │
+Browser ─── direct PUT ──→  Cloudflare R2 ←──┘
+                                              │
+                                          Inngest ──→ Neon + R2 (background jobs)
+
+CLI (Bun-built binary) ──── /api/v1/... (Bearer token via device-code flow)
+```
+
+Web requests hit Vercel; the CLI hits the same Vercel deployment but talks only to the `/api/v1` surface. Bundles flow directly between the browser/CLI and R2 via signed URLs — Vercel never proxies binary content.
+
+## Web app layout
+
+The App Router tree is locale-segmented. URLs are always prefixed (`/en/...`, `/zh/...`); there is no implicit default.
+
+```text
+app/
+├── layout.tsx                 # html/body, font loaders, theme cookie
+├── [locale]/
+│   ├── layout.tsx             # next-intl provider, AppShell (sidebar + topbar)
+│   ├── page.tsx               # home (featured + trending)
+│   ├── extensions/
+│   │   ├── page.tsx           # browse (filter bar + grid)
+│   │   └── [slug]/page.tsx    # detail (README + metadata panel)
+│   ├── publish/
+│   │   ├── page.tsx           # dashboard (my extensions)
+│   │   └── new/page.tsx       # upload wizard
+│   ├── (auth)/sign-in,sign-up
+│   └── cli/auth/page.tsx      # device-code authorization UI
+└── api/                       # see "API surfaces" below
+```
+
+### RSC vs client islands
+
+Server components render the static shell, fetch data via Drizzle, and stream HTML. Client components are reserved for interactive bits — filter chips, the install button, the upload wizard, the user menu — and are marked with `"use client"`. The pattern is "server frame, client islands."
+
+The filter bar (`components/filters/filter-bar.tsx`) is a server component but composes client islands (`FilterChips`, `SortSelect`, `DeptPicker`, `TagDrawer`). Each island reads/writes URL search params via `useFilterUrl`, so filter state lives in the URL — no global store, no context, and back/forward works.
+
+### i18n
+
+Locales live under `lib/i18n/messages/{en,zh}.json`. `next-intl` is configured with `localePrefix: "always"`. Static UI strings come from `useTranslations(...)`; bilingual content (extension `name` / `nameZh`, tag labels) is column-per-language in Postgres and resolved at the component level via `tagLabel(...)` / direct field access.
+
+### Theme
+
+`Editorial Ivory` (default) and `Dark`. The active theme is stored in a cookie (`theme`), read in the root layout, and applied as a `data-theme` attribute. The toggle (`ThemeSwitch`) writes the cookie and triggers `router.refresh()`.
+
+## Request flows
+
+### Browse
+
+```text
+GET /en/extensions?category=skills&dept=eng.cloud&sort=stars
+  └─ app/[locale]/extensions/page.tsx (RSC)
+      ├─ parseFilters(searchParams)
+      ├─ Promise.all([listExtensions, countFilteredExtensions, getTagsWithCounts])
+      └─ <FilterBar tags={tags} /> + <ExtGrid items={items} />
+```
+
+`buildExtensionWhere` / `buildExtensionOrder` in `lib/search/query.ts` compose Drizzle SQL clauses from filters; they're pure (no DB call), unit-tested, and shared with `/api/v1/extensions` so web and CLI see the same listing semantics.
+
+### Detail
+
+```text
+GET /en/extensions/my-skill
+  └─ app/[locale]/extensions/[slug]/page.tsx (RSC)
+      ├─ getExtensionBySlug(slug)
+      ├─ react-markdown + rehype-sanitize on the stored README
+      └─ <ExtHero /> + <Markdown /> + <ExtMetadataPanel /> + <InstallButton />
+```
+
+The README is raw markdown stored in Postgres and server-rendered with `rehype-sanitize`. The metadata side panel (homepage, repo, license, compatibility, taxonomy) is a server component fed from the same row.
+
+### Publish
+
+```text
+Browser                          Vercel                          R2          Inngest
+   │ form submit                    │                              │             │
+   ├──── createDraftExtension ────► server action  ──► extensions row (status=draft)
+   │                                │                              │             │
+   ├──── upload bundle ─────────────│─── presigned PUT URL ───────►│             │
+   │                                │                              │             │
+   ├──── attachFile(versionId) ────► server action  ──► files row + extensionVersion
+   │                                │                              │             │
+   ├──── submitForReview ──────────► server action  ──► sendEvent("extension/scan.requested")
+   │                                │                              │             │
+   │                                │                              │  scan-bundle:
+   │                                │                              │   download from R2,
+   │                                │                              │   sha-256 checksum,
+   │                                │                              │   parse manifest.toml,
+   │                                │                              │   validate schema,
+   │                                │                              │   mark version ready/rejected,
+   │                                │                              │   sendEvent("extension/index.requested")
+   │                                │                              │             │
+   │                                │                              │  reindex-search:
+   │                                │                              │   build search_vector,
+   │                                │                              │   set extension visibility=published,
+   │                                │                              │   revalidateTag("extensions")
+```
+
+The upload goes browser → R2 directly (presigned PUT) — Vercel only signs the URL. The Inngest webhook lives at `/api/inngest`. Job source: `lib/jobs/scan-bundle.ts` and `lib/jobs/reindex-search.ts`.
+
+A note on `scan-bundle`: download + checksum + manifest parsing live in a single `step.run` rather than separate steps, because Inngest serializes step return values across boundaries and `Buffer` doesn't survive that round-trip.
+
+### Install (CLI path)
+
+```text
+agentcenter install my-skill
+  ├─ GET /api/v1/extensions/my-skill                     metadata (name, version, category)
+  ├─ GET /api/v1/extensions/my-skill/bundle              302 → signed R2 URL
+  ├─ fetch(signed-url)                                   ZIP bytes
+  ├─ unzip + write to ~/.claude/skills/my-skill/         (or configured agent path)
+  └─ POST /api/v1/installs (Bearer token)                records install event, increments downloadsCount
+```
+
+The web "Install" button takes the same conceptual path but goes through the `installExtension` server action instead of the public API: it bumps the same counters and records the same install event, so leaderboards stay consistent across surfaces.
+
+## Authentication
+
+Two parallel flows on top of one Better Auth instance:
+
+- **Web** — cookie sessions. `signIn.email()` from `authClient` (`better-auth/react`) sets the cookie; subsequent server components read the session via `getSession()`. Client components subscribe via `authClient.useSession()` for reactive updates.
+- **CLI** — device-code flow on top of Better Auth's `verifications` table.
+  1. CLI: `POST /api/v1/auth/device/code` → server creates two `verifications` rows (`dc:poll:<deviceCode>` and `dc:user:<userCode>`) and returns the user code.
+  2. User: opens `/{locale}/cli/auth` in a browser, signs in, enters the user code; the page resolves user code → device code, marks the poll row authorized, and stores a session token in it.
+  3. CLI: polls `POST /api/v1/auth/device/poll` every 5 s. When the row is authorized, the token is returned once and the row is deleted.
+  4. CLI persists the token in `~/.config/agentcenter/credentials.json` (mode 0600) and uses it as a `Bearer` for authenticated v1 calls.
+
+The token is a Better Auth session token — the same kind a browser cookie carries — so the same `sessions` table backs both flows.
+
+## API surfaces
+
+| Path | Purpose |
+|---|---|
+| `/api/auth/[...all]` | Better Auth — session cookies, sign-in, sign-up, sign-out (web) |
+| `/api/v1/...` | Public registry API consumed by the CLI ([`api.md`](./api.md)) |
+| `/api/upload/sign` | Web-internal — issues an R2 presigned PUT URL for the upload wizard |
+| `/api/inngest` | Webhook — Inngest dispatches `scan-bundle` and `reindex-search` here |
+
+Only `/api/v1/*` is treated as a contract; the others are implementation details.
+
+## Data flow at a glance
+
+```text
+publish wizard ──→ extensions (draft) ──→ files + extensionVersions ──→ Inngest scan
+                                                                           │
+                          extensions (published, search_vector) ←──── reindex-search
+                                            │
+                          listExtensions (browse) ── installExtension / install API
+                                                            │
+                                                       installs row
+                                                       collections "installed"
+                                                       downloadsCount++
+```
+
+Every write that affects what users see in the listing (publish, install) ends with a `revalidateTag` so the next browse render hits fresh data.

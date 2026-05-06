@@ -87,9 +87,12 @@ bun run dev list
 
 ## Documentation
 
+- [`docs/architecture.md`](./docs/architecture.md) — how the pieces fit together (RSC layout, request flows, jobs, auth, CLI ↔ web)
+- [`docs/api.md`](./docs/api.md) — public registry API (`/api/v1/...`) consumed by the CLI
+- [`docs/cli.md`](./docs/cli.md) — CLI usage guide (login, install, configuration)
+- [`docs/manifest-spec.md`](./docs/manifest-spec.md) — extension manifest format
 - [`docs/plan.md`](./docs/plan.md) — implementation plan, phase schedule, locked product decisions
 - [`docs/deploy.md`](./docs/deploy.md) — Neon, Cloudflare R2, Inngest, Vercel setup runbook
-- [`docs/manifest-spec.md`](./docs/manifest-spec.md) — extension manifest format
 - [`CONTRIBUTING.md`](./CONTRIBUTING.md) — workflow, commit conventions, how to open a PR
 - [`CLAUDE.md`](./CLAUDE.md) — project rules and decisions (also consumed by AI coding agents)
 
