@@ -34,7 +34,7 @@ Internal-flavored marketplace for AI agent extensions: Skills, MCP servers, slas
 - Before each commit, surface a diff summary and proposed commit message. Wait for explicit go-ahead before running `git commit`.
 - At the end of each phase, pause for an explicit checkpoint before starting the next phase.
 - No `--amend`, no force-push, no `--no-verify`. Corrective commits over history rewrites.
-- Work on `main` directly (solo project, empty repo). Switch to feature branches + PRs only on request.
+- Always work on a feature branch and open a PR — never commit to `main` directly. CI (lint, typecheck, tests) and CodeRabbit run on every PR.
 - When a binding decision changes, update `docs/PLAN.md` in the same commit as the code change.
 
 ## Project structure (target)
