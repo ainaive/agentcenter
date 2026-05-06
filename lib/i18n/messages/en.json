@@ -79,11 +79,53 @@
       "personal": "Personal",
       "org": "Organization",
       "enterprise": "Enterprise"
-    },
+    }
+  },
+  "taxonomy": {
     "funcCat": {
       "workTask": "Work Task",
       "business": "Business",
       "tools": "Tools"
+    },
+    "l1": {
+      "systemDesign": "System Design",
+      "softDev": "Software Dev",
+      "testing": "Testing & QA",
+      "network": "Network Protocols",
+      "embedded": "Embedded Systems",
+      "cloud": "Cloud Services",
+      "docs": "Document Ops",
+      "data": "Data Processing",
+      "vcs": "Version Control"
+    },
+    "l2": {
+      "reqAnalysis": "Requirements Analysis",
+      "funcDesign": "Functional Design",
+      "archDesign": "Architecture Design",
+      "frontend": "Front-End Dev",
+      "backend": "Back-End Dev",
+      "devops": "DevOps",
+      "unitTest": "Unit Testing",
+      "intTest": "Integration Testing",
+      "perfTest": "Performance Testing",
+      "http": "HTTP / REST",
+      "grpc": "gRPC",
+      "mqtt": "MQTT",
+      "rtos": "RTOS",
+      "firmware": "Firmware",
+      "drivers": "Drivers",
+      "aws": "AWS",
+      "azure": "Azure",
+      "k8s": "Kubernetes",
+      "markdown": "Markdown",
+      "pdf": "PDF Processing",
+      "wiki": "Wiki Management",
+      "csv": "CSV Analysis",
+      "sql": "SQL Query",
+      "viz": "Data Visualization",
+      "git": "Git Operations",
+      "pr": "Code Review",
+      "cicd": "CI / CD"
     }
   },
   "sidebar": {

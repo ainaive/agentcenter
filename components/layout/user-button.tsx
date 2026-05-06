@@ -10,17 +10,12 @@ import { Link, useRouter } from "@/lib/i18n/navigation";
 export function UserButton() {
   const t = useTranslations("auth.userMenu");
   const router = useRouter();
-  const [session, setSession] = useState<{
-    user: { name?: string | null; email: string };
-  } | null>(null);
+  // useSession is reactive — it re-renders when sign-in/sign-out happens
+  // via the same authClient, so the avatar appears without a page refresh.
+  const { data } = authClient.useSession();
+  const session = data ? { user: data.user } : null;
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    authClient.getSession().then((s) => {
-      setSession(s?.data?.session ? { user: s.data.user } : null);
-    });
-  }, []);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -44,11 +39,15 @@ export function UserButton() {
   }
 
   async function handleSignOut() {
-    await authClient.signOut();
-    setSession(null);
-    setOpen(false);
-    router.push("/");
-    router.refresh();
+    try {
+      await authClient.signOut();
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      console.error("Sign-out failed:", err);
+    } finally {
+      setOpen(false);
+    }
   }
 
   const initials = session.user.name
