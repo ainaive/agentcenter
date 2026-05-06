@@ -79,11 +79,53 @@
       "personal": "个人",
       "org": "组织",
       "enterprise": "企业"
-    },
+    }
+  },
+  "taxonomy": {
     "funcCat": {
       "workTask": "工作任务",
       "business": "业务",
       "tools": "工具"
+    },
+    "l1": {
+      "systemDesign": "系统设计",
+      "softDev": "软件开发",
+      "testing": "测试与 QA",
+      "network": "网络协议",
+      "embedded": "嵌入式系统",
+      "cloud": "云服务",
+      "docs": "文档操作",
+      "data": "数据处理",
+      "vcs": "版本控制"
+    },
+    "l2": {
+      "reqAnalysis": "需求分析",
+      "funcDesign": "功能设计",
+      "archDesign": "架构设计",
+      "frontend": "前端开发",
+      "backend": "后端开发",
+      "devops": "DevOps",
+      "unitTest": "单元测试",
+      "intTest": "集成测试",
+      "perfTest": "性能测试",
+      "http": "HTTP / REST",
+      "grpc": "gRPC",
+      "mqtt": "MQTT",
+      "rtos": "RTOS",
+      "firmware": "固件",
+      "drivers": "驱动程序",
+      "aws": "AWS",
+      "azure": "Azure",
+      "k8s": "Kubernetes",
+      "markdown": "Markdown",
+      "pdf": "PDF 处理",
+      "wiki": "Wiki 管理",
+      "csv": "CSV 分析",
+      "sql": "SQL 查询",
+      "viz": "数据可视化",
+      "git": "Git 操作",
+      "pr": "代码评审",
+      "cicd": "CI / CD"
     }
   },
   "sidebar": {

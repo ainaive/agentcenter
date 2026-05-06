@@ -19,6 +19,7 @@ export function ExtMetadataPanel({
   locale = "en",
 }: ExtMetadataPanelProps) {
   const t = useTranslations("metadata");
+  const tx = useTranslations("taxonomy");
   const deptTrail = ext.deptId ? deptPath(ext.deptId, locale) : null;
 
   return (
@@ -53,11 +54,11 @@ export function ExtMetadataPanel({
         <Row label={t("scope")}>{t(`scopeValues.${ext.scope}`)}</Row>
         <Row label={t("functional")}>
           <span className="text-foreground font-semibold">
-            {t(`funcCat.${ext.funcCat}`)}
+            {tx(`funcCat.${ext.funcCat}`)}
           </span>
-          <span className="text-muted-foreground"> / {ext.subCat}</span>
+          <span className="text-muted-foreground"> / {tx(`l1.${ext.subCat}`)}</span>
           {ext.l2 && (
-            <span className="text-muted-foreground"> / {ext.l2}</span>
+            <span className="text-muted-foreground"> / {tx(`l2.${ext.l2}`)}</span>
           )}
         </Row>
         {deptTrail && (

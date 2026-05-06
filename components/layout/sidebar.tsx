@@ -22,57 +22,10 @@ import { Link } from "@/lib/i18n/navigation";
 import { cn } from "@/lib/utils";
 import type { ExtensionCategory } from "@/types";
 
-const FUNC_CAT_LABELS: Record<string, string> = {
-  workTask: "Work Task",
-  business: "Business",
-  tools: "Tools",
-};
-
-const L1_LABELS: Record<string, string> = {
-  systemDesign: "System Design",
-  softDev: "Software Dev",
-  testing: "Testing & QA",
-  network: "Network Protocols",
-  embedded: "Embedded Systems",
-  cloud: "Cloud Services",
-  docs: "Document Ops",
-  data: "Data Processing",
-  vcs: "Version Control",
-};
-
-const L2_LABELS: Record<string, string> = {
-  reqAnalysis: "Requirements Analysis",
-  funcDesign: "Functional Design",
-  archDesign: "Architecture Design",
-  frontend: "Front-End Dev",
-  backend: "Back-End Dev",
-  devops: "DevOps",
-  unitTest: "Unit Testing",
-  intTest: "Integration Testing",
-  perfTest: "Performance Testing",
-  http: "HTTP / REST",
-  grpc: "gRPC",
-  mqtt: "MQTT",
-  rtos: "RTOS",
-  firmware: "Firmware",
-  drivers: "Drivers",
-  aws: "AWS",
-  azure: "Azure",
-  k8s: "Kubernetes",
-  markdown: "Markdown",
-  pdf: "PDF Processing",
-  wiki: "Wiki Management",
-  csv: "CSV Analysis",
-  sql: "SQL Query",
-  viz: "Data Visualization",
-  git: "Git Operations",
-  pr: "Code Review",
-  cicd: "CI / CD",
-};
-
 export function Sidebar({ collapsed }: { collapsed: boolean }) {
   const searchParams = useSearchParams();
   const t = useTranslations("sidebar");
+  const tx = useTranslations("taxonomy");
 
   const BROWSE_ITEMS: {
     key: ExtensionCategory | "all";
@@ -203,7 +156,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                       className="size-[7px] shrink-0 rounded-sm"
                       style={{ background: catColor }}
                     />
-                    <span className="flex-1">{FUNC_CAT_LABELS[cat.key]}</span>
+                    <span className="flex-1">{tx(`funcCat.${cat.key}`)}</span>
                     <span className="text-[11px] opacity-55">{catCount}</span>
                   </Link>
                   <button
@@ -257,7 +210,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                                 opacity: isL1Active ? 1 : 0.35,
                               }}
                             />
-                            <span className="flex-1">{L1_LABELS[l1.key]}</span>
+                            <span className="flex-1">{tx(`l1.${l1.key}`)}</span>
                             <span className="text-[11px] opacity-50">
                               {l1Count}
                             </span>
@@ -303,7 +256,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                                 )}
                               >
                                 <span className="bg-sidebar-foreground/40 size-[3px] shrink-0 rounded-full" />
-                                {L2_LABELS[l2key]}
+                                {tx(`l2.${l2key}`)}
                               </Link>
                             );
                           })}
