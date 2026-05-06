@@ -27,7 +27,7 @@ AgentCenter deploys to **Vercel** (web app) with **Neon** (Postgres), **Cloudfla
    ```
 4. Run the FTS migration (once, after `db:migrate`):
    ```bash
-   psql $DATABASE_URL < drizzle/0002_fts_search_vector.sql
+   psql "$DATABASE_URL" < drizzle/0002_fts_search_vector.sql
    ```
    Or paste the file contents into the **Neon SQL Editor**.
 5. Seed reference data (optional, loads sample extensions):

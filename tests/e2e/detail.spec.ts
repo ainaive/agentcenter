@@ -4,14 +4,16 @@ import { test, expect } from "@playwright/test";
 test.describe("Extension detail page", () => {
   let detailUrl: string;
 
-  test.beforeAll(async ({ browser }) => {
-    // Find a valid detail page URL by navigating the browse listing first.
-    const page = await browser.newPage();
+  test.beforeAll(async ({ browser, baseURL }) => {
+    // browser.newPage() opens a fresh context that does NOT inherit the
+    // project's baseURL — pass it explicitly so the relative goto resolves.
+    const context = await browser.newContext({ baseURL });
+    const page = await context.newPage();
     await page.goto("/en/extensions");
     const firstCard = page.locator("a[href*='/en/extensions/']").first();
     await firstCard.waitFor({ state: "visible" });
     detailUrl = (await firstCard.getAttribute("href")) ?? "/en/extensions";
-    await page.close();
+    await context.close();
   });
 
   test("detail page renders the install button", async ({ page }) => {
