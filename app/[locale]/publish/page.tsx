@@ -30,7 +30,7 @@ export default async function PublishDashboardPage() {
         <h1 className="font-display text-2xl font-semibold">{t("title")}</h1>
         <Link
           href="/publish/new"
-          className="flex items-center gap-2 rounded-md bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
         >
           <Plus className="h-4 w-4" />
           {t("newButton")}
@@ -38,7 +38,7 @@ export default async function PublishDashboardPage() {
       </div>
 
       {exts.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[var(--color-border)] p-16 text-center text-[var(--color-text-muted)]">
+        <div className="rounded-xl border border-dashed border-border p-16 text-center text-muted-foreground">
           {t("empty")}
         </div>
       ) : (
@@ -46,13 +46,13 @@ export default async function PublishDashboardPage() {
           {exts.map((ext) => (
             <li
               key={ext.id}
-              className="flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4"
+              className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-4"
             >
               <div>
                 <span className="font-medium">{ext.name}</span>
-                <span className="ml-2 font-mono text-xs text-[var(--color-text-muted)]">{ext.slug}</span>
+                <span className="ml-2 font-mono text-xs text-muted-foreground">{ext.slug}</span>
               </div>
-              <span className="rounded-full border border-[var(--color-border)] px-2.5 py-0.5 text-xs text-[var(--color-text-secondary)]">
+              <span className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground">
                 {statusLabel[ext.visibility] ?? ext.visibility}
               </span>
             </li>
