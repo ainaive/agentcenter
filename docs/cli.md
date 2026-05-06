@@ -134,9 +134,9 @@ The actual download is direct from R2 via a signed URL, so transient errors here
 
 ## What the CLI does *not* do (yet)
 
-- Does not check version constraints from `compatibilityJson` against your runtime.
-- Does not support pinning an extension to a specific version (`<slug>@<version>`).
-- Does not warn before overwriting a previously installed copy.
-- Does not stream a progress bar during downloads — you get a single `Downloading...` line.
+- Version constraints from `compatibilityJson` aren't checked against your runtime.
+- Pinning an extension to a specific version (`<slug>@<version>`) isn't supported yet.
+- No warning before overwriting a previously installed copy.
+- Progress during downloads isn't streamed — you get a single `Downloading...` line.
 
 These are tracked in [`plan.md`](./plan.md).
