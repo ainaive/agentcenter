@@ -1,6 +1,6 @@
 # AgentCenter
 
-Internal-flavored marketplace for AI agent extensions: Skills, MCP servers, slash commands, plugins. Bilingual (EN/ZH) from day one. See `docs/PLAN.md` for the full implementation plan and milestone schedule.
+Internal-flavored marketplace for AI agent extensions: Skills, MCP servers, slash commands, plugins. Bilingual (EN/ZH) from day one. See `docs/plan.md` for the full implementation plan and milestone schedule.
 
 ## Tech stack
 
@@ -35,11 +35,11 @@ Internal-flavored marketplace for AI agent extensions: Skills, MCP servers, slas
 - At the end of each phase, pause for an explicit checkpoint before starting the next phase.
 - No `--amend`, no force-push, no `--no-verify`. Corrective commits over history rewrites.
 - Always work on a feature branch and open a PR — never commit to `main` directly. CI (lint, typecheck, tests) and CodeRabbit run on every PR.
-- When a binding decision changes, update `docs/PLAN.md` in the same commit as the code change.
+- When a binding decision changes, update `docs/plan.md` in the same commit as the code change.
 
 ## Project structure (target)
 
-See `docs/PLAN.md` §1 for the full tree. High-level layout:
+See `docs/plan.md` §1 for the full tree. High-level layout:
 
 - `app/[locale]/...` — App Router pages, locale-segmented
 - `app/api/...` — Better Auth handler, R2 presigned upload, install events, Inngest webhook, public registry API (`/api/v1/...`) used by the CLI

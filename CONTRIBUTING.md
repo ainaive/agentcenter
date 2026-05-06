@@ -77,7 +77,7 @@ E2E tests (`bun run test:e2e`) require a live dev server with a seeded database 
 
 ### Locked product decisions
 
-A handful of product/architecture decisions are locked for v1 and shouldn't be revisited inside a normal PR. They're listed in [`CLAUDE.md`](./CLAUDE.md#locked-product-decisions). If a PR needs to change one, update `CLAUDE.md` and `docs/PLAN.md` in the same commit as the code change.
+A handful of product/architecture decisions are locked for v1 and shouldn't be revisited inside a normal PR. They're listed in [`CLAUDE.md`](./CLAUDE.md#locked-product-decisions). If a PR needs to change one, update `CLAUDE.md` and `docs/plan.md` in the same commit as the code change.
 
 ### Tests live next to the code
 
@@ -96,7 +96,7 @@ When you add code under `lib/`, `cli/`, or `components/`, add or update its colo
 
 ## Getting help
 
-- Architecture and phase plan: [`docs/PLAN.md`](./docs/PLAN.md)
-- Deployment runbook: [`docs/DEPLOY.md`](./docs/DEPLOY.md)
+- Architecture and phase plan: [`docs/plan.md`](./docs/plan.md)
+- Deployment runbook: [`docs/deploy.md`](./docs/deploy.md)
 - Manifest spec: [`docs/manifest-spec.md`](./docs/manifest-spec.md)
 - Project rules (also followed by AI agents): [`CLAUDE.md`](./CLAUDE.md)

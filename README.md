@@ -55,7 +55,7 @@ bun run db:seed
 bun run dev
 ```
 
-Open <http://localhost:3000>. The minimum env vars needed for local dev are listed in [`docs/DEPLOY.md`](./docs/DEPLOY.md#5-local-development).
+Open <http://localhost:3000>. The minimum env vars needed for local dev are listed in [`docs/deploy.md`](./docs/deploy.md#5-local-development).
 
 To work on the CLI:
 
@@ -87,8 +87,8 @@ bun run dev list
 
 ## Documentation
 
-- [`docs/PLAN.md`](./docs/PLAN.md) — implementation plan, phase schedule, locked product decisions
-- [`docs/DEPLOY.md`](./docs/DEPLOY.md) — Neon, Cloudflare R2, Inngest, Vercel setup runbook
+- [`docs/plan.md`](./docs/plan.md) — implementation plan, phase schedule, locked product decisions
+- [`docs/deploy.md`](./docs/deploy.md) — Neon, Cloudflare R2, Inngest, Vercel setup runbook
 - [`docs/manifest-spec.md`](./docs/manifest-spec.md) — extension manifest format
 - [`CONTRIBUTING.md`](./CONTRIBUTING.md) — workflow, commit conventions, how to open a PR
 - [`CLAUDE.md`](./CLAUDE.md) — project rules and decisions (also consumed by AI coding agents)

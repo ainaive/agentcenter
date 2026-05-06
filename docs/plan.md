@@ -16,7 +16,7 @@ App Router, single Next.js app, server components by default. Routes are localiz
 /Users/hutusi/workspace/ai/naive/agentcenter/
 ├── CLAUDE.md
 ├── docs/
-│   ├── PLAN.md                          # this file
+│   ├── plan.md                          # this file
 │   ├── manifest-spec.md                 # extension manifest schema (P0, before upload wizard)
 │   └── adr/                             # one short ADR per binding decision change
 ├── app/
