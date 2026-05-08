@@ -1,0 +1,33 @@
+the PR seems be clean, let's merge it, what do you think?
+
+---
+
+what's next?
+
+---
+
+what do you think?
+
+---
+
+can you explain more about filter concept?
+
+---
+
+if it is worth to refactor, I would like do it now, not let the debt to be stay in the future. what do you think?
+
+---
+
+but you said it is good for the furture changed?
+
+---
+
+I think filters may grow, but not much, may be add one or two kinds of filters.
+
+---
+
+I think full is better, if we refactor, we do it thoughtly. what do you think?
+
+---
+
+I agree, go ahead
