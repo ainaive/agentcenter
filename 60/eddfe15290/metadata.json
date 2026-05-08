@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "60eddfe15290",
+  "strategy": "manual-commit",
+  "branch": "feat/detail-page-redesign",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "components/extension/ext-tabs.test.tsx",
+    "components/extension/install-command.test.tsx",
+    "components/extension/save-button.test.tsx",
+    "components/extension/share-button.test.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/60/eddfe15290/0/metadata.json",
+      "transcript": "/60/eddfe15290/0/full.jsonl",
+      "content_hash": "/60/eddfe15290/0/content_hash.txt",
+      "prompt": "/60/eddfe15290/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 37,
+    "cache_creation_tokens": 17918,
+    "cache_read_tokens": 3110527,
+    "output_tokens": 11293,
+    "api_call_count": 22
+  }
+}

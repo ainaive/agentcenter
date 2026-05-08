@@ -1,0 +1,58 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "60eddfe15290",
+  "session_id": "97f6d50e-dbf3-4d70-ae6a-3a33889c36e7",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-08T07:50:31.293233Z",
+  "branch": "feat/detail-page-redesign",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "components/extension/ext-tabs.test.tsx",
+    "components/extension/install-command.test.tsx",
+    "components/extension/save-button.test.tsx",
+    "components/extension/share-button.test.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7[1m]",
+  "turn_id": "57277d3f25e8",
+  "checkpoint_transcript_start": 339,
+  "transcript_lines_at_start": 339,
+  "token_usage": {
+    "input_tokens": 37,
+    "cache_creation_tokens": 17918,
+    "cache_read_tokens": 3110527,
+    "output_tokens": 11293,
+    "api_call_count": 22
+  },
+  "session_metrics": {
+    "turn_count": 6
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-08T07:50:31.267788Z",
+    "agent_lines": 154,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 154,
+    "total_lines_changed": 154,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 154,
+      "agent_lines_removed": 0
+    }
+  ]
+}
