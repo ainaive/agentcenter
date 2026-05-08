@@ -1,0 +1,13 @@
+I have redesign the extension's detail page in Claude Design, please improve the implementation of extension's detail page. check the design file in : https://api.anthropic.com/v1/design/h/5qNnPHY-uSQE8XZVjak2OA?open_file=AgentCenter.html
+
+---
+
+continue
+
+---
+
+what's next?
+
+---
+
+create branch and commit first
