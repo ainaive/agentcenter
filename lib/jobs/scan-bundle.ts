@@ -1,29 +1,13 @@
 import { eq } from "drizzle-orm";
 import { unzipSync } from "fflate";
 import { parse } from "smol-toml";
-import { z } from "zod";
 
 import { inngest } from "./client";
 import { db } from "@/lib/db/client";
 import { files } from "@/lib/db/schema";
 import { recordScanResult, VersionStateError } from "@/lib/extensions/state";
 import { generatePresignedGetUrl } from "@/lib/storage/r2";
-
-const BundleManifestSchema = z.object({
-  extension: z.object({
-    slug: z.string().min(1).max(64),
-    name: z.string().min(1),
-    version: z.string().regex(/^\d+\.\d+\.\d+$/),
-    category: z.enum(["skills", "mcp", "slash", "plugins"]),
-    scope: z.enum(["personal", "org", "enterprise"]),
-    description: z.string().max(280),
-  }),
-  categorization: z.object({
-    funcCat: z.enum(["workTask", "business", "tools"]),
-    subCat: z.string().min(1),
-    l2: z.string().optional(),
-  }),
-});
+import { BundleManifestSchema } from "@/lib/validators/manifest";
 
 export const scanBundle = inngest.createFunction(
   {

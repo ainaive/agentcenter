@@ -15,6 +15,7 @@ const VALID_DEFAULTS = {
   slug: "my-skill",
   name: "My Skill",
   subCat: "search",
+  description: "Does things.",
 };
 
 describe("ManifestForm", () => {
@@ -30,14 +31,14 @@ describe("ManifestForm", () => {
     expect(screen.getByDisplayValue("1.0.0")).toBeInTheDocument();
   });
 
-  it("shows Required errors on submit when slug, name, and subCat are empty", async () => {
+  it("shows Required errors on submit when slug, name, subCat, and description are empty", async () => {
     const onSubmit = vi.fn();
     render(<ManifestForm onSubmit={onSubmit} />);
 
     await user.click(screen.getByRole("button", { name: "nextButton" }));
 
     const errors = await screen.findAllByText("Required");
-    expect(errors).toHaveLength(3); // slug, name, subCat
+    expect(errors).toHaveLength(4); // slug, name, subCat, description
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
@@ -103,6 +104,34 @@ describe("ManifestForm", () => {
 
     const selected = tagBtns.filter((b) => b.className.includes("bg-primary"));
     expect(selected).toHaveLength(8);
+  });
+
+  it("shows a min-length error for a 1- or 2-char slug", async () => {
+    render(<ManifestForm onSubmit={vi.fn()} defaultValues={VALID_DEFAULTS} />);
+
+    const slugInput = screen.getByPlaceholderText("my-extension") as HTMLInputElement;
+    await user.clear(slugInput);
+    await user.type(slugInput, "ab");
+    await user.click(screen.getByRole("button", { name: "nextButton" }));
+
+    await waitFor(() =>
+      expect(screen.getByText("Min 3 chars")).toBeInTheDocument(),
+    );
+  });
+
+  it("shows a min-length error for a 1-char name", async () => {
+    render(
+      <ManifestForm
+        onSubmit={vi.fn()}
+        defaultValues={{ ...VALID_DEFAULTS, name: "x" }}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "nextButton" }));
+
+    await waitFor(() =>
+      expect(screen.getByText("Min 2 chars")).toBeInTheDocument(),
+    );
   });
 
   it("pre-populates fields from defaultValues", () => {
