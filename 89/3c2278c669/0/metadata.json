@@ -1,0 +1,52 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "893c2278c669",
+  "session_id": "9558e00d-071a-4950-9d4d-a1dcf98934fa",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-08T02:22:36.633639Z",
+  "branch": "refactor/manifest-schema-core",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "lib/validators/manifest.ts",
+    "lib/jobs/scan-bundle.ts",
+    "lib/validators/manifest.test.ts",
+    "components/publish/manifest-form.tsx",
+    "components/publish/manifest-form.test.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7[1m]",
+  "turn_id": "4a3ea5d07086",
+  "checkpoint_transcript_start": 478,
+  "transcript_lines_at_start": 478,
+  "token_usage": {
+    "input_tokens": 57,
+    "cache_creation_tokens": 53719,
+    "cache_read_tokens": 6707848,
+    "output_tokens": 26991,
+    "api_call_count": 32
+  },
+  "session_metrics": {
+    "turn_count": 17
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-08T02:22:36.592316Z",
+    "agent_lines": 197,
+    "agent_removed": 84,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 197,
+    "total_lines_changed": 281,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}

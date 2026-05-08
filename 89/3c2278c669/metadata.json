@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "893c2278c669",
+  "strategy": "manual-commit",
+  "branch": "refactor/manifest-schema-core",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "components/publish/manifest-form.test.tsx",
+    "components/publish/manifest-form.tsx",
+    "lib/jobs/scan-bundle.ts",
+    "lib/validators/manifest.test.ts",
+    "lib/validators/manifest.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/89/3c2278c669/0/metadata.json",
+      "transcript": "/89/3c2278c669/0/full.jsonl",
+      "content_hash": "/89/3c2278c669/0/content_hash.txt",
+      "prompt": "/89/3c2278c669/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 57,
+    "cache_creation_tokens": 53719,
+    "cache_read_tokens": 6707848,
+    "output_tokens": 26991,
+    "api_call_count": 32
+  }
+}
