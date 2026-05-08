@@ -24,6 +24,14 @@
     "noReadme": "No README has been published for this extension yet.",
     "versionsTitle": "Versions",
     "noVersions": "No versions have been published yet. Once the upload wizard ships in Phase 10, version history lands here.",
+    "empty": {
+      "noResultsFor": "No results for “{query}”",
+      "noResultsFiltered": "No extensions match these filters",
+      "noExtensionsYet": "No extensions yet",
+      "hintAdjust": "Try a different search or relax some filters.",
+      "hintCheckBack": "New extensions land here as the marketplace grows.",
+      "clearFilters": "Clear filters"
+    },
     "errorBoundary": {
       "title": "Couldn't load extensions",
       "body": "We hit a snag reaching the marketplace. This is usually temporary — try again in a moment.",
@@ -251,7 +259,9 @@
   "publish": {
     "dashboard": {
       "title": "My Extensions",
-      "empty": "You haven't published any extensions yet.",
+      "empty": "Bundle your skill, MCP server, slash command, or plugin and share it with your team.",
+      "emptyTitle": "Nothing published yet",
+      "emptyCta": "Publish your first extension",
       "newButton": "New extension",
       "statusDraft": "Draft",
       "statusPublished": "Published",

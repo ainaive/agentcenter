@@ -24,6 +24,14 @@
     "noReadme": "该扩展尚未发布 README 文档。",
     "versionsTitle": "版本历史",
     "noVersions": "尚未发布任何版本。上传向导（阶段 10）上线后，版本历史将显示在此处。",
+    "empty": {
+      "noResultsFor": "没有“{query}”的结果",
+      "noResultsFiltered": "没有符合当前筛选条件的扩展",
+      "noExtensionsYet": "暂无扩展",
+      "hintAdjust": "试试其他关键词或调整筛选条件。",
+      "hintCheckBack": "市场不断扩充中，请稍后再来看看。",
+      "clearFilters": "清除筛选"
+    },
     "errorBoundary": {
       "title": "无法加载扩展",
       "body": "暂时无法访问市场，通常是临时性问题，请稍后再试。",
@@ -251,7 +259,9 @@
   "publish": {
     "dashboard": {
       "title": "我的扩展",
-      "empty": "您尚未发布任何扩展。",
+      "empty": "把你的技能、MCP 服务、斜杠命令或插件打包发布，分享给团队使用。",
+      "emptyTitle": "暂未发布",
+      "emptyCta": "发布第一个扩展",
       "newButton": "新建扩展",
       "statusDraft": "草稿",
       "statusPublished": "已发布",
