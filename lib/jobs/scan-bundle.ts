@@ -5,7 +5,8 @@ import { z } from "zod";
 
 import { inngest } from "./client";
 import { db } from "@/lib/db/client";
-import { extensionVersions, files } from "@/lib/db/schema";
+import { files } from "@/lib/db/schema";
+import { recordScanResult, VersionStateError } from "@/lib/extensions/state";
 import { generatePresignedGetUrl } from "@/lib/storage/r2";
 
 const BundleManifestSchema = z.object({
@@ -77,25 +78,33 @@ export const scanBundle = inngest.createFunction(
       scannedAt: new Date().toISOString(),
     };
 
+    // VersionStateError here means the version is no longer in `scanning` —
+    // typically a duplicate Inngest delivery for an already-scanned version.
+    // Treat as no-op so retries don't fail the function.
+    await step.run("record-scan-result", async () => {
+      try {
+        if (scanResult.ok) {
+          await recordScanResult(versionId, fileId, {
+            ok: true,
+            checksum: scanResult.checksum,
+            scanReport,
+          });
+        } else {
+          await recordScanResult(versionId, fileId, {
+            ok: false,
+            reason: scanResult.reason,
+            scanReport,
+          });
+        }
+      } catch (err) {
+        if (err instanceof VersionStateError) return;
+        throw err;
+      }
+    });
+
     if (!scanResult.ok) {
-      await step.run("mark-rejected", async () => {
-        await db.transaction(async (tx) => {
-          await tx.update(files).set({ scanStatus: "flagged", scanReport }).where(eq(files.id, fileId));
-          await tx.update(extensionVersions).set({ status: "rejected" }).where(eq(extensionVersions.id, versionId));
-        });
-      });
       return { ok: false, reason: scanResult.reason };
     }
-
-    await step.run("mark-clean", async () => {
-      await db.transaction(async (tx) => {
-        await tx
-          .update(files)
-          .set({ scanStatus: "clean", scanReport, checksumSha256: scanResult.checksum })
-          .where(eq(files.id, fileId));
-        await tx.update(extensionVersions).set({ status: "ready" }).where(eq(extensionVersions.id, versionId));
-      });
-    });
 
     await step.sendEvent("enqueue-index", {
       name: "extension/index.requested",

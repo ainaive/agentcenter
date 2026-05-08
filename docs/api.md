@@ -188,16 +188,23 @@ The CLI calls this *after* it has unzipped the bundle and written files locally 
 **Response**
 
 ```json
-{ "ok": true, "alreadyInstalled": false }
+{
+  "ok": true,
+  "installId": "9f2d…",
+  "isFirstInstall": true,
+  "version": "1.2.0"
+}
 ```
 
-If the user has already installed this extension on a previous run, `alreadyInstalled: true` and no counters are bumped.
+Every call records an `installs` row and bumps `downloadsCount`. `isFirstInstall` is `true` when this user has no prior install record for this extension; subsequent reinstalls and version upgrades return `false`. `version` is the resolved semver — if the request omitted `version` (or sent the legacy `"latest"` sentinel), this is the latest published version at the moment of install.
 
 **Errors**
 
 - `401 unauthenticated` — missing or invalid Bearer token.
-- `404 not_found` — slug doesn't exist.
 - `400 invalid_body` — body failed schema validation.
+- `404 not_found` — slug doesn't exist.
+- `422 no_published_version` — slug exists but has no `ready` version yet (only possible when `version` is omitted).
+- `500 internal_error` — unhandled server error.
 
 ## Versioning
 

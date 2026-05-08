@@ -104,7 +104,6 @@ Browser                          Vercel                          R2          Inn
    │                                │                              │   sendEvent("extension/index.requested")
    │                                │                              │             │
    │                                │                              │  reindex-search:
-   │                                │                              │   build search_vector,
    │                                │                              │   set extension visibility=published,
    │                                │                              │   revalidateTag("extensions")
 ```
@@ -112,6 +111,16 @@ Browser                          Vercel                          R2          Inn
 The upload goes browser → R2 directly (presigned PUT) — Vercel only signs the URL. The Inngest webhook lives at `/api/inngest`. Job source: `lib/jobs/scan-bundle.ts` and `lib/jobs/reindex-search.ts`.
 
 A note on `scan-bundle`: download + checksum + manifest parsing live in a single `step.run` rather than separate steps, because Inngest serializes step return values across boundaries and `Buffer` doesn't survive that round-trip.
+
+### Version state transitions
+
+`lib/extensions/state.ts` owns every transition of `extensionVersions.status`, `files.scanStatus`, and `extensions.visibility`. Three functions:
+
+- `submit(versionId)` — moves a version from `pending` to `scanning` (called by `submitForReview` before it dispatches the scan event).
+- `recordScanResult(versionId, fileId, result)` — applies the outcome of a bundle scan in one transaction; success sets `files.scanStatus='clean' + version.status='ready' + checksumSha256`, failure sets `'flagged' + 'rejected'`. The job calls this once with a discriminated `result`.
+- `publishVersion(versionId)` — flips `extensions.visibility='published'` and stamps both rows with `publishedAt`, returning the `extensionId` for the job's downstream `revalidateTag` and `extension/published` event.
+
+`extensions.search_vector` is a Postgres `GENERATED ALWAYS ... STORED` column (see `drizzle/0002_fts_search_vector.sql`); no application code writes it. The `reindex-search` job's earlier hand-rolled `to_tsvector` UPDATE was dead — the generated column always reflects the source content.
 
 ### Install (CLI path)
 
@@ -125,6 +134,8 @@ agentcenter install my-skill
 ```
 
 The web "Install" button takes the same conceptual path but goes through the `installExtension` server action instead of the public API: it bumps the same counters and records the same install event, so leaderboards stay consistent across surfaces.
+
+Both surfaces are thin wrappers around `recordInstall` in `lib/installs/record.ts`, which owns: extension lookup (by `id` from the web button or `slug` from the CLI), version resolution (an omitted version means "latest published" — `extension_versions` ordered by `publishedAt DESC` among `status='ready'`), the `installs` row insert, the `installed` collection upsert, and the atomic `downloadsCount` bump — all three writes go through `db.transaction`. Each call records a row, so `downloadsCount` is total install events; the `installed` collection is a separate, idempotent membership concept used by the UI's "Installed" view. Failures throw a typed `InstallError` (`extension_not_found`, `no_published_version`); wrappers translate to their surface (action union or HTTP status).
 
 ## Authentication
 

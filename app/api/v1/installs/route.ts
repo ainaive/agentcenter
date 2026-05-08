@@ -1,21 +1,15 @@
-import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
 import { z } from "zod/v4";
 
 import { authenticateBearerToken, jsonError } from "@/lib/api/auth";
-import { db } from "@/lib/db/client";
-import { installs } from "@/lib/db/schema/activity";
-import { extensions } from "@/lib/db/schema/extension";
-import {
-  getOrCreateSystemCollection,
-  isInCollection,
-  upsertCollectionItem,
-} from "@/lib/db/queries/collections";
+import { InstallError, recordInstall } from "@/lib/installs/record";
 
 export const runtime = "nodejs";
 
 const InstallBody = z.object({
   extensionSlug: z.string().min(1),
+  // CLI clients historically send "latest" as a sentinel; we resolve it to
+  // the actual published version inside recordInstall when omitted.
   version: z.string().default("latest"),
   // Informational — stored for analytics but not validated against a schema.
   agentName: z.string().optional(),
@@ -36,33 +30,22 @@ export async function POST(req: NextRequest) {
     return jsonError("Invalid request body.", 400, "invalid_body");
   }
 
-  const [ext] = await db
-    .select({ id: extensions.id, downloadsCount: extensions.downloadsCount })
-    .from(extensions)
-    .where(eq(extensions.slug, body.extensionSlug))
-    .limit(1);
+  const version = body.version === "latest" ? undefined : body.version;
 
-  if (!ext) return jsonError("Extension not found.", 404, "not_found");
-
-  const installedColId = await getOrCreateSystemCollection(user.id, "installed");
-  const already = await isInCollection(installedColId, ext.id);
-
-  if (!already) {
-    await db.insert(installs).values({
-      id: crypto.randomUUID(),
+  try {
+    const result = await recordInstall({
       userId: user.id,
-      extensionId: ext.id,
-      version: body.version,
+      extension: { slug: body.extensionSlug },
       source: "cli",
+      version,
     });
-
-    await upsertCollectionItem(installedColId, ext.id);
-
-    await db
-      .update(extensions)
-      .set({ downloadsCount: ext.downloadsCount + 1 })
-      .where(eq(extensions.id, ext.id));
+    return Response.json({ ok: true, ...result });
+  } catch (e) {
+    if (e instanceof InstallError) {
+      const status = e.code === "extension_not_found" ? 404 : 422;
+      return jsonError(e.code, status, e.code);
+    }
+    console.error("recordInstall failed", e);
+    return jsonError("internal_error", 500, "internal_error");
   }
-
-  return Response.json({ ok: true, alreadyInstalled: already });
 }
