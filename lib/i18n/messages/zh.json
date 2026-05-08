@@ -259,7 +259,7 @@
   "publish": {
     "dashboard": {
       "title": "我的扩展",
-      "empty": "把你的技能、MCP 服务、斜杠命令或插件打包发布，分享给团队使用。",
+      "empty": "把你的技能、MCP 服务器、斜杠命令或插件打包发布，分享给团队使用。",
       "emptyTitle": "暂未发布",
       "emptyCta": "发布第一个扩展",
       "newButton": "新建扩展",
