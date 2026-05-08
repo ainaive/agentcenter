@@ -1,0 +1,59 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "3f8e1fa0cf7c",
+  "session_id": "9558e00d-071a-4950-9d4d-a1dcf98934fa",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-08T01:19:49.746484Z",
+  "branch": "refactor/install-recording",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "app/api/v1/installs/route.ts",
+    "components/extension/install-button.test.tsx",
+    "lib/actions/install.ts",
+    "lib/installs/record.test.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7[1m]",
+  "turn_id": "517099f3bfd2",
+  "token_usage": {
+    "input_tokens": 82,
+    "cache_creation_tokens": 189277,
+    "cache_read_tokens": 2734274,
+    "output_tokens": 39966,
+    "api_call_count": 38
+  },
+  "session_metrics": {
+    "turn_count": 6
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-08T01:19:49.73711Z",
+    "agent_lines": 230,
+    "agent_removed": 76,
+    "human_added": 2,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 232,
+    "total_lines_changed": 308,
+    "agent_percentage": 99.35064935064936,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 104,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "lib/installs/record.ts": 104
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 334,
+      "agent_lines_removed": 76
+    }
+  ]
+}

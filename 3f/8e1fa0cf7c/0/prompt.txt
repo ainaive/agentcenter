@@ -1,0 +1,25 @@
+/improve-codebase-architecture
+
+---
+
+grill on install recording
+
+---
+
+Q1: b is good, Q2: a is good, Q3: a
+
+---
+
+Q4: a; Q5: c Q6: a
+
+---
+
+Q7: a Q8: a
+
+---
+
+ok, go ahead
+
+---
+
+continue

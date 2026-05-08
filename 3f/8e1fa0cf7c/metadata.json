@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "3f8e1fa0cf7c",
+  "strategy": "manual-commit",
+  "branch": "refactor/install-recording",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "app/api/v1/installs/route.ts",
+    "components/extension/install-button.test.tsx",
+    "lib/actions/install.ts",
+    "lib/installs/record.test.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/3f/8e1fa0cf7c/0/metadata.json",
+      "transcript": "/3f/8e1fa0cf7c/0/full.jsonl",
+      "content_hash": "/3f/8e1fa0cf7c/0/content_hash.txt",
+      "prompt": "/3f/8e1fa0cf7c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 82,
+    "cache_creation_tokens": 189277,
+    "cache_read_tokens": 2734274,
+    "output_tokens": 39966,
+    "api_call_count": 38
+  }
+}
