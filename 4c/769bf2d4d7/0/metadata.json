@@ -1,0 +1,54 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "4c769bf2d4d7",
+  "session_id": "9558e00d-071a-4950-9d4d-a1dcf98934fa",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-08T01:58:34.221628Z",
+  "branch": "refactor/install-recording",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs/api.md",
+    "lib/extensions/state.ts",
+    "lib/jobs/scan-bundle.ts",
+    "lib/installs/record.ts",
+    "app/api/v1/installs/route.ts",
+    "lib/extensions/state.test.ts",
+    "lib/installs/record.test.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7[1m]",
+  "turn_id": "cbfd1117870c",
+  "checkpoint_transcript_start": 330,
+  "transcript_lines_at_start": 330,
+  "token_usage": {
+    "input_tokens": 41,
+    "cache_creation_tokens": 44077,
+    "cache_read_tokens": 4038999,
+    "output_tokens": 28941,
+    "api_call_count": 26
+  },
+  "session_metrics": {
+    "turn_count": 12
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-08T01:58:33.643452Z",
+    "agent_lines": 206,
+    "agent_removed": 80,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 206,
+    "total_lines_changed": 286,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    }
+  ]
+}
