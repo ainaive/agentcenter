@@ -13,16 +13,22 @@ export function ShareButton({ url, label, copiedLabel }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
 
   async function handleClick() {
-    try {
-      if (navigator.share) {
+    // Use the native share sheet when the platform exposes it. Any error from
+    // share() (including AbortError when the user dismisses the sheet) means
+    // the user has already seen and acted on the share UI — don't silently
+    // overwrite their clipboard as a "fallback".
+    if (typeof navigator.share === "function") {
+      try {
         await navigator.share({ url });
-        return;
+      } catch {
+        // user cancelled or share rejected — stop here
       }
-    } catch {
-      // user cancelled or share unsupported — fall through to clipboard
+      return;
     }
+
+    if (typeof navigator.clipboard?.writeText !== "function") return;
     try {
-      await navigator.clipboard?.writeText(url);
+      await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 1400);
     } catch {

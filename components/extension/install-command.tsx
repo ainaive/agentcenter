@@ -16,8 +16,12 @@ export function InstallCommand({
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
+    // `await undefined` resolves successfully, so `?.writeText(...)` would
+    // flip the label to Copied even when no copy actually happened. Bail
+    // early when the API isn't there.
+    if (typeof navigator.clipboard?.writeText !== "function") return;
     try {
-      await navigator.clipboard?.writeText(command);
+      await navigator.clipboard.writeText(command);
       setCopied(true);
       setTimeout(() => setCopied(false), 1400);
     } catch {

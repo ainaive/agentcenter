@@ -35,4 +35,15 @@ describe("ExtTabs", () => {
     expect(screen.getByText("setup body")).toBeInTheDocument();
     expect(screen.queryByText("overview body")).not.toBeInTheDocument();
   });
+
+  it("emits proper ARIA wiring for assistive tech", () => {
+    render(<ExtTabs tabs={tabs} />);
+
+    const tablist = screen.getByRole("tablist");
+    expect(tablist).toHaveAttribute("data-orientation", "horizontal");
+
+    const overview = screen.getByRole("tab", { name: "Overview" });
+    expect(overview).toHaveAttribute("aria-selected", "true");
+    expect(overview).toHaveAttribute("aria-controls");
+  });
 });

@@ -1,6 +1,7 @@
 import { Code2, Globe } from "lucide-react";
 
 import type { ExtensionDetail } from "@/lib/db/queries/extensions";
+import { safeExternalUrl } from "@/lib/utils";
 import type { Locale } from "@/types";
 
 interface ExtAboutCardProps {
@@ -80,39 +81,44 @@ export function ExtAboutCard({
         <Definition bold>{scopeValue}</Definition>
       </dl>
 
-      {(ext.homepageUrl || ext.repoUrl) && (
-        <>
-          <div className="bg-border my-3.5 h-px" />
-          <div className="flex flex-col gap-1">
-            {ext.homepageUrl && (
-              <a
-                href={ext.homepageUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-foreground hover:text-primary flex items-center gap-2 py-1 text-[12.5px] transition-colors"
-              >
-                <Globe className="text-muted-foreground size-3.5 shrink-0" />
-                <span className="truncate font-mono text-[11.5px]">
-                  {ext.homepageUrl.replace(/^https?:\/\//, "")}
-                </span>
-              </a>
-            )}
-            {ext.repoUrl && (
-              <a
-                href={ext.repoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-foreground hover:text-primary flex items-center gap-2 py-1 text-[12.5px] transition-colors"
-              >
-                <Code2 className="text-muted-foreground size-3.5 shrink-0" />
-                <span className="truncate font-mono text-[11.5px]">
-                  {ext.repoUrl.replace(/^https?:\/\//, "")}
-                </span>
-              </a>
-            )}
-          </div>
-        </>
-      )}
+      {(() => {
+        const safeHomepage = safeExternalUrl(ext.homepageUrl);
+        const safeRepo = safeExternalUrl(ext.repoUrl);
+        if (!safeHomepage && !safeRepo) return null;
+        return (
+          <>
+            <div className="bg-border my-3.5 h-px" />
+            <div className="flex flex-col gap-1">
+              {safeHomepage && (
+                <a
+                  href={safeHomepage}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-foreground hover:text-primary flex items-center gap-2 py-1 text-[12.5px] transition-colors"
+                >
+                  <Globe className="text-muted-foreground size-3.5 shrink-0" />
+                  <span className="truncate font-mono text-[11.5px]">
+                    {safeHomepage.replace(/^https?:\/\//, "")}
+                  </span>
+                </a>
+              )}
+              {safeRepo && (
+                <a
+                  href={safeRepo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-foreground hover:text-primary flex items-center gap-2 py-1 text-[12.5px] transition-colors"
+                >
+                  <Code2 className="text-muted-foreground size-3.5 shrink-0" />
+                  <span className="truncate font-mono text-[11.5px]">
+                    {safeRepo.replace(/^https?:\/\//, "")}
+                  </span>
+                </a>
+              )}
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import { ChevronLeft, Check, Tag as TagIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { headers } from "next/headers";
 
 import { ExtAboutCard } from "@/components/extension/ext-about-card";
 import { ExtHero } from "@/components/extension/ext-hero";
@@ -59,12 +58,13 @@ export default async function ExtensionDetailPage({
     getRelatedExtensions(ext.id, ext.category),
   ]);
 
-  const reqHeaders = await headers();
-  const host = reqHeaders.get("x-forwarded-host") ?? reqHeaders.get("host");
-  const proto = reqHeaders.get("x-forwarded-proto") ?? "https";
-  const shareUrl = host
-    ? `${proto}://${host}/${locale}/extensions/${ext.slug}`
-    : `/${locale}/extensions/${ext.slug}`;
+  // Build the share URL from a trusted server-side base — never from
+  // request headers, which can be spoofed when the edge layer doesn't
+  // rewrite x-forwarded-host. Falls back to a relative URL when the env
+  // is unset (the share button still copies a usable in-context link).
+  const shareBase = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") ?? "";
+  const sharePath = `/${locale}/extensions/${ext.slug}`;
+  const shareUrl = shareBase ? `${shareBase}${sharePath}` : sharePath;
 
   const installCmd = `agentcenter install ${ext.slug}`;
   const compatLines = compatRows(
