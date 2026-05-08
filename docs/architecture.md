@@ -46,7 +46,7 @@ app/
 
 Server components render the static shell, fetch data via Drizzle, and stream HTML. Client components are reserved for interactive bits — filter chips, the install button, the upload wizard, the user menu — and are marked with `"use client"`. The pattern is "server frame, client islands."
 
-The filter bar (`components/filters/filter-bar.tsx`) is a server component but composes client islands (`FilterChips`, `SortSelect`, `DeptPicker`, `TagDrawer`). Each island reads/writes URL search params via `useFilterUrl`, so filter state lives in the URL — no global store, no context, and back/forward works.
+The filter bar (`components/filters/filter-bar.tsx`) is a server component but composes client islands (`FilterChips`, `SortSelect`, `DeptPicker`, `TagDrawer`). Each island calls the typed `useFilters()` hook (`lib/hooks/use-filters.ts`), which exposes a parsed `filters` object and an `update(partial)` setter. Filter state lives in the URL — no global store, no context, and back/forward works. The hook delegates URL parsing/serializing to `parseFilters` / `serializeFilters` in `lib/validators/filters.ts` so the same conventions apply to both server-side reads (in RSCs) and client-side writes.
 
 ### i18n
 
