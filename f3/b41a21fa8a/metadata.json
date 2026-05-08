@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "f3b41a21fa8a",
+  "strategy": "manual-commit",
+  "branch": "refactor/typed-filters",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "lib/hooks/use-filters.ts",
+    "lib/validators/filters.test.ts",
+    "lib/validators/filters.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/f3/b41a21fa8a/0/metadata.json",
+      "transcript": "/f3/b41a21fa8a/0/full.jsonl",
+      "content_hash": "/f3/b41a21fa8a/0/content_hash.txt",
+      "prompt": "/f3/b41a21fa8a/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 24,
+    "cache_creation_tokens": 12683,
+    "cache_read_tokens": 4144201,
+    "output_tokens": 8885,
+    "api_call_count": 14
+  }
+}
