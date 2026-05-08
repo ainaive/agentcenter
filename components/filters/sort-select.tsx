@@ -1,6 +1,7 @@
 "use client";
 
-import { useFilterUrl } from "@/lib/hooks/use-filter-url";
+import { useFilters } from "@/lib/hooks/use-filters";
+import type { Filters } from "@/lib/validators/filters";
 
 const SORTS = [
   { key: "downloads", label: "Downloads" },
@@ -9,15 +10,15 @@ const SORTS = [
 ] as const;
 
 export function SortSelect() {
-  const { get, set } = useFilterUrl();
-  const active = get("sort") ?? "downloads";
+  const { filters, update } = useFilters();
+  const active = filters.sort ?? "downloads";
 
   return (
     <label className="text-muted-foreground flex items-center gap-2 text-[12px]">
       <span className="shrink-0 font-semibold">Sort by:</span>
       <select
         value={active}
-        onChange={(e) => set("sort", e.target.value)}
+        onChange={(e) => update({ sort: e.target.value as Filters["sort"] })}
         className="bg-muted border-input text-foreground focus-visible:border-ring focus-visible:ring-ring/30 cursor-pointer rounded-md border px-2 py-1 text-[12px] outline-none focus-visible:ring-3"
       >
         {SORTS.map((s) => (

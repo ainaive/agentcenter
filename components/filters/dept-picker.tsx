@@ -13,27 +13,26 @@ import {
   deptPath,
   MY_DEPT_ID,
 } from "@/lib/data/departments";
-import { useFilterUrl } from "@/lib/hooks/use-filter-url";
+import { useFilters } from "@/lib/hooks/use-filters";
 import { cn } from "@/lib/utils";
 import type { Department } from "@/types";
 
 const ALL_DEPTS_TOKEN = "__all";
 
 export function DeptPicker() {
-  const { get, set } = useFilterUrl();
-  const raw = get("dept");
+  const { filters, update } = useFilters();
   // Default = MY_DEPT_ID per the prototype's behavior; explicit "__all"
   // disables the filter.
-  const active = raw ?? MY_DEPT_ID;
+  const active = filters.dept ?? MY_DEPT_ID;
   const isAll = active === ALL_DEPTS_TOKEN;
   const isMine = active === MY_DEPT_ID;
   const path = isAll ? null : deptPath(active, "en");
 
   function pick(id: string) {
     if (id === MY_DEPT_ID) {
-      set("dept", null); // null falls back to default = MY_DEPT_ID
+      update({ dept: undefined }); // undefined falls back to default = MY_DEPT_ID
     } else {
-      set("dept", id);
+      update({ dept: id });
     }
   }
 

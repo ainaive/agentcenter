@@ -1,6 +1,14 @@
 import { describe, it, expect } from "vitest";
 
-import { parseFilters, pageOffset, PAGE_SIZE, filtersSchema } from "@/lib/validators/filters";
+import {
+  parseFilters,
+  pageOffset,
+  PAGE_SIZE,
+  filtersSchema,
+  searchParamsToInput,
+  serializeFilters,
+  type Filters,
+} from "@/lib/validators/filters";
 
 describe("filtersSchema", () => {
   it("accepts valid filters", () => {
@@ -93,6 +101,100 @@ describe("parseFilters", () => {
     expect(parseFilters({ dept: "eng.cloud" }).dept).toBe("eng.cloud");
     expect(parseFilters({ dept: "__all" }).dept).toBe("__all");
   });
+});
+
+describe("searchParamsToInput", () => {
+  it("returns single values as strings", () => {
+    expect(
+      searchParamsToInput(new URLSearchParams("category=skills&scope=personal")),
+    ).toEqual({ category: "skills", scope: "personal" });
+  });
+
+  it("accumulates repeated keys into an array (?tags=a&tags=b)", () => {
+    expect(
+      searchParamsToInput(new URLSearchParams("tags=a&tags=b")),
+    ).toEqual({ tags: ["a", "b"] });
+  });
+
+  it("accumulates three+ repeats into the same array", () => {
+    expect(
+      searchParamsToInput(new URLSearchParams("tags=a&tags=b&tags=c")),
+    ).toEqual({ tags: ["a", "b", "c"] });
+  });
+
+  it("preserves a comma-joined single value as one string (the validator splits later)", () => {
+    expect(
+      searchParamsToInput(new URLSearchParams("tags=a%2Cb")),
+    ).toEqual({ tags: "a,b" });
+  });
+
+  it("returns empty object for empty params", () => {
+    expect(searchParamsToInput(new URLSearchParams())).toEqual({});
+  });
+});
+
+describe("serializeFilters", () => {
+  it("returns empty params for an empty object", () => {
+    expect(serializeFilters({}).toString()).toBe("");
+  });
+
+  it("encodes scalar fields", () => {
+    const out = serializeFilters({ category: "skills", scope: "personal" });
+    expect(out.get("category")).toBe("skills");
+    expect(out.get("scope")).toBe("personal");
+  });
+
+  it("comma-joins array fields", () => {
+    expect(serializeFilters({ tags: ["a", "b"] }).get("tags")).toBe("a,b");
+  });
+
+  it("omits keys whose value is undefined", () => {
+    const out = serializeFilters({ category: "skills", scope: undefined });
+    expect(out.has("scope")).toBe(false);
+    expect(out.get("category")).toBe("skills");
+  });
+
+  it("omits keys whose value is an empty array", () => {
+    expect(serializeFilters({ tags: [] }).has("tags")).toBe(false);
+  });
+
+  it("encodes page as a string", () => {
+    expect(serializeFilters({ page: 4 }).get("page")).toBe("4");
+  });
+});
+
+describe("parseFilters / serializeFilters round trip", () => {
+  const cases: Filters[] = [
+    {},
+    { category: "skills" },
+    { category: "mcp", scope: "org", sort: "stars", page: 2 },
+    { tags: ["search", "api"], tagMatch: "all" },
+    { q: "vector db", filter: "trending" },
+    {
+      category: "skills",
+      scope: "personal",
+      funcCat: "workTask",
+      subCat: "search",
+      l2: "backend",
+      dept: "eng.cloud",
+      tags: ["a", "b"],
+      tagMatch: "any",
+      filter: "official",
+      sort: "recent",
+      page: 5,
+      q: "hello",
+    },
+  ];
+
+  for (const input of cases) {
+    it(`round-trips ${JSON.stringify(input)}`, () => {
+      const params = serializeFilters(input);
+      const back = parseFilters(
+        Object.fromEntries(params.entries()) as Record<string, string>,
+      );
+      expect(back).toEqual(input);
+    });
+  }
 });
 
 describe("pageOffset", () => {

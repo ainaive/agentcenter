@@ -1,6 +1,7 @@
 "use client";
 
-import { useFilterUrl } from "@/lib/hooks/use-filter-url";
+import { useFilters } from "@/lib/hooks/use-filters";
+import type { Filters } from "@/lib/validators/filters";
 import { cn } from "@/lib/utils";
 
 const SCOPES = [
@@ -11,8 +12,8 @@ const SCOPES = [
 ] as const;
 
 export function ScopePills() {
-  const { get, set } = useFilterUrl();
-  const active = get("scope") ?? "all";
+  const { filters, update } = useFilters();
+  const active = filters.scope ?? "all";
 
   return (
     <div className="flex items-center gap-2">
@@ -26,7 +27,11 @@ export function ScopePills() {
             <button
               key={s.key}
               type="button"
-              onClick={() => set("scope", s.key === "all" ? null : s.key)}
+              onClick={() =>
+                update({
+                  scope: s.key === "all" ? undefined : (s.key as Filters["scope"]),
+                })
+              }
               className={cn(
                 "rounded-full border px-3 py-1 text-[12px] font-semibold transition",
                 isActive

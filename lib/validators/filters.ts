@@ -51,3 +51,44 @@ export function parseFilters(
 export function pageOffset(page: number | undefined) {
   return ((page ?? 1) - 1) * PAGE_SIZE;
 }
+
+/**
+ * Adapter from `URLSearchParams` (the runtime shape) to the `Record` shape
+ * `parseFilters` consumes. Repeated keys (`?tags=a&tags=b`) accumulate into
+ * an array; `serializeFilters` always emits comma-joined, but external
+ * links may use the array form and the validator already handles both.
+ */
+export function searchParamsToInput(
+  searchParams: URLSearchParams,
+): Record<string, string | string[]> {
+  const out: Record<string, string | string[]> = {};
+  for (const [key, value] of searchParams.entries()) {
+    const prev = out[key];
+    if (prev === undefined) {
+      out[key] = value;
+    } else if (Array.isArray(prev)) {
+      prev.push(value);
+    } else {
+      out[key] = [prev, value];
+    }
+  }
+  return out;
+}
+
+/**
+ * Inverse of `parseFilters`. Encodes typed filters back into URL search
+ * params using the same conventions parseFilters consumes — comma-joined
+ * arrays for `tags`, omitted keys for undefined / empty values.
+ */
+export function serializeFilters(filters: Partial<Filters>): URLSearchParams {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(filters)) {
+    if (value === undefined || value === "" || value === null) continue;
+    if (Array.isArray(value)) {
+      if (value.length > 0) params.set(key, value.join(","));
+    } else {
+      params.set(key, String(value));
+    }
+  }
+  return params;
+}
