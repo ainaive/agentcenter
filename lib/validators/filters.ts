@@ -51,3 +51,21 @@ export function parseFilters(
 export function pageOffset(page: number | undefined) {
   return ((page ?? 1) - 1) * PAGE_SIZE;
 }
+
+/**
+ * Inverse of `parseFilters`. Encodes typed filters back into URL search
+ * params using the same conventions parseFilters consumes — comma-joined
+ * arrays for `tags`, omitted keys for undefined / empty values.
+ */
+export function serializeFilters(filters: Partial<Filters>): URLSearchParams {
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(filters)) {
+    if (value === undefined || value === "" || value === null) continue;
+    if (Array.isArray(value)) {
+      if (value.length > 0) params.set(key, value.join(","));
+    } else {
+      params.set(key, String(value));
+    }
+  }
+  return params;
+}

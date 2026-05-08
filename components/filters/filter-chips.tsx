@@ -1,6 +1,7 @@
 "use client";
 
-import { useFilterUrl } from "@/lib/hooks/use-filter-url";
+import { useFilters } from "@/lib/hooks/use-filters";
+import type { Filters } from "@/lib/validators/filters";
 import { cn } from "@/lib/utils";
 
 const CHIPS = [
@@ -12,8 +13,8 @@ const CHIPS = [
 ] as const;
 
 export function FilterChips() {
-  const { get, set } = useFilterUrl();
-  const active = get("filter") ?? "all";
+  const { filters, update } = useFilters();
+  const active = filters.filter ?? "all";
 
   return (
     <div className="flex flex-wrap gap-1.5">
@@ -23,7 +24,11 @@ export function FilterChips() {
           <button
             key={c.key}
             type="button"
-            onClick={() => set("filter", c.key === "all" ? null : c.key)}
+            onClick={() =>
+              update({
+                filter: c.key === "all" ? undefined : (c.key as Filters["filter"]),
+              })
+            }
             className={cn(
               "rounded-full border px-3 py-1 text-[12px] font-semibold transition",
               isActive

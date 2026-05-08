@@ -4,7 +4,7 @@ import { ChevronDown, X } from "lucide-react";
 import { useState } from "react";
 
 import type { TagWithCount } from "@/lib/db/queries/tags";
-import { useFilterUrl } from "@/lib/hooks/use-filter-url";
+import { useFilters } from "@/lib/hooks/use-filters";
 import { cn } from "@/lib/utils";
 
 interface TagDrawerProps {
@@ -14,18 +14,17 @@ interface TagDrawerProps {
 const VISIBLE_DEFAULT = 14;
 
 export function TagDrawer({ tags }: TagDrawerProps) {
-  const { get, getMulti, set, setMulti } = useFilterUrl();
-  const active = getMulti("tags");
-  const tagMatch = get("tagMatch") ?? "any";
+  const { filters, update } = useFilters();
+  const active = filters.tags ?? [];
+  const tagMatch = filters.tagMatch ?? "any";
   const initiallyOpen = active.length > 0;
   const [open, setOpen] = useState(initiallyOpen);
   const [showAll, setShowAll] = useState(false);
 
   function toggle(id: string) {
-    setMulti(
-      "tags",
-      active.includes(id) ? active.filter((t) => t !== id) : [...active, id],
-    );
+    update({
+      tags: active.includes(id) ? active.filter((t) => t !== id) : [...active, id],
+    });
   }
 
   const visible = showAll ? tags : tags.slice(0, VISIBLE_DEFAULT);
@@ -108,7 +107,7 @@ export function TagDrawer({ tags }: TagDrawerProps) {
                     key={m}
                     type="button"
                     onClick={() =>
-                      set("tagMatch", m === "any" ? null : m)
+                      update({ tagMatch: m === "any" ? undefined : m })
                     }
                     className={cn(
                       "rounded px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase transition",
@@ -123,7 +122,7 @@ export function TagDrawer({ tags }: TagDrawerProps) {
               </div>
               <button
                 type="button"
-                onClick={() => setMulti("tags", [])}
+                onClick={() => update({ tags: undefined })}
                 className="border-border text-muted-foreground hover:text-foreground inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition"
               >
                 <X className="size-3" />
