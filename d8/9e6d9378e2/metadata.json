@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "d89e6d9378e2",
+  "strategy": "manual-commit",
+  "branch": "fix/listing-error-boundary",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "app/[locale]/error.tsx",
+    "app/[locale]/extensions/error.tsx",
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/d8/9e6d9378e2/0/metadata.json",
+      "transcript": "/d8/9e6d9378e2/0/full.jsonl",
+      "content_hash": "/d8/9e6d9378e2/0/content_hash.txt",
+      "prompt": "/d8/9e6d9378e2/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 61,
+    "cache_creation_tokens": 26486,
+    "cache_read_tokens": 6420081,
+    "output_tokens": 16062,
+    "api_call_count": 31
+  }
+}
