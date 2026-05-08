@@ -1,0 +1,23 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "e5b07f9aa36c",
+  "strategy": "manual-commit",
+  "branch": "docs/post-refactor-cleanup",
+  "checkpoints_count": 2,
+  "files_touched": null,
+  "sessions": [
+    {
+      "metadata": "/e5/b07f9aa36c/0/metadata.json",
+      "transcript": "/e5/b07f9aa36c/0/full.jsonl",
+      "content_hash": "/e5/b07f9aa36c/0/content_hash.txt",
+      "prompt": "/e5/b07f9aa36c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2075,
+    "cache_creation_tokens": 659350,
+    "cache_read_tokens": 36396227,
+    "output_tokens": 168557,
+    "api_call_count": 194
+  }
+}
