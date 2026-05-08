@@ -110,7 +110,6 @@ export default async function ExtensionDetailPage({
       label: t("tabs.reviews"),
       content: (
         <EmptyPanel
-          icon="reviews"
           message={t("emptyReviews")}
           ctaLabel={t("writeReview")}
         />
@@ -346,17 +345,18 @@ function VersionsPanel({
 }
 
 function EmptyPanel({
-  icon,
   message,
   ctaLabel,
 }: {
-  icon: "reviews";
   message: string;
   ctaLabel: string;
 }) {
   return (
     <div className="border-border bg-card/40 flex flex-col items-center gap-4 rounded-lg border border-dashed py-12 text-center">
-      <TagIcon className="text-muted-foreground/60 size-7" />
+      <TagIcon
+        aria-hidden="true"
+        className="text-muted-foreground/60 size-7"
+      />
       <p className="text-muted-foreground max-w-sm text-[13.5px]">{message}</p>
       <button
         type="button"
@@ -366,7 +366,6 @@ function EmptyPanel({
       >
         + {ctaLabel}
       </button>
-      <span className="sr-only">{icon}</span>
     </div>
   );
 }
