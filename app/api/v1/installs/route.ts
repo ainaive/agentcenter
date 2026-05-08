@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
       const status = e.code === "extension_not_found" ? 404 : 422;
       return jsonError(e.code, status, e.code);
     }
-    throw e;
+    console.error("recordInstall failed", e);
+    return jsonError("internal_error", 500, "internal_error");
   }
 }

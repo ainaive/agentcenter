@@ -63,29 +63,34 @@ export async function recordInstall(
           eq(extensionVersions.status, "ready"),
         ),
       )
-      .orderBy(desc(extensionVersions.publishedAt))
+      // createdAt as a deterministic tiebreaker when publishedAt collides
+      // (rapid publishes, manual backfills).
+      .orderBy(
+        desc(extensionVersions.publishedAt),
+        desc(extensionVersions.createdAt),
+      )
       .limit(1);
     if (!latest) throw new InstallError("no_published_version");
     version = latest.version;
   }
 
   const installedColId = await getOrCreateSystemCollection(userId, "installed");
-
-  const prior = await db
-    .select({ id: installs.id })
-    .from(installs)
-    .where(and(eq(installs.userId, userId), eq(installs.extensionId, extensionId)))
-    .limit(1);
-  const isFirstInstall = prior.length === 0;
-
   const installId = crypto.randomUUID();
+  const resolvedVersion = version;
 
-  await db.transaction(async (tx) => {
+  const isFirstInstall = await db.transaction(async (tx) => {
+    const prior = await tx
+      .select({ id: installs.id })
+      .from(installs)
+      .where(and(eq(installs.userId, userId), eq(installs.extensionId, extensionId)))
+      .limit(1);
+    const isFirst = prior.length === 0;
+
     await tx.insert(installs).values({
       id: installId,
       userId,
       extensionId,
-      version: version!,
+      version: resolvedVersion,
       source,
     });
 
@@ -98,7 +103,9 @@ export async function recordInstall(
       .update(extensions)
       .set({ downloadsCount: sql`${extensions.downloadsCount} + 1` })
       .where(eq(extensions.id, extensionId));
+
+    return isFirst;
   });
 
-  return { installId, isFirstInstall, version };
+  return { installId, isFirstInstall, version: resolvedVersion };
 }

@@ -19,12 +19,20 @@ import {
   VersionStateError,
 } from "@/lib/extensions/state";
 
-// Build a chain: db.update(table).set(values).where(predicate) → resolved.
-// Returns spies for set/where so tests can assert what was written.
-function updateChain() {
-  const where = vi.fn().mockResolvedValue(undefined);
+// Build a chain: update(table).set(values).where(predicate).returning(cols)
+// Resolves to `returnedRows`.
+function updateChain(returnedRows: unknown[] = []) {
+  const returning = vi.fn().mockResolvedValue(returnedRows);
+  const where = vi
+    .fn()
+    .mockReturnValue({ returning, then: undefined as unknown as never });
+  // For chains that don't call .returning(), the awaited shape is the where().
+  // We wire it so `await chain.where(...)` resolves to undefined — Drizzle's
+  // shape — by also making `where` thenable-friendly. The simpler path: tests
+  // for non-returning updates just don't await directly here; we resolve via
+  // a custom helper below.
   const set = vi.fn().mockReturnValue({ where });
-  return { call: { set }, set, where };
+  return { set, where, returning };
 }
 
 // Build a select chain ending in .limit(rows).
@@ -32,12 +40,15 @@ function selectChain(rows: unknown[]) {
   const limit = vi.fn().mockResolvedValue(rows);
   const where = vi.fn().mockReturnValue({ limit });
   const from = vi.fn().mockReturnValue({ where });
-  return { from };
+  return { from, where, limit };
 }
 
-// A fake tx with the same shape as db, recording each update's set/where calls.
+// Fake tx exposing the same .update(...).set(...).where(...) shape.
 function makeTx() {
-  const updates: Array<{ set: ReturnType<typeof vi.fn>; where: ReturnType<typeof vi.fn> }> = [];
+  const updates: Array<{
+    set: ReturnType<typeof vi.fn>;
+    where: ReturnType<typeof vi.fn>;
+  }> = [];
   const update = vi.fn().mockImplementation(() => {
     const where = vi.fn().mockResolvedValue(undefined);
     const set = vi.fn().mockReturnValue({ where });
@@ -52,21 +63,38 @@ beforeEach(() => {
 });
 
 describe("submit", () => {
-  it("flips version status to scanning", async () => {
-    const chain = updateChain();
-    updateMock.mockReturnValue(chain.call);
+  it("flips version status when current state is pending", async () => {
+    const chain = updateChain([{ id: "v1" }]);
+    updateMock.mockReturnValue({ set: chain.set });
 
     await submit("v1");
 
     expect(chain.set).toHaveBeenCalledWith({ status: "scanning" });
+    // `where` must be called with a predicate (the and(eq, eq) clause).
+    // We can't introspect the SQL builder directly, but we assert the call
+    // happened with a non-undefined argument.
     expect(chain.where).toHaveBeenCalled();
+    expect(chain.where.mock.calls[0][0]).toBeDefined();
+    expect(chain.returning).toHaveBeenCalled();
+  });
+
+  it("throws VersionStateError when no rows match (wrong state or missing)", async () => {
+    const chain = updateChain([]); // returning -> no rows
+    updateMock.mockReturnValue({ set: chain.set });
+
+    const err = await submit("v1").catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(VersionStateError);
+    expect((err as VersionStateError).code).toBe("version_not_found");
   });
 });
 
 describe("recordScanResult", () => {
-  it("writes clean + ready for a successful scan", async () => {
+  it("writes clean + ready when version is currently scanning", async () => {
+    selectMock.mockReturnValue(selectChain([{ status: "scanning" }]));
     const { tx, updates } = makeTx();
-    transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => cb(tx));
+    transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
+      cb(tx),
+    );
 
     await recordScanResult("v1", "f1", {
       ok: true,
@@ -80,12 +108,17 @@ describe("recordScanResult", () => {
       scanReport: { foo: "bar" },
       checksumSha256: "abc123",
     });
+    expect(updates[0].where).toHaveBeenCalled();
     expect(updates[1].set).toHaveBeenCalledWith({ status: "ready" });
+    expect(updates[1].where).toHaveBeenCalled();
   });
 
-  it("writes flagged + rejected for a failed scan", async () => {
+  it("writes flagged + rejected when version is scanning and scan failed", async () => {
+    selectMock.mockReturnValue(selectChain([{ status: "scanning" }]));
     const { tx, updates } = makeTx();
-    transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => cb(tx));
+    transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
+      cb(tx),
+    );
 
     await recordScanResult("v1", "f1", {
       ok: false,
@@ -100,26 +133,52 @@ describe("recordScanResult", () => {
     });
     expect(updates[1].set).toHaveBeenCalledWith({ status: "rejected" });
   });
+
+  it("throws when version is missing", async () => {
+    selectMock.mockReturnValue(selectChain([]));
+    const err = await recordScanResult("v1", "f1", {
+      ok: true,
+      checksum: "x",
+      scanReport: {},
+    }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(VersionStateError);
+    expect(transactionMock).not.toHaveBeenCalled();
+  });
+
+  it("throws when version is already terminal (idempotent retry path)", async () => {
+    selectMock.mockReturnValue(selectChain([{ status: "ready" }]));
+    const err = await recordScanResult("v1", "f1", {
+      ok: true,
+      checksum: "x",
+      scanReport: {},
+    }).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(VersionStateError);
+    expect(transactionMock).not.toHaveBeenCalled();
+  });
 });
 
 describe("publishVersion", () => {
-  it("updates extension + version, returns extensionId", async () => {
-    selectMock.mockReturnValue(selectChain([{ extensionId: "ext-7" }]));
+  it("updates extension + version when version is ready, returns extensionId", async () => {
+    selectMock.mockReturnValue(
+      selectChain([{ extensionId: "ext-7", status: "ready" }]),
+    );
     const { tx, updates } = makeTx();
-    transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => cb(tx));
+    transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
+      cb(tx),
+    );
 
     const result = await publishVersion("v1");
 
     expect(result).toEqual({ extensionId: "ext-7" });
     expect(updates).toHaveLength(2);
-    // first update: extensions
     expect(updates[0].set).toHaveBeenCalledWith(
       expect.objectContaining({ visibility: "published" }),
     );
-    // second update: extension_versions
+    expect(updates[0].where).toHaveBeenCalled();
     expect(updates[1].set).toHaveBeenCalledWith(
       expect.objectContaining({ publishedAt: expect.any(Date) }),
     );
+    expect(updates[1].where).toHaveBeenCalled();
   });
 
   it("throws VersionStateError when the version is missing", async () => {
@@ -128,5 +187,16 @@ describe("publishVersion", () => {
     const err = await publishVersion("missing").catch((e: unknown) => e);
     expect(err).toBeInstanceOf(VersionStateError);
     expect((err as VersionStateError).code).toBe("version_not_found");
+    expect(transactionMock).not.toHaveBeenCalled();
+  });
+
+  it("throws when version is not yet ready", async () => {
+    selectMock.mockReturnValue(
+      selectChain([{ extensionId: "ext-7", status: "scanning" }]),
+    );
+
+    const err = await publishVersion("v1").catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(VersionStateError);
+    expect(transactionMock).not.toHaveBeenCalled();
   });
 });

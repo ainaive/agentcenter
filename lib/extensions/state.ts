@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
 import { extensions, extensionVersions, files } from "@/lib/db/schema";
@@ -7,6 +7,14 @@ export type ScanResult =
   | { ok: true; checksum: string; scanReport: unknown }
   | { ok: false; reason: string; scanReport: unknown };
 
+// Thrown when a transition is requested against a row that is missing or
+// not in the expected source state. The state machine is:
+//
+//   pending --submit-->   scanning --recordScanResult--> ready | rejected
+//   ready   --publishVersion--> ready (publishedAt stamped)
+//
+// Callers should treat this as "transition refused"; idempotent retries
+// (e.g. duplicate Inngest deliveries) should catch and no-op.
 export class VersionStateError extends Error {
   readonly code: "version_not_found";
   constructor(code: "version_not_found") {
@@ -16,22 +24,38 @@ export class VersionStateError extends Error {
   }
 }
 
-// Move a version into "scanning". Caller is responsible for kicking off
-// the scan job (Inngest event) — this module owns DB state only.
+// Move a version from pending to scanning. Caller is responsible for
+// kicking off the scan job (Inngest event) — this module owns DB state.
 export async function submit(versionId: string): Promise<void> {
-  await db
+  const updated = await db
     .update(extensionVersions)
     .set({ status: "scanning" })
-    .where(eq(extensionVersions.id, versionId));
+    .where(
+      and(
+        eq(extensionVersions.id, versionId),
+        eq(extensionVersions.status, "pending"),
+      ),
+    )
+    .returning({ id: extensionVersions.id });
+  if (updated.length === 0) throw new VersionStateError("version_not_found");
 }
 
 // Apply the outcome of a bundle scan: file scan flag + version status.
-// Both writes commit together.
+// Both writes commit together; the version must currently be `scanning`.
 export async function recordScanResult(
   versionId: string,
   fileId: string,
   result: ScanResult,
 ): Promise<void> {
+  const [version] = await db
+    .select({ status: extensionVersions.status })
+    .from(extensionVersions)
+    .where(eq(extensionVersions.id, versionId))
+    .limit(1);
+  if (!version || version.status !== "scanning") {
+    throw new VersionStateError("version_not_found");
+  }
+
   await db.transaction(async (tx) => {
     if (result.ok) {
       await tx
@@ -61,7 +85,8 @@ export async function recordScanResult(
 
 // Flip the version + its parent extension to published. Returns the
 // extension id so the caller can revalidate caches and dispatch
-// downstream events (those are orchestration, not state).
+// downstream events (those are orchestration, not state). The version
+// must currently be `ready`.
 //
 // Note: extensions.search_vector is a GENERATED column maintained by
 // Postgres; this module never writes to it.
@@ -69,12 +94,18 @@ export async function publishVersion(
   versionId: string,
 ): Promise<{ extensionId: string }> {
   const [row] = await db
-    .select({ extensionId: extensionVersions.extensionId })
+    .select({
+      extensionId: extensionVersions.extensionId,
+      status: extensionVersions.status,
+    })
     .from(extensionVersions)
     .where(eq(extensionVersions.id, versionId))
     .limit(1);
 
-  if (!row) throw new VersionStateError("version_not_found");
+  if (!row || row.status !== "ready") {
+    throw new VersionStateError("version_not_found");
+  }
+
   const { extensionId } = row;
   const now = new Date();
 

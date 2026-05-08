@@ -35,17 +35,10 @@ function selectChain(rows: unknown[]) {
 
 // Mocks the writes performed inside the transaction callback.
 // Returns a fake tx object that records what was written.
-function makeTx() {
-  const insertValues = vi.fn().mockReturnValue({
-    onConflictDoNothing: vi.fn().mockResolvedValue(undefined),
-  });
-  const insertValuesPlain = vi.fn().mockResolvedValue(undefined);
+function makeTx(opts: { priorInstalls?: unknown[] } = {}) {
+  const priorInstalls = opts.priorInstalls ?? [];
   const insert = vi.fn().mockImplementation(() => ({
-    // installs insert: just .values() resolves
-    // collectionItems insert: .values().onConflictDoNothing() resolves
-    // We return both shapes via a thenable-ish object.
     values: vi.fn().mockImplementation((row: unknown) => {
-      // If row has `collectionId`, it's the collectionItems insert.
       if (row && typeof row === "object" && "collectionId" in row) {
         return { onConflictDoNothing: vi.fn().mockResolvedValue(undefined) };
       }
@@ -57,12 +50,20 @@ function makeTx() {
       where: vi.fn().mockResolvedValue(undefined),
     }),
   });
-  return { insert, update, _insertValues: insertValues, _insertValuesPlain: insertValuesPlain };
+  // Prior-install check is now inside the tx.
+  const select = vi.fn().mockReturnValue({
+    from: vi.fn().mockReturnValue({
+      where: vi.fn().mockReturnValue({
+        limit: vi.fn().mockResolvedValue(priorInstalls),
+      }),
+    }),
+  });
+  return { insert, update, select };
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
-  // Default: transaction runs the callback with a fresh fake tx.
+  // Default: transaction runs the callback with a tx that reports no prior installs.
   transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) => {
     return cb(makeTx());
   });
@@ -117,11 +118,11 @@ describe("recordInstall", () => {
   });
 
   it("returns success shape on first install with explicit version", async () => {
-    selectMock
-      .mockReturnValueOnce(selectChain([{ id: "ext-1" }])) // ext lookup
-      .mockReturnValueOnce(selectChain([])); // prior install lookup (none)
-
+    selectMock.mockReturnValueOnce(selectChain([{ id: "ext-1" }])); // ext lookup
     getOrCreateSystemCollectionMock.mockResolvedValue("col-installed");
+    transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
+      cb(makeTx({ priorInstalls: [] })),
+    );
 
     const result = await recordInstall({
       userId: "u1",
@@ -142,10 +143,11 @@ describe("recordInstall", () => {
   it("resolves version from latest published when version omitted", async () => {
     selectMock
       .mockReturnValueOnce(selectChain([{ id: "ext-1" }])) // ext
-      .mockReturnValueOnce(selectChain([{ version: "2.0.0" }])) // latest
-      .mockReturnValueOnce(selectChain([])); // prior installs
-
+      .mockReturnValueOnce(selectChain([{ version: "2.0.0" }])); // latest
     getOrCreateSystemCollectionMock.mockResolvedValue("col-installed");
+    transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
+      cb(makeTx({ priorInstalls: [] })),
+    );
 
     const result = await recordInstall({
       userId: "u1",
@@ -158,11 +160,11 @@ describe("recordInstall", () => {
   });
 
   it("reports isFirstInstall=false when prior install exists", async () => {
-    selectMock
-      .mockReturnValueOnce(selectChain([{ id: "ext-1" }])) // ext
-      .mockReturnValueOnce(selectChain([{ id: "prev-install" }])); // prior
-
+    selectMock.mockReturnValueOnce(selectChain([{ id: "ext-1" }])); // ext
     getOrCreateSystemCollectionMock.mockResolvedValue("col-installed");
+    transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
+      cb(makeTx({ priorInstalls: [{ id: "prev-install" }] })),
+    );
 
     const result = await recordInstall({
       userId: "u1",
