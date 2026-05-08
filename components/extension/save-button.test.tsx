@@ -62,4 +62,28 @@ describe("SaveButton", () => {
 
     await waitFor(() => expect(mockPush).toHaveBeenCalledWith("/sign-in"));
   });
+
+  describe("pill variant", () => {
+    it("renders the label text alongside the icon", () => {
+      render(<SaveButton extensionId="ext-1" variant="pill" />);
+      expect(
+        screen.getByRole("button", { name: /addToGroup/ }),
+      ).toHaveTextContent("addToGroup");
+    });
+
+    it("flips the label to 'saved' after a successful save", async () => {
+      vi.mocked(saveExtension).mockResolvedValue({
+        ok: true,
+        alreadySaved: false,
+      });
+      const user = userEvent.setup();
+
+      render(<SaveButton extensionId="ext-1" variant="pill" />);
+      await user.click(screen.getByRole("button"));
+
+      await waitFor(() =>
+        expect(screen.getByRole("button")).toHaveTextContent("saved"),
+      );
+    });
+  });
 });

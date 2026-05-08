@@ -63,6 +63,39 @@
     "slash": "斜杠命令",
     "plugins": "插件"
   },
+  "detail": {
+    "back": "返回市场",
+    "share": "分享",
+    "copy": "复制",
+    "copied": "已复制",
+    "verified": "已验证发布者",
+    "about": "关于",
+    "publisher": "发布者",
+    "size": "大小",
+    "related": "相关扩展",
+    "writeReview": "撰写评价",
+    "currentLabel": "当前",
+    "emptyReadme": "该扩展尚未发布 README 文档。",
+    "emptyReviews": "暂无评价 —— 成为第一个评价的人。",
+    "emptyRequirements": "未声明特殊环境要求。",
+    "tabs": {
+      "overview": "概览",
+      "setup": "安装",
+      "versions": "版本",
+      "reviews": "评价"
+    },
+    "stats": {
+      "rating": "平均评分",
+      "downloads": "下载量",
+      "version": "版本",
+      "updated": "最近更新"
+    },
+    "sections": {
+      "tags": "标签",
+      "installCmd": "通过 CLI 安装",
+      "requirements": "环境要求"
+    }
+  },
   "metadata": {
     "sectionTitle": "元数据",
     "slug": "标识",

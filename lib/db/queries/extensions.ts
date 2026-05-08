@@ -1,7 +1,12 @@
-import { count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, ne, sql } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
-import { extensions, extensionTags } from "@/lib/db/schema";
+import {
+  extensions,
+  extensionTags,
+  extensionVersions,
+  files,
+} from "@/lib/db/schema";
 import {
   buildExtensionOrder,
   buildExtensionWhere,
@@ -136,6 +141,83 @@ export async function getExtensionBySlug(slug: string) {
 export type ExtensionDetail = NonNullable<
   Awaited<ReturnType<typeof getExtensionBySlug>>
 >;
+
+export async function getLatestExtensionVersion(extensionId: string) {
+  const [row] = await db
+    .select({
+      version: extensionVersions.version,
+      changelog: extensionVersions.changelog,
+      changelogZh: extensionVersions.changelogZh,
+      publishedAt: extensionVersions.publishedAt,
+      bundleSize: files.size,
+    })
+    .from(extensionVersions)
+    .leftJoin(files, eq(files.id, extensionVersions.bundleFileId))
+    .where(
+      and(
+        eq(extensionVersions.extensionId, extensionId),
+        eq(extensionVersions.status, "ready"),
+      ),
+    )
+    .orderBy(desc(extensionVersions.publishedAt))
+    .limit(1);
+  return row ?? null;
+}
+
+export async function listExtensionVersions(extensionId: string) {
+  return db
+    .select({
+      version: extensionVersions.version,
+      changelog: extensionVersions.changelog,
+      changelogZh: extensionVersions.changelogZh,
+      publishedAt: extensionVersions.publishedAt,
+    })
+    .from(extensionVersions)
+    .where(
+      and(
+        eq(extensionVersions.extensionId, extensionId),
+        eq(extensionVersions.status, "ready"),
+      ),
+    )
+    .orderBy(desc(extensionVersions.publishedAt))
+    .limit(20);
+}
+
+export type ExtensionVersionRow = Awaited<
+  ReturnType<typeof listExtensionVersions>
+>[number];
+
+export async function getRelatedExtensions(
+  extensionId: string,
+  category: ExtensionDetail["category"],
+  limit = 4,
+) {
+  return db
+    .select({
+      id: extensions.id,
+      slug: extensions.slug,
+      name: extensions.name,
+      nameZh: extensions.nameZh,
+      iconEmoji: extensions.iconEmoji,
+      iconColor: extensions.iconColor,
+      starsAvg: extensions.starsAvg,
+      downloadsCount: extensions.downloadsCount,
+    })
+    .from(extensions)
+    .where(
+      and(
+        eq(extensions.category, category),
+        eq(extensions.visibility, "published"),
+        ne(extensions.id, extensionId),
+      ),
+    )
+    .orderBy(desc(extensions.downloadsCount))
+    .limit(limit);
+}
+
+export type RelatedExtension = Awaited<
+  ReturnType<typeof getRelatedExtensions>
+>[number];
 
 export async function countPublishedExtensions() {
   const [row] = await db

@@ -63,6 +63,39 @@
     "slash": "Slash Command",
     "plugins": "Plugin"
   },
+  "detail": {
+    "back": "Back to marketplace",
+    "share": "Share",
+    "copy": "Copy",
+    "copied": "Copied",
+    "verified": "Verified publisher",
+    "about": "About",
+    "publisher": "Publisher",
+    "size": "Size",
+    "related": "Related extensions",
+    "writeReview": "Write a review",
+    "currentLabel": "Current",
+    "emptyReadme": "No README has been published for this extension yet.",
+    "emptyReviews": "No reviews yet — be the first.",
+    "emptyRequirements": "No specific requirements declared.",
+    "tabs": {
+      "overview": "Overview",
+      "setup": "Setup",
+      "versions": "Versions",
+      "reviews": "Reviews"
+    },
+    "stats": {
+      "rating": "Rating",
+      "downloads": "Downloads",
+      "version": "Version",
+      "updated": "Last updated"
+    },
+    "sections": {
+      "tags": "Tags",
+      "installCmd": "Install via CLI",
+      "requirements": "Requirements"
+    }
+  },
   "metadata": {
     "sectionTitle": "Metadata",
     "slug": "Slug",
