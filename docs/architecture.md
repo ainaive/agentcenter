@@ -104,7 +104,6 @@ Browser                          Vercel                          R2          Inn
    │                                │                              │   sendEvent("extension/index.requested")
    │                                │                              │             │
    │                                │                              │  reindex-search:
-   │                                │                              │   build search_vector,
    │                                │                              │   set extension visibility=published,
    │                                │                              │   revalidateTag("extensions")
 ```
@@ -112,6 +111,16 @@ Browser                          Vercel                          R2          Inn
 The upload goes browser → R2 directly (presigned PUT) — Vercel only signs the URL. The Inngest webhook lives at `/api/inngest`. Job source: `lib/jobs/scan-bundle.ts` and `lib/jobs/reindex-search.ts`.
 
 A note on `scan-bundle`: download + checksum + manifest parsing live in a single `step.run` rather than separate steps, because Inngest serializes step return values across boundaries and `Buffer` doesn't survive that round-trip.
+
+### Version state transitions
+
+`lib/extensions/state.ts` owns every transition of `extensionVersions.status`, `files.scanStatus`, and `extensions.visibility`. Three functions:
+
+- `submit(versionId)` — moves a version from `pending` to `scanning` (called by `submitForReview` before it dispatches the scan event).
+- `recordScanResult(versionId, fileId, result)` — applies the outcome of a bundle scan in one transaction; success sets `files.scanStatus='clean' + version.status='ready' + checksumSha256`, failure sets `'flagged' + 'rejected'`. The job calls this once with a discriminated `result`.
+- `publishVersion(versionId)` — flips `extensions.visibility='published'` and stamps both rows with `publishedAt`, returning the `extensionId` for the job's downstream `revalidateTag` and `extension/published` event.
+
+`extensions.search_vector` is a Postgres `GENERATED ALWAYS ... STORED` column (see `drizzle/0002_fts_search_vector.sql`); no application code writes it. The `reindex-search` job's earlier hand-rolled `to_tsvector` UPDATE was dead — the generated column always reflects the source content.
 
 ### Install (CLI path)
 

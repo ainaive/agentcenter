@@ -11,6 +11,7 @@ import {
   extensionTags,
   files,
 } from "@/lib/db/schema";
+import { submit } from "@/lib/extensions/state";
 import { ManifestFormSchema, type ManifestFormValues } from "@/lib/validators/manifest";
 
 const DEFAULT_ORG_ID = "default";
@@ -131,10 +132,7 @@ export async function submitForReview(versionId: string): Promise<SubmitResult> 
   if (!version?.bundleFileId) return { ok: false, error: "no_bundle" };
 
   try {
-    await db
-      .update(extensionVersions)
-      .set({ status: "scanning" })
-      .where(eq(extensionVersions.id, versionId));
+    await submit(versionId);
   } catch {
     return { ok: false, error: "db_error" };
   }
