@@ -96,6 +96,12 @@
       "versions": "版本",
       "reviews": "评价"
     },
+    "errorBoundary": {
+      "title": "无法加载此扩展",
+      "body": "获取扩展信息时出现问题，通常是临时性的，请稍后再试。",
+      "retry": "重试",
+      "back": "返回市场"
+    },
     "stats": {
       "rating": "平均评分",
       "downloads": "下载量",

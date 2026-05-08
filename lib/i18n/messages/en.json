@@ -96,6 +96,12 @@
       "versions": "Versions",
       "reviews": "Reviews"
     },
+    "errorBoundary": {
+      "title": "Couldn't load this extension",
+      "body": "We hit a snag fetching this extension. This is usually temporary — try again in a moment.",
+      "retry": "Try again",
+      "back": "Back to marketplace"
+    },
     "stats": {
       "rating": "Rating",
       "downloads": "Downloads",
