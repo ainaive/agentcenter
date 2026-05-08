@@ -6,6 +6,7 @@ import { useMemo, useTransition } from "react";
 import { usePathname, useRouter } from "@/lib/i18n/navigation";
 import {
   parseFilters,
+  searchParamsToInput,
   serializeFilters,
   type Filters,
 } from "@/lib/validators/filters";
@@ -16,18 +17,6 @@ export interface UseFiltersResult {
   filters: Filters;
   update: (partial: FilterUpdate) => void;
   pending: boolean;
-}
-
-// Build a Record<string, string | string[]> from URLSearchParams that
-// `parseFilters` knows how to consume (it splits comma-joined arrays itself).
-function searchParamsToInput(
-  searchParams: URLSearchParams,
-): Record<string, string | string[]> {
-  const out: Record<string, string | string[]> = {};
-  for (const [key, value] of searchParams.entries()) {
-    out[key] = value;
-  }
-  return out;
 }
 
 /**

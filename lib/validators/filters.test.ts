@@ -5,6 +5,7 @@ import {
   pageOffset,
   PAGE_SIZE,
   filtersSchema,
+  searchParamsToInput,
   serializeFilters,
   type Filters,
 } from "@/lib/validators/filters";
@@ -99,6 +100,36 @@ describe("parseFilters", () => {
   it("parses dept as plain string", () => {
     expect(parseFilters({ dept: "eng.cloud" }).dept).toBe("eng.cloud");
     expect(parseFilters({ dept: "__all" }).dept).toBe("__all");
+  });
+});
+
+describe("searchParamsToInput", () => {
+  it("returns single values as strings", () => {
+    expect(
+      searchParamsToInput(new URLSearchParams("category=skills&scope=personal")),
+    ).toEqual({ category: "skills", scope: "personal" });
+  });
+
+  it("accumulates repeated keys into an array (?tags=a&tags=b)", () => {
+    expect(
+      searchParamsToInput(new URLSearchParams("tags=a&tags=b")),
+    ).toEqual({ tags: ["a", "b"] });
+  });
+
+  it("accumulates three+ repeats into the same array", () => {
+    expect(
+      searchParamsToInput(new URLSearchParams("tags=a&tags=b&tags=c")),
+    ).toEqual({ tags: ["a", "b", "c"] });
+  });
+
+  it("preserves a comma-joined single value as one string (the validator splits later)", () => {
+    expect(
+      searchParamsToInput(new URLSearchParams("tags=a%2Cb")),
+    ).toEqual({ tags: "a,b" });
+  });
+
+  it("returns empty object for empty params", () => {
+    expect(searchParamsToInput(new URLSearchParams())).toEqual({});
   });
 });
 
