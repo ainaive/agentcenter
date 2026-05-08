@@ -126,6 +126,8 @@ agentcenter install my-skill
 
 The web "Install" button takes the same conceptual path but goes through the `installExtension` server action instead of the public API: it bumps the same counters and records the same install event, so leaderboards stay consistent across surfaces.
 
+Both surfaces are thin wrappers around `recordInstall` in `lib/installs/record.ts`, which owns: extension lookup (by `id` from the web button or `slug` from the CLI), version resolution (an omitted version means "latest published" — `extension_versions` ordered by `publishedAt DESC` among `status='ready'`), the `installs` row insert, the `installed` collection upsert, and the atomic `downloadsCount` bump — all three writes go through `db.transaction`. Each call records a row, so `downloadsCount` is total install events; the `installed` collection is a separate, idempotent membership concept used by the UI's "Installed" view. Failures throw a typed `InstallError` (`extension_not_found`, `no_published_version`); wrappers translate to their surface (action union or HTTP status).
+
 ## Authentication
 
 Two parallel flows on top of one Better Auth instance:
