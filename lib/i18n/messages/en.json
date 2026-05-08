@@ -23,7 +23,19 @@
     "breadcrumb": "Browse",
     "noReadme": "No README has been published for this extension yet.",
     "versionsTitle": "Versions",
-    "noVersions": "No versions have been published yet. Once the upload wizard ships in Phase 10, version history lands here."
+    "noVersions": "No versions have been published yet. Once the upload wizard ships in Phase 10, version history lands here.",
+    "errorBoundary": {
+      "title": "Couldn't load extensions",
+      "body": "We hit a snag reaching the marketplace. This is usually temporary — try again in a moment.",
+      "retry": "Try again"
+    }
+  },
+  "errors": {
+    "generic": {
+      "title": "Something went wrong",
+      "body": "An unexpected error occurred. Please try again — if it keeps happening, share the code below with support.",
+      "retry": "Try again"
+    }
   },
   "filters": {
     "sortLabel": "Sort",
