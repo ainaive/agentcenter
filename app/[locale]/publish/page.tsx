@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { Plus } from "lucide-react";
+import { Package, Plus } from "lucide-react";
 
 import { getSession } from "@/lib/auth/session";
 import { getMyExtensions } from "@/lib/actions/publish";
@@ -38,8 +38,21 @@ export default async function PublishDashboardPage() {
       </div>
 
       {exts.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border p-16 text-center text-muted-foreground">
-          {t("empty")}
+        <div className="border-border bg-card/40 mx-auto flex max-w-md flex-col items-center gap-3 rounded-xl border border-dashed p-12 text-center">
+          <Package className="text-muted-foreground/50 size-9" />
+          <h2 className="text-foreground text-base font-semibold">
+            {t("emptyTitle")}
+          </h2>
+          <p className="text-muted-foreground max-w-xs text-[13px] leading-relaxed">
+            {t("empty")}
+          </p>
+          <Link
+            href="/publish/new"
+            className="bg-primary text-primary-foreground hover:opacity-90 mt-1 inline-flex items-center gap-1.5 rounded-md px-4 py-2 text-[13px] font-semibold transition-opacity"
+          >
+            <Plus className="size-3.5" />
+            {t("emptyCta")}
+          </Link>
         </div>
       ) : (
         <ul className="space-y-3">

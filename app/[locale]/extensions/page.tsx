@@ -44,7 +44,17 @@ export default async function ExtensionsPage({
 
       <FilterBar tags={tags} />
 
-      <ExtGrid items={items} locale={locale as Locale} query={filters.q} />
+      <ExtGrid
+        items={items}
+        locale={locale as Locale}
+        query={filters.q}
+        // Only offer "Clear filters" when the URL actually carries filters —
+        // otherwise an empty DB renders a misleading "no matches for these
+        // filters" message with a CTA that doesn't change anything.
+        clearFiltersHref={
+          Object.keys(rawParams).length > 0 ? "/extensions" : undefined
+        }
+      />
     </div>
   );
 }
