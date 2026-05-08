@@ -66,8 +66,10 @@ export function ManifestForm({ onSubmit, defaultValues }: Props) {
   function validate(): boolean {
     const errs: typeof errors = {};
     if (!values.slug) errs.slug = "Required";
+    else if (values.slug.length < 3) errs.slug = "Min 3 chars";
     else if (!SLUG_PATTERN.test(values.slug)) errs.slug = t("slug");
     if (!values.name) errs.name = "Required";
+    else if (values.name.length < 2) errs.name = "Min 2 chars";
     if (!values.version || !SEMVER_PATTERN.test(values.version)) errs.version = t("versionHint");
     if (!values.subCat) errs.subCat = "Required";
     if (!values.description) errs.description = "Required";
@@ -97,12 +99,12 @@ export function ManifestForm({ onSubmit, defaultValues }: Props) {
   const errorCls = "mt-1 text-xs text-destructive";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} noValidate className="space-y-5">
       {/* Slug + Version */}
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>{t("slug")} *</label>
-          <input className={inputCls} {...field("slug")} placeholder="my-extension" maxLength={64} />
+          <input className={inputCls} {...field("slug")} placeholder="my-extension" minLength={3} maxLength={64} />
           {errors.slug && <p className={errorCls}>{errors.slug}</p>}
           <p className="mt-1 text-xs text-muted-foreground">{t("slugHint")}</p>
         </div>
@@ -117,7 +119,7 @@ export function ManifestForm({ onSubmit, defaultValues }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>{t("name")} *</label>
-          <input className={inputCls} {...field("name")} />
+          <input className={inputCls} {...field("name")} minLength={2} maxLength={80} />
           {errors.name && <p className={errorCls}>{errors.name}</p>}
         </div>
         <div>

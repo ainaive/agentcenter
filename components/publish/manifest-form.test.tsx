@@ -106,6 +106,34 @@ describe("ManifestForm", () => {
     expect(selected).toHaveLength(8);
   });
 
+  it("shows a min-length error for a 1- or 2-char slug", async () => {
+    render(<ManifestForm onSubmit={vi.fn()} defaultValues={VALID_DEFAULTS} />);
+
+    const slugInput = screen.getByPlaceholderText("my-extension") as HTMLInputElement;
+    await user.clear(slugInput);
+    await user.type(slugInput, "ab");
+    await user.click(screen.getByRole("button", { name: "nextButton" }));
+
+    await waitFor(() =>
+      expect(screen.getByText("Min 3 chars")).toBeInTheDocument(),
+    );
+  });
+
+  it("shows a min-length error for a 1-char name", async () => {
+    render(
+      <ManifestForm
+        onSubmit={vi.fn()}
+        defaultValues={{ ...VALID_DEFAULTS, name: "x" }}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "nextButton" }));
+
+    await waitFor(() =>
+      expect(screen.getByText("Min 2 chars")).toBeInTheDocument(),
+    );
+  });
+
   it("pre-populates fields from defaultValues", () => {
     render(<ManifestForm onSubmit={vi.fn()} defaultValues={{ slug: "pre-filled", version: "2.0.0" }} />);
 
