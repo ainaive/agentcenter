@@ -15,6 +15,7 @@ const VALID_DEFAULTS = {
   slug: "my-skill",
   name: "My Skill",
   subCat: "search",
+  description: "Does things.",
 };
 
 describe("ManifestForm", () => {
@@ -30,14 +31,14 @@ describe("ManifestForm", () => {
     expect(screen.getByDisplayValue("1.0.0")).toBeInTheDocument();
   });
 
-  it("shows Required errors on submit when slug, name, and subCat are empty", async () => {
+  it("shows Required errors on submit when slug, name, subCat, and description are empty", async () => {
     const onSubmit = vi.fn();
     render(<ManifestForm onSubmit={onSubmit} />);
 
     await user.click(screen.getByRole("button", { name: "nextButton" }));
 
     const errors = await screen.findAllByText("Required");
-    expect(errors).toHaveLength(3); // slug, name, subCat
+    expect(errors).toHaveLength(4); // slug, name, subCat, description
     expect(onSubmit).not.toHaveBeenCalled();
   });
 

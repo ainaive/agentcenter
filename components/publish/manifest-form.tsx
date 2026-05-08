@@ -5,7 +5,11 @@ import { useTranslations } from "next-intl";
 
 import { TAG_LABELS } from "@/lib/tags";
 import { DEPARTMENTS } from "@/lib/data/departments";
-import type { ManifestFormValues } from "@/lib/validators/manifest";
+import {
+  SEMVER_PATTERN,
+  SLUG_PATTERN,
+  type ManifestFormValues,
+} from "@/lib/validators/manifest";
 import type { Department } from "@/types";
 
 interface Props {
@@ -62,10 +66,11 @@ export function ManifestForm({ onSubmit, defaultValues }: Props) {
   function validate(): boolean {
     const errs: typeof errors = {};
     if (!values.slug) errs.slug = "Required";
-    else if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(values.slug)) errs.slug = t("slug");
+    else if (!SLUG_PATTERN.test(values.slug)) errs.slug = t("slug");
     if (!values.name) errs.name = "Required";
-    if (!values.version || !/^\d+\.\d+\.\d+$/.test(values.version)) errs.version = t("versionHint");
+    if (!values.version || !SEMVER_PATTERN.test(values.version)) errs.version = t("versionHint");
     if (!values.subCat) errs.subCat = "Required";
+    if (!values.description) errs.description = "Required";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -97,7 +102,7 @@ export function ManifestForm({ onSubmit, defaultValues }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>{t("slug")} *</label>
-          <input className={inputCls} {...field("slug")} placeholder="my-extension" />
+          <input className={inputCls} {...field("slug")} placeholder="my-extension" maxLength={64} />
           {errors.slug && <p className={errorCls}>{errors.slug}</p>}
           <p className="mt-1 text-xs text-muted-foreground">{t("slugHint")}</p>
         </div>
@@ -206,12 +211,13 @@ export function ManifestForm({ onSubmit, defaultValues }: Props) {
       {/* Descriptions */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className={labelCls}>{t("description")}</label>
-          <textarea className={inputCls} {...field("description")} rows={3} maxLength={300} />
+          <label className={labelCls}>{t("description")} *</label>
+          <textarea className={inputCls} {...field("description")} rows={3} maxLength={280} />
+          {errors.description && <p className={errorCls}>{errors.description}</p>}
         </div>
         <div>
           <label className={labelCls}>{t("descriptionZh")}</label>
-          <textarea className={inputCls} {...field("descriptionZh")} rows={3} maxLength={300} />
+          <textarea className={inputCls} {...field("descriptionZh")} rows={3} maxLength={280} />
         </div>
       </div>
 
