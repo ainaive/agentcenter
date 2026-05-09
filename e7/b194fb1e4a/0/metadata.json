@@ -1,0 +1,56 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "e7b194fb1e4a",
+  "session_id": "97f6d50e-dbf3-4d70-ae6a-3a33889c36e7",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-09T00:38:55.013191Z",
+  "branch": "polish/a11y-audit",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7[1m]",
+  "turn_id": "80e0bd8ccbd8",
+  "checkpoint_transcript_start": 1367,
+  "transcript_lines_at_start": 1367,
+  "token_usage": {
+    "input_tokens": 17,
+    "cache_creation_tokens": 5090,
+    "cache_read_tokens": 2429375,
+    "output_tokens": 3743,
+    "api_call_count": 7
+  },
+  "session_metrics": {
+    "turn_count": 41
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-09T00:38:54.972014Z",
+    "agent_lines": 2,
+    "agent_removed": 2,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 2,
+    "total_lines_changed": 4,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 2,
+      "agent_lines_removed": 2
+    }
+  ]
+}

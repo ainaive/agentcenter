@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "e7b194fb1e4a",
+  "strategy": "manual-commit",
+  "branch": "polish/a11y-audit",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/e7/b194fb1e4a/0/metadata.json",
+      "transcript": "/e7/b194fb1e4a/0/full.jsonl",
+      "content_hash": "/e7/b194fb1e4a/0/content_hash.txt",
+      "prompt": "/e7/b194fb1e4a/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 17,
+    "cache_creation_tokens": 5090,
+    "cache_read_tokens": 2429375,
+    "output_tokens": 3743,
+    "api_call_count": 7
+  }
+}
