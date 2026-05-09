@@ -16,23 +16,54 @@ import { ManifestFormSchema, type ManifestFormValues } from "@/lib/validators/ma
 
 const DEFAULT_ORG_ID = "default";
 
-// Postgres error codes we care about. The `code` field is set by node-postgres
-// on DatabaseError instances; we narrow with `unknown` rather than importing
-// pg types so this stays runtime-only.
-function pgErrorCode(err: unknown): string | undefined {
-  if (typeof err === "object" && err !== null && "code" in err) {
-    const code = (err as { code: unknown }).code;
-    if (typeof code === "string") return code;
+// Walk the `cause` chain looking for a property that matches the predicate.
+// Drizzle wraps the underlying node-postgres `DatabaseError` (which carries
+// `code` and `constraint`) in its own error whose message is the SQL that
+// failed. The PG details live on `err.cause` (and sometimes deeper).
+function findInCauseChain<T>(
+  err: unknown,
+  pick: (e: object) => T | undefined,
+): T | undefined {
+  let current: unknown = err;
+  for (let i = 0; i < 5 && current && typeof current === "object"; i++) {
+    const got = pick(current);
+    if (got !== undefined) return got;
+    current = (current as { cause?: unknown }).cause;
   }
   return undefined;
 }
 
+// Postgres error code (e.g. "23503" foreign_key_violation). Set on
+// node-postgres `DatabaseError` instances.
+function pgErrorCode(err: unknown): string | undefined {
+  return findInCauseChain(err, (e) => {
+    if ("code" in e && typeof (e as { code: unknown }).code === "string") {
+      return (e as { code: string }).code;
+    }
+    return undefined;
+  });
+}
+
 function pgConstraint(err: unknown): string | undefined {
-  if (typeof err === "object" && err !== null && "constraint" in err) {
-    const c = (err as { constraint: unknown }).constraint;
-    if (typeof c === "string") return c;
-  }
-  return undefined;
+  return findInCauseChain(err, (e) => {
+    if (
+      "constraint" in e &&
+      typeof (e as { constraint: unknown }).constraint === "string"
+    ) {
+      return (e as { constraint: string }).constraint;
+    }
+    return undefined;
+  });
+}
+
+// The underlying PG message (e.g. 'insert or update on table "extensions"
+// violates foreign key constraint ...'), not Drizzle's wrapper which is
+// just the SQL.
+function pgMessage(err: unknown): string | undefined {
+  return findInCauseChain(err, (e) => {
+    if ("code" in e && e instanceof Error) return e.message;
+    return undefined;
+  });
 }
 
 // Dev-only debug string. Returns undefined in production so we never leak
@@ -42,7 +73,8 @@ function devErrorDetail(err: unknown): string | undefined {
   if (process.env.NODE_ENV === "production") return undefined;
   const code = pgErrorCode(err);
   const constraint = pgConstraint(err);
-  const message = err instanceof Error ? err.message : String(err);
+  const message =
+    pgMessage(err) ?? (err instanceof Error ? err.message : String(err));
   const parts: string[] = [];
   if (code) parts.push(`pg=${code}`);
   if (constraint) parts.push(`constraint=${constraint}`);
