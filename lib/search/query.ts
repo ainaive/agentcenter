@@ -26,6 +26,13 @@ export function buildExtensionWhere(
     filters.subCat ? eq(extensions.subCat, filters.subCat) : undefined,
     filters.l2 ? eq(extensions.l2, filters.l2) : undefined,
 
+    filters.creator
+      ? eq(extensions.publisherUserId, filters.creator)
+      : undefined,
+    filters.publisher
+      ? eq(extensions.ownerOrgId, filters.publisher)
+      : undefined,
+
     // Dotted-path descendant filter — uses idx_ext_dept_path (text_pattern_ops).
     // When no dept param is provided, fall back to the authenticated user's
     // defaultDeptId (passed in from the page via getSession), then to MY_DEPT_ID

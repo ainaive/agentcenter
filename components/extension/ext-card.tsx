@@ -45,7 +45,7 @@ export function ExtCard({ ext, locale = "en" }: ExtCardProps) {
   const deptLeaf = deptTrail?.[deptTrail.length - 1];
 
   return (
-    <article className="bg-card border-border hover:border-primary/30 flex flex-col gap-3 rounded-[10px] border p-[18px] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_color-mix(in_oklab,var(--primary)_30%,transparent)]">
+    <article className="bg-card border-border hover:border-primary/30 relative flex flex-col gap-3 rounded-[10px] border p-[18px] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_28px_-10px_color-mix(in_oklab,var(--primary)_30%,transparent)]">
       <div className="flex items-start gap-3">
         <div
           className="flex size-10 shrink-0 items-center justify-center rounded-[7px] border-[1.5px] text-[17px]"
@@ -60,7 +60,7 @@ export function ExtCard({ ext, locale = "en" }: ExtCardProps) {
           <div className="mb-0.5 flex items-center gap-1.5">
             <Link
               href={`/extensions/${ext.slug}`}
-              className="hover:text-primary truncate text-[14px] font-bold transition-colors"
+              className="hover:text-primary truncate text-[14px] font-bold transition-colors after:absolute after:inset-0 after:content-['']"
             >
               {name}
             </Link>
@@ -123,7 +123,7 @@ export function ExtCard({ ext, locale = "en" }: ExtCardProps) {
             {formatCount(ext.downloadsCount)}
           </span>
         </div>
-        <div className="ml-auto flex gap-1.5">
+        <div className="relative z-10 ml-auto flex gap-1.5">
           <SaveButton extensionId={ext.id} />
           <InstallButton extensionId={ext.id} size="sm" />
         </div>

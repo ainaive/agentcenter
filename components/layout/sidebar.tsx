@@ -285,11 +285,6 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
         >
           <SidebarStaticItem>
             <Folder className="size-[14px] shrink-0" />
-            <span className="flex-1">{t("installed")}</span>
-            <span className="font-mono text-[11px] opacity-60">0</span>
-          </SidebarStaticItem>
-          <SidebarStaticItem>
-            <Folder className="size-[14px] shrink-0" />
             <span className="flex-1">{t("saved")}</span>
             <span className="font-mono text-[11px] opacity-60">0</span>
           </SidebarStaticItem>
