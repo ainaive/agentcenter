@@ -18,9 +18,27 @@ interface DraftState {
   version: string;
 }
 
+// Error codes the server actions can return. Anything else falls through to
+// the generic "fallback" message.
+const KNOWN_ERROR_CODES = new Set([
+  "unauthenticated",
+  "invalid_input",
+  "slug_taken",
+  "version_taken",
+  "unique_conflict",
+  "invalid_dept",
+  "invalid_tag",
+  "org_missing",
+  "invalid_reference",
+  "missing_required",
+  "no_bundle",
+  "db_error",
+]);
+
 export function UploadWizard() {
   const tw = useTranslations("publish.wizard");
   const tu = useTranslations("publish.upload");
+  const te = useTranslations("publish.errors");
 
   const [step, setStep] = useState<Step>(1);
   const [draft, setDraft] = useState<DraftState | null>(null);
@@ -28,58 +46,116 @@ export function UploadWizard() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<"idle" | "uploading" | "done">("idle");
   const fileRef = useRef<HTMLInputElement>(null);
 
-  async function handleManifestSubmit(values: ManifestFormValues) {
+  function clearError() {
     setError(null);
-    const result = await createDraftExtension(values);
-    if (!result.ok) {
-      setError(result.error === "slug_taken" ? "Slug already taken — choose another." : result.error);
-      return;
+    setErrorDetail(null);
+  }
+
+  // Translate a server-action error code into a localized message. Unknown
+  // codes fall back to a generic message rather than leaking raw codes (e.g.
+  // "db_error") to the user.
+  function describeError(code: string): string {
+    return KNOWN_ERROR_CODES.has(code) ? te(code) : te("fallback");
+  }
+
+  // Reset the file-upload state. Called after a fresh draft is created so
+  // a re-edited Step 1 doesn't leave the wizard thinking the previous
+  // bundle is still attached to the new versionId.
+  function resetUploadState() {
+    setFileUploaded(false);
+    setUploadProgress("idle");
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  async function handleManifestSubmit(values: ManifestFormValues) {
+    clearError();
+    try {
+      const result = await createDraftExtension(values);
+      if (!result.ok) {
+        setError(describeError(result.error));
+        setErrorDetail(result.detail ?? null);
+        return;
+      }
+      setDraft({
+        extensionId: result.extensionId,
+        versionId: result.versionId,
+        slug: values.slug,
+        version: values.version,
+      });
+      resetUploadState();
+      setStep(2);
+    } catch (err) {
+      console.error("[publish] handleManifestSubmit threw", err);
+      setError(te("fallback"));
+      setErrorDetail(null);
     }
-    setDraft({ extensionId: result.extensionId, versionId: result.versionId, slug: values.slug, version: values.version });
-    setStep(2);
   }
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !draft) return;
 
-    if (!file.name.endsWith(".zip")) { setError(tu("errorType")); return; }
-    if (file.size > 50 * 1024 * 1024) { setError(tu("errorSize")); return; }
-    setError(null);
+    if (!file.name.endsWith(".zip")) { setError(tu("errorType")); setErrorDetail(null); return; }
+    if (file.size > 50 * 1024 * 1024) { setError(tu("errorSize")); setErrorDetail(null); return; }
+    clearError();
     setUploadProgress("uploading");
 
-    // 1. Get presigned URL
-    const signRes = await fetch("/api/upload/sign", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ slug: draft.slug, version: draft.version, contentType: "application/zip", size: file.size }),
-    });
-    if (!signRes.ok) { setError("Failed to get upload URL."); setUploadProgress("idle"); return; }
-    const { uploadUrl, r2Key } = await signRes.json() as { uploadUrl: string; r2Key: string };
+    try {
+      // 1. Get presigned URL
+      const signRes = await fetch("/api/upload/sign", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: draft.slug, version: draft.version, contentType: "application/zip", size: file.size }),
+      });
+      if (!signRes.ok) { setError(te("uploadSign")); setUploadProgress("idle"); return; }
+      const { uploadUrl, r2Key } = await signRes.json() as { uploadUrl: string; r2Key: string };
 
-    // 2. Upload directly to R2
-    const putRes = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": "application/zip" }, body: file });
-    if (!putRes.ok) { setError("Upload failed. Please try again."); setUploadProgress("idle"); return; }
+      // 2. Upload directly to R2
+      const putRes = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": "application/zip" }, body: file });
+      if (!putRes.ok) { setError(te("uploadFailed")); setUploadProgress("idle"); return; }
 
-    // 3. Record file in DB (checksum placeholder — real checksum done by Inngest scan)
-    const attachResult = await attachFile(draft.versionId, r2Key, file.size, "pending");
-    if (!attachResult.ok) { setError(attachResult.error); setUploadProgress("idle"); return; }
+      // 3. Record file in DB (checksum placeholder — real checksum done by Inngest scan)
+      const attachResult = await attachFile(draft.versionId, r2Key, file.size, "pending");
+      if (!attachResult.ok) {
+        setError(describeError(attachResult.error));
+        setErrorDetail(attachResult.detail ?? null);
+        setUploadProgress("idle");
+        return;
+      }
 
-    setUploadProgress("done");
-    setFileUploaded(true);
+      setUploadProgress("done");
+      setFileUploaded(true);
+    } catch (err) {
+      console.error("[publish] handleFileChange threw", err);
+      setError(te("fallback"));
+      setErrorDetail(null);
+      setUploadProgress("idle");
+    }
   }
 
   async function handleSubmit() {
     if (!draft) return;
     setSubmitting(true);
-    setError(null);
-    const result = await submitForReview(draft.versionId);
-    setSubmitting(false);
-    if (!result.ok) { setError(result.error); return; }
-    setSubmitted(true);
+    clearError();
+    try {
+      const result = await submitForReview(draft.versionId);
+      if (!result.ok) {
+        setError(describeError(result.error));
+        setErrorDetail(result.detail ?? null);
+        return;
+      }
+      setSubmitted(true);
+    } catch (err) {
+      console.error("[publish] handleSubmit threw", err);
+      setError(te("fallback"));
+      setErrorDetail(null);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const stepLabels = [tw("step1Title"), tw("step2Title"), tw("step3Title")];
@@ -120,7 +196,12 @@ export function UploadWizard() {
 
       {error && (
         <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
+          <div>{error}</div>
+          {errorDetail && (
+            <pre className="mt-2 whitespace-pre-wrap break-all rounded bg-red-100/70 px-2 py-1 font-mono text-xs text-red-900/80">
+              {errorDetail}
+            </pre>
+          )}
         </div>
       )}
 

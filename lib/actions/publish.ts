@@ -14,11 +14,25 @@ import {
 import { submit } from "@/lib/extensions/state";
 import { ManifestFormSchema, type ManifestFormValues } from "@/lib/validators/manifest";
 
+import {
+  classifyDraftError,
+  devErrorDetail,
+  pgConstraint,
+  pgErrorCode,
+} from "./publish-errors";
+
 const DEFAULT_ORG_ID = "default";
+
+// Coerce empty / missing optional strings to `null`. We can't use `?? null`
+// (it keeps `""`, which then FK-violates against `departments.id`) and we
+// avoid `|| null` because it would also drop a legitimate `"0"`.
+function emptyToNull(v: string | undefined | null): string | null {
+  return v == null || v === "" ? null : v;
+}
 
 export type CreateDraftResult =
   | { ok: true; extensionId: string; versionId: string }
-  | { ok: false; error: string };
+  | { ok: false; error: string; detail?: string };
 
 export async function createDraftExtension(
   raw: ManifestFormValues,
@@ -28,7 +42,14 @@ export async function createDraftExtension(
 
   const parsed = ManifestFormSchema.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    // Return a stable error code (so the UI can localize it) and put the
+    // human-readable Zod messages in `detail` so the user can see *what*
+    // failed even outside development.
+    return {
+      ok: false,
+      error: "invalid_input",
+      detail: parsed.error.issues.map((i) => i.message).join("; "),
+    };
   }
   const data = parsed.data;
 
@@ -41,19 +62,20 @@ export async function createDraftExtension(
         id: extensionId,
         slug: data.slug,
         name: data.name,
-        nameZh: data.nameZh ?? null,
-        tagline: data.tagline ?? null,
-        description: data.description ?? null,
-        descriptionZh: data.descriptionZh ?? null,
+        nameZh: emptyToNull(data.nameZh),
+        tagline: emptyToNull(data.tagline),
+        description: emptyToNull(data.description),
+        descriptionZh: emptyToNull(data.descriptionZh),
         category: data.category,
         scope: data.scope,
         funcCat: data.funcCat,
         subCat: data.subCat,
-        l2: data.l2 ?? null,
-        deptId: data.deptId ?? null,
-        homepageUrl: data.homepageUrl || null,
-        repoUrl: data.repoUrl || null,
-        licenseSpdx: data.licenseSpdx ?? null,
+        l2: emptyToNull(data.l2),
+        // Empty strings are FK violations against departments.id — coerce to null.
+        deptId: emptyToNull(data.deptId),
+        homepageUrl: emptyToNull(data.homepageUrl),
+        repoUrl: emptyToNull(data.repoUrl),
+        licenseSpdx: emptyToNull(data.licenseSpdx),
         publisherUserId: session.user.id,
         ownerOrgId: DEFAULT_ORG_ID,
         visibility: "draft",
@@ -73,15 +95,23 @@ export async function createDraftExtension(
       }
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "unknown";
-    if (msg.includes("unique")) return { ok: false, error: "slug_taken" };
-    return { ok: false, error: "db_error" };
+    const code = classifyDraftError(err);
+    console.error("[publish] createDraftExtension failed", {
+      code,
+      pgCode: pgErrorCode(err),
+      constraint: pgConstraint(err),
+      slug: data.slug,
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return { ok: false, error: code, detail: devErrorDetail(err) };
   }
 
   return { ok: true, extensionId, versionId };
 }
 
-export type AttachFileResult = { ok: true } | { ok: false; error: string };
+export type AttachFileResult =
+  | { ok: true }
+  | { ok: false; error: string; detail?: string };
 
 export async function attachFile(
   versionId: string,
@@ -109,14 +139,23 @@ export async function attachFile(
         .set({ bundleFileId: fileId })
         .where(eq(extensionVersions.id, versionId));
     });
-  } catch {
-    return { ok: false, error: "db_error" };
+  } catch (err) {
+    console.error("[publish] attachFile failed", {
+      pgCode: pgErrorCode(err),
+      constraint: pgConstraint(err),
+      versionId,
+      r2Key,
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return { ok: false, error: "db_error", detail: devErrorDetail(err) };
   }
 
   return { ok: true };
 }
 
-export type SubmitResult = { ok: true } | { ok: false; error: string };
+export type SubmitResult =
+  | { ok: true }
+  | { ok: false; error: string; detail?: string };
 
 export async function submitForReview(versionId: string): Promise<SubmitResult> {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -133,8 +172,13 @@ export async function submitForReview(versionId: string): Promise<SubmitResult> 
 
   try {
     await submit(versionId);
-  } catch {
-    return { ok: false, error: "db_error" };
+  } catch (err) {
+    console.error("[publish] submitForReview failed", {
+      pgCode: pgErrorCode(err),
+      versionId,
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return { ok: false, error: "db_error", detail: devErrorDetail(err) };
   }
 
   const { inngest } = await import("@/lib/jobs/client");

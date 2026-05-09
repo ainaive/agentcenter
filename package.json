@@ -19,6 +19,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "bun run scripts/seed.ts",
+    "db:apply-fts": "bun run scripts/apply-fts.ts",
     "r2:cors": "bun run scripts/set-r2-cors.ts"
   },
   "dependencies": {

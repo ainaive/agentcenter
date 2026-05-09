@@ -330,6 +330,23 @@
       "uploaded": "已上传",
       "errorSize": "文件超过 50 MB 限制",
       "errorType": "仅接受 .zip 格式的包"
+    },
+    "errors": {
+      "unauthenticated": "请重新登录后再试。",
+      "invalid_input": "部分字段格式不正确，请检查后重试。",
+      "slug_taken": "该标识符已被占用，请换一个。",
+      "version_taken": "该版本号已发布过，请升级版本号后重试。",
+      "unique_conflict": "存在与现有记录冲突的字段，请检查后重试。",
+      "invalid_dept": "所选部门不存在，请重新选择。",
+      "invalid_tag": "所选标签已不可用，请移除后重试。",
+      "org_missing": "工作空间尚未初始化，请联系管理员。",
+      "invalid_reference": "引用的内容缺失，请刷新后重试。",
+      "missing_required": "存在未填写的必填字段，请检查表单。",
+      "no_bundle": "请先上传扩展包再提交。",
+      "db_error": "暂时无法保存，请稍后重试。",
+      "fallback": "出错了，请重试。",
+      "uploadSign": "获取上传链接失败，请重试。",
+      "uploadFailed": "上传未完成，请检查网络后重试。"
     }
   }
 }
