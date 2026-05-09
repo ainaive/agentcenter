@@ -165,8 +165,9 @@ App Router, single Next.js app, server components by default. Routes are localiz
 | `/[locale]/onboard` | Pick department after sign-up | **P0** |
 | `/[locale]/collections` | My collections list | **P0** |
 | `/[locale]/collections/[id]` | Collection contents | P1 |
-| `/[locale]/publish` | Publisher dashboard | P1 |
-| `/[locale]/publish/new` | Upload wizard | **P0** (basic) |
+| `/[locale]/publish` | Publisher dashboard (own drafts, resume / discard) | **P0** |
+| `/[locale]/publish/new` | Upload wizard — new draft | **P0** |
+| `/[locale]/publish/[id]/edit` | Upload wizard — resume / edit an existing draft | **P0** |
 | `/[locale]/cli/auth` | Device-code authorization page (CLI displays code, user enters here) | **P0** |
 | `/[locale]/settings` | Profile, dept, language, theme | P1 |
 | `/[locale]/admin` | Moderate, feature, ban | P1 |
@@ -361,9 +362,20 @@ Fonts loaded via `next/font` in `app/layout.tsx` and wired into `--font-sans`/`-
                           → browser uploads bundle directly to R2
                           → server action attachFile(extensionId, fileId)
   Step 3: Review & submit → server action submitForReview(extensionId)
+                          → submit(versionId) flips status to 'scanning'
+                            (idempotent: pending|scanning → scanning, so a retry
+                             after a failed inngest.send can re-queue the scan)
                           → inngest.send({ name: 'extension/scan.requested', ... })
-                          → Extension stays visibility='draft', version status='pending'
+                            (best-effort rollback to 'pending' on send failure)
                           → return to /publish dashboard
+
+[Publisher] /publish (dashboard)
+  - Lists my drafts with stage (needs upload / ready to submit / scanning / …).
+  - Resumable rows (status='pending') link to /publish/[id]/edit → same wizard,
+    pre-filled, slug+version locked while a bundle is uploaded (they form the
+    R2 bundle key bundles/<slug>/<version>/bundle.zip).
+  - Per-row Discard button hard-deletes the draft (FK cascades). R2 bundle
+    objects are left for bucket lifecycle.
 
 [Background, Inngest]
   on 'extension/scan.requested':
