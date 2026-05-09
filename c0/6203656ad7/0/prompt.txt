@@ -1,0 +1,5 @@
+for the Chinese in i18n, some words can use English, like "技能", change to "Skill", "MCP 服务器" change to "MCP"
+
+---
+
+1. singular, 热门 Skill 2. these two can be chinese 3. yes, add space
