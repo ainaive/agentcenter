@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "306523630344",
+  "strategy": "manual-commit",
+  "branch": "fix/publish-step1-error-handling",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "lib/actions/publish-errors.test.ts",
+    "lib/actions/publish-errors.ts",
+    "lib/actions/publish.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/30/6523630344/0/metadata.json",
+      "transcript": "/30/6523630344/0/full.jsonl",
+      "content_hash": "/30/6523630344/0/content_hash.txt",
+      "prompt": "/30/6523630344/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 26,
+    "cache_creation_tokens": 18892,
+    "cache_read_tokens": 2095455,
+    "output_tokens": 12984,
+    "api_call_count": 17
+  }
+}
