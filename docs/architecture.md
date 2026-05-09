@@ -102,27 +102,39 @@ The share URL on the hero is composed from `process.env.NEXT_PUBLIC_APP_URL` rat
 
 ### Publish
 
+The wizard is a 4-step rail layout (`<UploadWizard>` in `components/publish/wizard/`): **Basics → Source → Listing → Review**, with a sticky live-preview pane that mirrors the listing card and the derived `manifest.json`. Step 1 (Basics) creates the draft on advance; Steps 2-3 mutate it via `updateDraftExtension`; Step 4 submits.
+
 ```text
 Browser                          Vercel                          R2          Inngest
-   │ form submit                    │                              │             │
-   ├──── createDraftExtension ────► server action  ──► extensions row (status=draft)
+   │ Basics → Next                  │                              │             │
+   ├──── createDraftExtension ────► server action  ──► extensions row (visibility=draft)
    │                                │                              │             │
-   ├──── upload bundle ─────────────│─── presigned PUT URL ───────►│             │
+   ├──── Source: upload bundle ─────│─── presigned PUT URL ───────►│             │
    │                                │                              │             │
    ├──── attachFile(versionId) ────► server action  ──► files row + extensionVersion
    │                                │                              │             │
-   ├──── submitForReview ──────────► server action  ──► sendEvent("extension/scan.requested")
+   ├──── Listing/Review edits ─────► updateDraftExtension (sourceMethod, tags, README, …)
+   │                                │                              │             │
+   ├──── Review → Publish ─────────► submitForReview ──► sendEvent("extension/scan.requested")
    │                                │                              │             │
    │                                │                              │  scan-bundle:
    │                                │                              │   download from R2,
    │                                │                              │   sha-256 checksum,
    │                                │                              │   parse manifest.toml,
    │                                │                              │   validate schema,
-   │                                │                              │   mark version ready/rejected,
+   │                                │                              │   recordScanResult →
+   │                                │                              │    scope=personal:
+   │                                │                              │      version.status=ready
+   │                                │                              │      + version.publishedAt=now
+   │                                │                              │      + extensions.visibility=published
+   │                                │                              │      + extensions.publishedAt=now
+   │                                │                              │    scope=org|enterprise:
+   │                                │                              │      version.status=ready
+   │                                │                              │      (visibility stays draft —
+   │                                │                              │       awaits admin publishVersion)
    │                                │                              │   sendEvent("extension/index.requested")
    │                                │                              │             │
    │                                │                              │  reindex-search:
-   │                                │                              │   set extension visibility=published,
    │                                │                              │   revalidateTag("extensions")
 ```
 
@@ -130,11 +142,13 @@ The upload goes browser → R2 directly (presigned PUT) — Vercel only signs th
 
 A note on `scan-bundle`: download + checksum + manifest parsing live in a single `step.run` rather than separate steps, because Inngest serializes step return values across boundaries and `Buffer` doesn't survive that round-trip.
 
-R2 bundle keys are `bundles/<slug>/<version>/bundle.zip` (`bundleKey()` in `lib/storage/r2.ts`). Two consequences worth knowing: (1) the wizard locks `slug` and `version` in resume/edit mode whenever a bundle has been uploaded — letting either change would orphan the bundle at the old key — and (2) discarding a draft only deletes DB rows; the R2 object is left for bucket lifecycle to garbage-collect.
+The form is deliberately slimmer than the bundle TOML it eventually publishes. The wizard collects only what users edit interactively (name, slug, summary, type, scope, tags, dept, README, permissions, icon colour, source method); fields that the bundle's `manifest.toml` still requires (`description`, `funcCat`, `subCat`) get backfilled server-side. `extensions.funcCat`/`subCat` are nullable and `defaultClassification(category)` in `lib/actions/publish.ts` derives sensible defaults (`skills`/`plugins` → `tools/general`, `mcp` → `tools/integrations`, `slash` → `tools/commands`) on `createDraftExtension`. `updateDraftExtension` deliberately never writes those columns so admin curation isn't reverted on a draft re-save. New columns: `extensions.permissions` (jsonb of network/files/runtime/data toggles surfaced on the detail page) and `extension_versions.sourceMethod` / `sourceMeta` (text + jsonb — only `'zip'` is wired today; `'git'` and `'cli'` are reserved for future modes).
+
+R2 bundle keys are `bundles/<slug>/<version>/bundle.zip` (`bundleKey()` in `lib/storage/r2.ts`). Two consequences worth knowing: (1) the wizard locks `slug` and `version` on the Basics step the moment a draft has been persisted server-side (i.e. once `extensionId` is set) — `updateDraftExtension` deliberately refuses to write either column, and an unlocked field would silently show edits the server will never persist or, worse, orphan the bundle at the old R2 key after upload; and (2) discarding a draft only deletes DB rows; the R2 object is left for bucket lifecycle to garbage-collect.
 
 ### Resume, edit, and discard
 
-The dashboard at `/[locale]/publish` shows each draft's stage (`Needs bundle upload` / `Ready to submit` / `Awaiting scan` / etc., derived from `extensionVersions.status` + `bundleFileId` via `rowAction()` in `lib/publish/row-action.ts`). Rows whose latest version is `pending` are clickable and link into `/publish/[id]/edit`, which loads the draft via `getDraft()` and mounts the same `<UploadWizard>` in resume mode — Step 1 form pre-filled, slug/version locked, initial step derived from whether a bundle is uploaded. Step 1's submit calls `updateDraftExtension()` instead of `createDraftExtension()`; the action refuses (`version_not_editable`) once status leaves `pending`. Rejected rows aren't clickable but surface the scan reason inline (extracted from `files.scanReport` via `extractScanReason()` in `lib/publish/scan-report.ts`) so the dashboard isn't a dead end for failed scans.
+The dashboard at `/[locale]/publish` shows each draft's stage (`Needs bundle upload` / `Ready to submit` / `Awaiting scan` / etc., derived from `extensionVersions.status` + `bundleFileId` via `rowAction()` in `lib/publish/row-action.ts`). Rows whose latest version is `pending` are clickable and link into `/publish/[id]/edit`, which loads the draft via `getDraft()` and mounts the same `<UploadWizard>` in resume mode — Basics fields pre-filled, slug + version locked (because `extensionId` is set), and the initial step derived from whether a bundle is uploaded (no bundle → land on Source; bundle present → land on Review). Step transitions through Basics call `updateDraftExtension()` instead of `createDraftExtension()`; the action refuses (`version_not_editable`) once status leaves `pending`. Rejected rows aren't clickable but surface the scan reason inline (extracted from `files.scanReport` via `extractScanReason()` in `lib/publish/scan-report.ts`) so the dashboard isn't a dead end for failed scans.
 
 Each draft row also gets a `<DiscardButton>` that calls `discardDraft()` — owner-checked, draft-visibility-only, hard delete (FK cascades clean up versions/tags/files-row links). `getDraft` and `discardDraft` deliberately collapse non-owner into `not_found` so the public action contract can't be used to probe existence.
 
@@ -142,9 +156,9 @@ Each draft row also gets a `<DiscardButton>` that calls `discardDraft()` — own
 
 `lib/extensions/state.ts` owns every transition of `extensionVersions.status`, `files.scanStatus`, and `extensions.visibility`. Three functions:
 
-- `submit(versionId)` — moves a version into `scanning`. Idempotent: accepts `pending` *or* `scanning` as the source state, so a Step 3 retry after a failed `inngest.send` can re-queue the scan instead of getting stuck. Versions in `ready` / `rejected` reject the transition.
-- `recordScanResult(versionId, fileId, result)` — applies the outcome of a bundle scan in one transaction; success sets `files.scanStatus='clean' + version.status='ready' + checksumSha256`, failure sets `'flagged' + 'rejected'`. The job calls this once with a discriminated `result`.
-- `publishVersion(versionId)` — flips `extensions.visibility='published'` and stamps both rows with `publishedAt`, returning the `extensionId` for the job's downstream `revalidateTag` and `extension/published` event.
+- `submit(versionId)` — moves a version into `scanning`. Idempotent: accepts `pending` *or* `scanning` as the source state, so a retry after a failed `inngest.send` can re-queue the scan instead of getting stuck. Versions in `ready` / `rejected` reject the transition.
+- `recordScanResult(versionId, fileId, result)` — applies the outcome of a bundle scan in one transaction. Failure (`result.ok === false`) sets `files.scanStatus='flagged' + version.status='rejected'`. Success sets `files.scanStatus='clean' + checksumSha256`, then **branches on the parent extension's `scope`**: `personal` → `version.status='ready'` *plus* `version.publishedAt=now()` *plus* `extensions.visibility='published'` + `extensions.publishedAt=now()`, all in the same transaction (auto-publish path); `org` / `enterprise` → only `version.status='ready'`, leaving visibility as `draft` for a later admin call to `publishVersion`. The function joins extensions to read scope on the way in, so the scan job doesn't need to know the rule.
+- `publishVersion(versionId)` — admin-curation path for `org` / `enterprise` versions. Flips `extensions.visibility='published'` and stamps both rows with `publishedAt`, returning the `extensionId` for the job's downstream `revalidateTag` and `extension/published` event. Personal-scope versions don't go through here — `recordScanResult` already published them.
 
 `extensions.search_vector` is a Postgres `GENERATED ALWAYS ... STORED` column (see `drizzle/0002_fts_search_vector.sql`); no application code writes it. The `reindex-search` job's earlier hand-rolled `to_tsvector` UPDATE was dead — the generated column always reflects the source content.
 

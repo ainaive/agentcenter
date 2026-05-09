@@ -34,6 +34,7 @@ vi.mock("next/headers", () => ({
 }));
 
 import {
+  createDraftExtension,
   discardDraft,
   getDraft,
   updateDraftExtension,
@@ -419,5 +420,180 @@ describe("updateDraftExtension", () => {
       Object.prototype.hasOwnProperty.call(p, "sourceMethod"),
     );
     expect(versionsPatch?.sourceMethod).toBe("zip");
+  });
+
+  // Regression for the load-bearing comment in updateDraftExtension that
+  // says funcCat/subCat are intentionally NOT touched on update — admin
+  // curation may have set non-default values, and a re-write would
+  // silently revert that work. If someone "tidies" the patch object to
+  // include them, this assertion fails before the regression ships.
+  it("does not write funcCat or subCat (preserves admin curation)", async () => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-A" } });
+    selectMock.mockReturnValue(
+      selectChain([
+        {
+          publisherUserId: "user-A",
+          versionId: "v-1",
+          versionStatus: "pending",
+        },
+      ]),
+    );
+
+    const updatePatches: Array<Record<string, unknown>> = [];
+    transactionMock.mockImplementation(
+      async (cb: (tx: unknown) => Promise<unknown>) => {
+        const tx = {
+          update: () => ({
+            set: (patch: Record<string, unknown>) => {
+              updatePatches.push(patch);
+              return { where: () => Promise.resolve(undefined) };
+            },
+          }),
+          delete: () => ({ where: () => Promise.resolve(undefined) }),
+          insert: () => ({ values: () => Promise.resolve(undefined) }),
+        };
+        return cb(tx);
+      },
+    );
+
+    const result = await updateDraftExtension("ext-1", validValues);
+    expect(result).toEqual({ ok: true });
+    for (const patch of updatePatches) {
+      expect(patch).not.toHaveProperty("funcCat");
+      expect(patch).not.toHaveProperty("subCat");
+    }
+  });
+});
+
+describe("createDraftExtension write shape", () => {
+  // The form schema dropped funcCat/subCat — they're now nullable in the
+  // DB. createDraftExtension backfills them off `category` so filters
+  // keep matching. These tests pin both the mapping and the shape of
+  // the rows it writes (extensions, extensionVersions). If someone
+  // re-introduces a notNull constraint, drops the backfill, or stops
+  // persisting sourceMethod, the wizard breaks at insert and we'd only
+  // catch it in manual QA.
+  const baseValues: ManifestFormValues = {
+    slug: "my-skill",
+    name: "My Skill",
+    nameZh: "",
+    version: "1.0.0",
+    category: "skills",
+    scope: "personal",
+    deptId: "",
+    tagIds: [],
+    summary: "Does things.",
+    taglineZh: "",
+    readmeMd: "",
+    iconColor: "indigo",
+    permissions: {},
+    sourceMethod: "zip",
+  };
+
+  // Capture every tx.insert(...).values(...) payload regardless of which
+  // table is being written. We distinguish rows by their distinctive
+  // fields (extensions row carries `slug`, extensionVersions row
+  // carries `version` without `slug`).
+  function captureInserts() {
+    const inserts: Array<Record<string, unknown> | unknown> = [];
+    transactionMock.mockImplementation(
+      async (cb: (tx: unknown) => Promise<unknown>) => {
+        const tx = {
+          insert: () => ({
+            values: (payload: unknown) => {
+              inserts.push(payload);
+              return Promise.resolve(undefined);
+            },
+          }),
+        };
+        return cb(tx);
+      },
+    );
+    return inserts;
+  }
+
+  function findExtensionsRow(rows: unknown[]) {
+    return rows.find(
+      (r) => typeof r === "object" && r !== null && "slug" in r,
+    ) as Record<string, unknown> | undefined;
+  }
+  function findVersionRow(rows: unknown[]) {
+    return rows.find(
+      (r) =>
+        typeof r === "object" &&
+        r !== null &&
+        "version" in r &&
+        !("slug" in r),
+    ) as Record<string, unknown> | undefined;
+  }
+
+  beforeEach(() => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-A" } });
+  });
+
+  it.each([
+    ["skills", "tools", "general"],
+    ["plugins", "tools", "general"],
+    ["mcp", "tools", "integrations"],
+    ["slash", "tools", "commands"],
+  ] as const)(
+    "backfills funcCat/subCat for category=%s",
+    async (category, funcCat, subCat) => {
+      const inserts = captureInserts();
+      const result = await createDraftExtension({
+        ...baseValues,
+        category,
+      });
+      expect(result.ok).toBe(true);
+      const row = findExtensionsRow(inserts);
+      expect(row).toBeDefined();
+      expect(row?.funcCat).toBe(funcCat);
+      expect(row?.subCat).toBe(subCat);
+    },
+  );
+
+  it("persists sourceMethod on the version row", async () => {
+    const inserts = captureInserts();
+    const result = await createDraftExtension(baseValues);
+    expect(result.ok).toBe(true);
+    const row = findVersionRow(inserts);
+    expect(row).toBeDefined();
+    expect(row?.sourceMethod).toBe("zip");
+  });
+
+  it("writes summary into the tagline column (not a separate summary field)", async () => {
+    const inserts = captureInserts();
+    await createDraftExtension({ ...baseValues, summary: "Real-time search" });
+    const row = findExtensionsRow(inserts);
+    expect(row?.tagline).toBe("Real-time search");
+    // The DB has no `summary` column — make sure we didn't accidentally
+    // start writing one (which would silently no-op against the schema).
+    expect(row).not.toHaveProperty("summary");
+  });
+
+  it("persists permissions as the captured object", async () => {
+    const inserts = captureInserts();
+    await createDraftExtension({
+      ...baseValues,
+      permissions: { network: true, files: true },
+    });
+    const row = findExtensionsRow(inserts);
+    expect(row?.permissions).toEqual({ network: true, files: true });
+  });
+
+  it("defaults permissions to {} when the form omits them", async () => {
+    const inserts = captureInserts();
+    // Use a Partial<> cast to delete a required-by-form field — the
+    // server action treats missing permissions as the empty object,
+    // and that default is what lands on the row.
+    const valuesWithoutPermissions: Partial<ManifestFormValues> = {
+      ...baseValues,
+    };
+    delete valuesWithoutPermissions.permissions;
+    await createDraftExtension(
+      valuesWithoutPermissions as ManifestFormValues,
+    );
+    const row = findExtensionsRow(inserts);
+    expect(row?.permissions).toEqual({});
   });
 });
