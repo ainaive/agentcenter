@@ -1,0 +1,13 @@
+OK, I have setted up the R
+
+---
+
+OK, I have setted up the R2
+
+---
+
+ok, I have set the CORS
+
+---
+
+it's ok, after the upload, when enter step 3(review & submit), I click submit for review, it shows error: Something went wrong. Please try again. Failed to send event Your event or events were not sent to Inngest. We couldn't find an event key to use to send events to Inngest. To fix: Set the `INNGEST_EVENT_KEY` environment variable; Pass a key to the `new Inngest()` constructor using the `eventKey` option
