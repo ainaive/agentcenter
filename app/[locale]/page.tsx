@@ -34,24 +34,29 @@ export default async function Home({
   return (
     <div className="px-7 py-5">
       {featured && (
-        <section className="bg-card border-border relative mb-7 overflow-hidden rounded-xl border p-9 shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+        <section className="bg-card border-border relative mb-7 overflow-hidden rounded-xl border shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
           <div
             aria-hidden
-            className="bg-primary/12 pointer-events-none absolute -top-24 -right-16 size-80 rounded-full blur-3xl"
+            className="bg-primary/10 pointer-events-none absolute -top-32 left-1/2 size-[28rem] -translate-x-1/2 rounded-full blur-3xl"
           />
           <div
             aria-hidden
-            className="pointer-events-none absolute -bottom-28 right-40 size-56 rounded-full blur-3xl"
+            className="pointer-events-none absolute -bottom-32 left-1/2 size-80 -translate-x-1/2 rounded-full blur-3xl"
             style={{
-              background: `${featured.iconColor ?? "var(--primary)"}1f`,
+              background: `${featured.iconColor ?? "var(--primary)"}18`,
             }}
           />
-          <div className="relative grid items-center gap-10 md:grid-cols-[minmax(0,1fr)_auto]">
-            <div>
-              <div className="text-primary font-mono text-[10.5px] font-medium tracking-[0.18em] uppercase">
+          <div className="relative px-9 pt-5 pb-4">
+            <div className="flex items-center gap-5">
+              <div className="border-border/60 h-px flex-1" />
+              <span className="text-primary font-mono text-[10.5px] font-medium tracking-[0.22em] uppercase">
                 {t("featuredLabel")}
-              </div>
-              <h1 className="serif mt-2.5 text-4xl leading-tight tracking-tight">
+              </span>
+              <div className="border-border/60 h-px flex-1" />
+            </div>
+
+            <div className="px-2 py-7 text-center md:py-9">
+              <h1 className="serif mx-auto max-w-3xl text-4xl leading-[1.05] tracking-tight md:text-5xl">
                 <FeaturedTitle
                   name={
                     locale === "zh" && featured.nameZh
@@ -61,46 +66,29 @@ export default async function Home({
                 />
               </h1>
               {(featured.descriptionZh || featured.description) && (
-                <p className="text-muted-foreground mt-2.5 max-w-md text-[13.5px] leading-relaxed">
+                <p className="serif text-muted-foreground mx-auto mt-3.5 max-w-xl text-[14px] leading-relaxed italic">
                   {locale === "zh" && featured.descriptionZh
                     ? featured.descriptionZh
                     : featured.description}
                 </p>
               )}
-              <div className="mt-6 flex items-center gap-5">
-                <Link
-                  href={`/extensions/${featured.slug}`}
-                  className="text-primary hover:text-primary/80 group inline-flex items-center gap-1.5 text-[12.5px] font-semibold transition-colors"
-                >
-                  {t("viewExtension")}
-                  <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-                <span className="text-muted-foreground inline-flex items-center gap-1.5 font-mono text-[11.5px]">
-                  <Download className="size-3" />
-                  {t("installsCount", {
-                    count: formatCount(featured.downloadsCount),
-                  })}
-                </span>
-              </div>
             </div>
-            {featured.iconEmoji && (
+
+            <div className="border-border/60 flex items-center justify-between border-t pt-3">
+              <span className="text-muted-foreground inline-flex items-center gap-1.5 font-mono text-[10.5px] tracking-[0.15em] uppercase">
+                <Download className="size-3" />
+                {t("installsCount", {
+                  count: formatCount(featured.downloadsCount),
+                })}
+              </span>
               <Link
                 href={`/extensions/${featured.slug}`}
-                aria-hidden
-                tabIndex={-1}
-                className="hidden md:block"
+                className="text-primary hover:text-primary/80 group inline-flex items-center gap-1.5 text-[12.5px] font-semibold transition-colors"
               >
-                <div
-                  className="flex size-44 items-center justify-center rounded-2xl border-[1.5px] text-7xl shadow-[0_8px_24px_-12px_color-mix(in_oklab,var(--primary)_25%,transparent)] transition-transform duration-300 hover:-translate-y-1 hover:rotate-1"
-                  style={{
-                    background: `${featured.iconColor ?? "#888"}1c`,
-                    borderColor: `${featured.iconColor ?? "#888"}44`,
-                  }}
-                >
-                  {featured.iconEmoji}
-                </div>
+                {t("viewExtension")}
+                <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
               </Link>
-            )}
+            </div>
           </div>
         </section>
       )}
