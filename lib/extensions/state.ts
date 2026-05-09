@@ -46,14 +46,24 @@ export async function submit(versionId: string): Promise<void> {
 
 // Apply the outcome of a bundle scan: file scan flag + version status.
 // Both writes commit together; the version must currently be `scanning`.
+//
+// Auto-publish on success: extensions with `scope = "personal"` skip the
+// admin-review step entirely — they go straight to `published` once their
+// bundle scan is clean. Org/Enterprise drafts stay in `ready` for an
+// admin to flip them via `publishVersion`.
 export async function recordScanResult(
   versionId: string,
   fileId: string,
   result: ScanResult,
 ): Promise<void> {
   const [version] = await db
-    .select({ status: extensionVersions.status })
+    .select({
+      status: extensionVersions.status,
+      extensionId: extensionVersions.extensionId,
+      scope: extensions.scope,
+    })
     .from(extensionVersions)
+    .innerJoin(extensions, eq(extensions.id, extensionVersions.extensionId))
     .where(eq(extensionVersions.id, versionId))
     .limit(1);
   if (!version || version.status !== "scanning") {
@@ -62,6 +72,9 @@ export async function recordScanResult(
 
   await db.transaction(async (tx) => {
     if (result.ok) {
+      const isPersonal = version.scope === "personal";
+      const now = isPersonal ? new Date() : null;
+
       await tx
         .update(files)
         .set({
@@ -72,8 +85,18 @@ export async function recordScanResult(
         .where(eq(files.id, fileId));
       await tx
         .update(extensionVersions)
-        .set({ status: "ready" })
+        .set(
+          isPersonal
+            ? { status: "ready", publishedAt: now }
+            : { status: "ready" },
+        )
         .where(eq(extensionVersions.id, versionId));
+      if (isPersonal) {
+        await tx
+          .update(extensions)
+          .set({ visibility: "published", publishedAt: now })
+          .where(eq(extensions.id, version.extensionId));
+      }
     } else {
       await tx
         .update(files)

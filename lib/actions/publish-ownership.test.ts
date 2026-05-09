@@ -195,23 +195,22 @@ describe("getDraft", () => {
       slug: "my-skill",
       name: "My Skill",
       nameZh: null,
-      tagline: null,
-      description: "hello",
-      descriptionZh: null,
+      tagline: "Does things.",
+      taglineZh: null,
+      readmeMd: null,
+      iconColor: "indigo",
+      permissions: {},
       category: "skills",
       scope: "personal",
       funcCat: "workTask",
       subCat: "search",
-      l2: null,
       deptId: null,
-      homepageUrl: null,
-      repoUrl: null,
-      licenseSpdx: null,
       visibility: "draft",
       versionId: "v-1",
       version: "1.0.0",
       versionStatus: "pending",
       bundleFileId: "f-1",
+      sourceMethod: "zip",
       ...overrides,
     };
   }
@@ -230,12 +229,16 @@ describe("getDraft", () => {
     expect(result.draft.bundleUploaded).toBe(true);
     expect(result.draft.formValues.slug).toBe("my-skill");
     expect(result.draft.formValues.name).toBe("My Skill");
-    expect(result.draft.formValues.description).toBe("hello");
+    // The redesigned form maps the DB `tagline` column onto `summary`.
+    expect(result.draft.formValues.summary).toBe("Does things.");
     expect(result.draft.formValues.tagIds).toEqual(["t-1", "t-2"]);
     // Nullable DB columns surface as empty strings in the form (so the
     // controlled <input>s don't go uncontrolled).
     expect(result.draft.formValues.nameZh).toBe("");
     expect(result.draft.formValues.deptId).toBe("");
+    // Defaults round-trip cleanly when DB values are null/empty.
+    expect(result.draft.formValues.iconColor).toBe("indigo");
+    expect(result.draft.formValues.sourceMethod).toBe("zip");
   });
 
   it("reports bundleUploaded: false when bundleFileId is null", async () => {
@@ -261,17 +264,14 @@ describe("updateDraftExtension", () => {
     version: "1.0.0",
     category: "skills",
     scope: "personal",
-    funcCat: "workTask",
-    subCat: "search",
-    l2: "",
     deptId: "",
     tagIds: [],
-    description: "hello",
-    descriptionZh: "",
-    tagline: "",
-    homepageUrl: "",
-    repoUrl: "",
-    licenseSpdx: "",
+    summary: "Does things.",
+    taglineZh: "",
+    readmeMd: "",
+    iconColor: "indigo",
+    permissions: {},
+    sourceMethod: "zip",
   };
 
   it("returns unauthenticated when no session", async () => {
@@ -402,13 +402,22 @@ describe("updateDraftExtension", () => {
     const result = await updateDraftExtension("ext-1", attempted);
     expect(result).toEqual({ ok: true });
 
-    // The wizard's update should produce exactly one extensions patch
-    // and zero version-row patches — slug + version aren't written.
-    expect(updatePatches).toHaveLength(1);
-    const patch = updatePatches[0];
-    expect(patch).not.toHaveProperty("slug");
-    expect(patch).not.toHaveProperty("version");
-    // Sanity: the editable fields are still going through.
-    expect(patch.name).toBe("My Skill");
+    // The wizard issues two patches: one against `extensions` (no slug,
+    // no version) and one against `extension_versions` carrying just the
+    // resumed source method. Neither must contain `slug` or `version`.
+    expect(updatePatches).toHaveLength(2);
+    for (const patch of updatePatches) {
+      expect(patch).not.toHaveProperty("slug");
+      expect(patch).not.toHaveProperty("version");
+    }
+    const extensionsPatch = updatePatches.find((p) =>
+      Object.prototype.hasOwnProperty.call(p, "name"),
+    );
+    expect(extensionsPatch).toBeDefined();
+    expect(extensionsPatch?.name).toBe("My Skill");
+    const versionsPatch = updatePatches.find((p) =>
+      Object.prototype.hasOwnProperty.call(p, "sourceMethod"),
+    );
+    expect(versionsPatch?.sourceMethod).toBe("zip");
   });
 });

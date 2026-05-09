@@ -35,13 +35,8 @@ export default async function PublishEditPage({ params }: PageProps) {
     redirect("/publish");
   }
 
-  const t = await getTranslations("publish.wizard");
-
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="font-display text-2xl font-semibold mb-8">
-        {t("resumingLabel")}
-      </h1>
+    <main className="px-6 py-8 lg:px-10">
       <UploadWizard
         resume={{
           extensionId: draft.extensionId,
@@ -50,6 +45,7 @@ export default async function PublishEditPage({ params }: PageProps) {
           version: draft.version,
           name: draft.name,
           category: draft.category,
+          scope: draft.scope,
           bundleUploaded: draft.bundleUploaded,
           formValues: draft.formValues,
         }}

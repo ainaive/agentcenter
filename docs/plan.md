@@ -354,14 +354,21 @@ Fonts loaded via `next/font` in `app/layout.tsx` and wired into `--font-sans`/`-
 ## 7. Upload pipeline
 
 ```
-[Publisher] /publish/new  (3-step wizard, client component)
-  Step 1: Manifest form  (name, slug, category, scope, funcCat/subCat/l2, dept,
-                          tags, description × 2 locales, install paths per agent)
+[Publisher] /publish/new  (4-step rail wizard, client component — redesigned)
+  Step 1: Basics          (name, slug auto-derived, summary ≤80, type, scope;
+                            optional ZH translation panel)
             → Zod validate → server action createDraftExtension() → returns extensionId
-  Step 2: File upload     POST /api/upload/sign  → R2 presigned PUT
+            → server defaults backfill funcCat/subCat off `category`
+  Step 2: Source          (zip / git / cli tabs — only zip wired in v1)
+                          → POST /api/upload/sign  → R2 presigned PUT
                           → browser uploads bundle directly to R2
                           → server action attachFile(extensionId, fileId)
-  Step 3: Review & submit → server action submitForReview(extensionId)
+  Step 3: Listing         (icon colour swatch, tag pill input, dept tree
+                            dropdown, README markdown, permissions checklist)
+            → server action updateDraftExtension() persists incremental edits
+  Step 4: Review          → summary cards w/ Edit jump-to-step, scope-aware
+                            auto-publish vs. admin-review banner
+                          → submitForReview(versionId)
                           → submit(versionId) flips status to 'scanning'
                             (idempotent: pending|scanning → scanning, so a retry
                              after a failed inngest.send can re-queue the scan)
@@ -384,6 +391,9 @@ Fonts loaded via `next/font` in `app/layout.tsx` and wired into `--font-sans`/`-
     3. parse manifest.json against ManifestSchema (Zod)
     4. (optional) clamav scan
     5. write scanReport to files; on clean → status='ready'
+       → if extension.scope === 'personal': also set extension.visibility='published'
+         and stamp publishedAt on both rows (auto-publish path)
+       → otherwise stay at 'ready' awaiting admin curation (publishVersion)
     6. inngest.send({ name: 'extension/index.requested', ... })
   on 'extension/index.requested':
     1. UPDATE extensions SET searchVector = ...

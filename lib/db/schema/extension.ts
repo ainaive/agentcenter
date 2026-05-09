@@ -76,8 +76,10 @@ export const extensions = pgTable(
     category: extensionCategoryEnum().notNull(),
     badge: extensionBadgeEnum(),
     scope: extensionScopeEnum().notNull(),
-    funcCat: funcCatEnum().notNull(),
-    subCat: text().notNull(),
+    // funcCat/subCat are nullable — the redesigned publish wizard does not
+    // collect them; admin curation can backfill or system defaults apply.
+    funcCat: funcCatEnum(),
+    subCat: text(),
     l2: text(),
     publisherUserId: text().references(() => users.id, {
       onDelete: "set null",
@@ -105,6 +107,9 @@ export const extensions = pgTable(
     repoUrl: text(),
     licenseSpdx: text(),
     compatibilityJson: jsonb(),
+    // Permissions captured during publish (network/files/runtime/data, etc.).
+    // Surfaced on the detail page so users see what the extension wants.
+    permissions: jsonb().notNull().default({}),
     // denormalized counters (updated by jobs)
     downloadsCount: integer().notNull().default(0),
     starsAvg: numeric({ precision: 2, scale: 1 }).notNull().default("0.0"),
@@ -143,6 +148,10 @@ export const extensionVersions = pgTable(
     // with files.extensionVersionId. App code keeps these consistent.
     bundleFileId: text(),
     status: versionStatusEnum().notNull().default("pending"),
+    // Source method chosen during publish: zip (only one wired today), git, cli.
+    // Stored as text rather than enum so adding methods doesn't require a migration.
+    sourceMethod: text().notNull().default("zip"),
+    sourceMeta: jsonb().notNull().default({}),
     publishedAt: timestamp({ withTimezone: true }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },

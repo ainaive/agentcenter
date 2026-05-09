@@ -35,12 +35,16 @@ function updateChain(returnedRows: unknown[] = []) {
   return { set, where, returning };
 }
 
-// Build a select chain ending in .limit(rows).
+// Build a select chain ending in .limit(rows). Supports both the
+// straight `.from().where().limit()` shape and the joined
+// `.from().innerJoin().where().limit()` shape — `recordScanResult`
+// uses the latter to fetch the parent extension's scope.
 function selectChain(rows: unknown[]) {
   const limit = vi.fn().mockResolvedValue(rows);
   const where = vi.fn().mockReturnValue({ limit });
-  const from = vi.fn().mockReturnValue({ where });
-  return { from, where, limit };
+  const innerJoin = vi.fn().mockReturnValue({ where });
+  const from = vi.fn().mockReturnValue({ where, innerJoin });
+  return { from, innerJoin, where, limit };
 }
 
 // Fake tx exposing the same .update(...).set(...).where(...) shape.
@@ -89,8 +93,12 @@ describe("submit", () => {
 });
 
 describe("recordScanResult", () => {
-  it("writes clean + ready when version is currently scanning", async () => {
-    selectMock.mockReturnValue(selectChain([{ status: "scanning" }]));
+  it("writes clean + ready (org scope) without auto-publishing", async () => {
+    selectMock.mockReturnValue(
+      selectChain([
+        { status: "scanning", extensionId: "ext-1", scope: "org" },
+      ]),
+    );
     const { tx, updates } = makeTx();
     transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
       cb(tx),
@@ -109,12 +117,53 @@ describe("recordScanResult", () => {
       checksumSha256: "abc123",
     });
     expect(updates[0].where).toHaveBeenCalled();
+    // Org/Enterprise drafts stay at `ready` until an admin publishes.
     expect(updates[1].set).toHaveBeenCalledWith({ status: "ready" });
     expect(updates[1].where).toHaveBeenCalled();
   });
 
+  it("auto-publishes when scope is personal (extra extensions write)", async () => {
+    selectMock.mockReturnValue(
+      selectChain([
+        { status: "scanning", extensionId: "ext-1", scope: "personal" },
+      ]),
+    );
+    const { tx, updates } = makeTx();
+    transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
+      cb(tx),
+    );
+
+    await recordScanResult("v1", "f1", {
+      ok: true,
+      checksum: "abc123",
+      scanReport: {},
+    });
+
+    // Three writes: files (scan), extension_versions (status + publishedAt),
+    // extensions (visibility + publishedAt).
+    expect(updates).toHaveLength(3);
+    // Version row gets a published timestamp alongside the ready flip.
+    expect(updates[1].set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "ready",
+        publishedAt: expect.any(Date),
+      }),
+    );
+    // Extension row visibility flips and stamps publishedAt.
+    expect(updates[2].set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        visibility: "published",
+        publishedAt: expect.any(Date),
+      }),
+    );
+  });
+
   it("writes flagged + rejected when version is scanning and scan failed", async () => {
-    selectMock.mockReturnValue(selectChain([{ status: "scanning" }]));
+    selectMock.mockReturnValue(
+      selectChain([
+        { status: "scanning", extensionId: "ext-1", scope: "personal" },
+      ]),
+    );
     const { tx, updates } = makeTx();
     transactionMock.mockImplementation(async (cb: (tx: unknown) => Promise<unknown>) =>
       cb(tx),
@@ -126,6 +175,7 @@ describe("recordScanResult", () => {
       scanReport: { reason: "missing_manifest" },
     });
 
+    // Failure path is scope-agnostic — only files + version updates.
     expect(updates).toHaveLength(2);
     expect(updates[0].set).toHaveBeenCalledWith({
       scanStatus: "flagged",
@@ -146,7 +196,11 @@ describe("recordScanResult", () => {
   });
 
   it("throws when version is already terminal (idempotent retry path)", async () => {
-    selectMock.mockReturnValue(selectChain([{ status: "ready" }]));
+    selectMock.mockReturnValue(
+      selectChain([
+        { status: "ready", extensionId: "ext-1", scope: "personal" },
+      ]),
+    );
     const err = await recordScanResult("v1", "f1", {
       ok: true,
       checksum: "x",

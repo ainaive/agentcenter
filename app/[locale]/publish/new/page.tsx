@@ -6,18 +6,17 @@ import { UploadWizard } from "@/components/publish/upload-wizard";
 
 export async function generateMetadata() {
   const t = await getTranslations("publish.wizard");
-  return { title: t("step1Title") };
+  return { title: t("title") };
 }
 
 export default async function PublishNewPage() {
   const session = await getSession();
   if (!session) redirect("/sign-in");
 
-  const t = await getTranslations("publish.wizard");
-
+  // The wizard renders its own header (rail layout, sticky preview, etc.).
+  // Wrapping it again here would clash with the design's centred title.
   return (
-    <main className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="font-display text-2xl font-semibold mb-8">{t("step1Title")}</h1>
+    <main className="px-6 py-8 lg:px-10">
       <UploadWizard />
     </main>
   );
