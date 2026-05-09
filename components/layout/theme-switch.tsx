@@ -1,6 +1,7 @@
 "use client";
 
 import { Moon, Sun } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
@@ -11,6 +12,7 @@ interface ThemeSwitchProps {
 }
 
 export function ThemeSwitch({ theme }: ThemeSwitchProps) {
+  const t = useTranslations("nav");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -27,15 +29,13 @@ export function ThemeSwitch({ theme }: ThemeSwitchProps) {
       type="button"
       onClick={toggle}
       disabled={pending}
-      aria-label={
-        theme === "ivory" ? "Switch to dark theme" : "Switch to ivory theme"
-      }
+      aria-label={theme === "ivory" ? t("switchToDark") : t("switchToIvory")}
       className="text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md p-1.5 transition-colors disabled:opacity-50"
     >
       {theme === "ivory" ? (
-        <Moon className="size-[16px]" />
+        <Moon aria-hidden className="size-[16px]" />
       ) : (
-        <Sun className="size-[16px]" />
+        <Sun aria-hidden className="size-[16px]" />
       )}
     </button>
   );

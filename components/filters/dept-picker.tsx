@@ -1,6 +1,7 @@
 "use client";
 
 import { Building2, ChevronDown, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import {
@@ -20,6 +21,7 @@ import type { Department } from "@/types";
 const ALL_DEPTS_TOKEN = "__all";
 
 export function DeptPicker() {
+  const t = useTranslations("filters.dept");
   const { filters, update } = useFilters();
   // Default = MY_DEPT_ID per the prototype's behavior; explicit "__all"
   // disables the filter.
@@ -41,13 +43,13 @@ export function DeptPicker() {
       type="button"
       className="bg-card border-border hover:border-primary/40 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-[12.5px] outline-none transition data-[popup-open]:border-primary"
     >
-      <Building2 className="text-muted-foreground size-3.5" />
+      <Building2 aria-hidden className="text-muted-foreground size-3.5" />
       <span className="flex min-w-0 items-center gap-1.5">
         {isMine && (
-          <span className="bg-primary size-1.5 shrink-0 rounded-full" />
+          <span aria-hidden className="bg-primary size-1.5 shrink-0 rounded-full" />
         )}
         {isAll ? (
-          <span className="font-semibold">All Departments</span>
+          <span className="font-semibold">{t("all")}</span>
         ) : (
           path && (
             <>
@@ -61,7 +63,7 @@ export function DeptPicker() {
           )
         )}
       </span>
-      <ChevronDown className="text-muted-foreground size-3.5" />
+      <ChevronDown aria-hidden className="text-muted-foreground size-3.5" />
     </button>
   );
 
@@ -76,18 +78,19 @@ export function DeptPicker() {
         <div className="border-border flex flex-wrap gap-1.5 border-b p-2.5">
           <Chip active={isMine} onClick={() => pick(MY_DEPT_ID)}>
             <span
+              aria-hidden
               className={cn(
                 "size-1.5 rounded-full",
                 isMine ? "bg-primary-foreground" : "bg-primary",
               )}
             />
-            My Department
+            {t("mine")}
           </Chip>
           <Chip active={active === "eng"} onClick={() => pick("eng")}>
-            My Org
+            {t("org")}
           </Chip>
           <Chip active={isAll} onClick={() => pick(ALL_DEPTS_TOKEN)}>
-            All Departments
+            {t("all")}
           </Chip>
         </div>
         <div className="max-h-72 overflow-y-auto py-1">
@@ -116,6 +119,7 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={cn(
         "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11.5px] font-semibold transition",
         active
@@ -162,6 +166,7 @@ function DeptNode({
   active: string;
   onPick: (id: string) => void;
 }) {
+  const t = useTranslations("filters.dept");
   // Auto-expand the path leading to MY_DEPT_ID.
   const initial =
     MY_DEPT_ID === dept.id || MY_DEPT_ID.startsWith(`${dept.id}.`);
@@ -178,7 +183,8 @@ function DeptNode({
         {dept.children ? (
           <button
             type="button"
-            aria-label={expanded ? "Collapse" : "Expand"}
+            aria-label={`${expanded ? t("collapse") : t("expand")} ${dept.name}`}
+            aria-expanded={expanded}
             onClick={(e) => {
               e.stopPropagation();
               setExpanded((p) => !p);
@@ -186,17 +192,18 @@ function DeptNode({
             className="text-muted-foreground hover:text-foreground flex size-5 items-center justify-center rounded transition-colors"
           >
             {expanded ? (
-              <ChevronDown className="size-3" />
+              <ChevronDown aria-hidden className="size-3" />
             ) : (
-              <ChevronRight className="size-3" />
+              <ChevronRight aria-hidden className="size-3" />
             )}
           </button>
         ) : (
-          <span className="size-5 shrink-0" />
+          <span aria-hidden className="size-5 shrink-0" />
         )}
         <button
           type="button"
           onClick={() => onPick(dept.id)}
+          aria-pressed={isActive}
           className={cn(
             "mx-1 flex flex-1 items-center gap-2 rounded-md px-2 py-1 text-left text-[12.5px] transition",
             isActive

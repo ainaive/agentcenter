@@ -1,7 +1,8 @@
 "use client";
 
 import { ChevronDown, X } from "lucide-react";
-import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { useId, useState } from "react";
 
 import type { TagWithCount } from "@/lib/db/queries/tags";
 import { useFilters } from "@/lib/hooks/use-filters";
@@ -14,6 +15,8 @@ interface TagDrawerProps {
 const VISIBLE_DEFAULT = 14;
 
 export function TagDrawer({ tags }: TagDrawerProps) {
+  const t = useTranslations("filters");
+  const panelId = useId();
   const { filters, update } = useFilters();
   const active = filters.tags ?? [];
   const tagMatch = filters.tagMatch ?? "any";
@@ -35,15 +38,18 @@ export function TagDrawer({ tags }: TagDrawerProps) {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-controls={panelId}
         className="text-muted-foreground hover:text-foreground inline-flex w-fit items-center gap-1.5 text-[12px] font-semibold transition-colors"
       >
         <ChevronDown
+          aria-hidden
           className={cn(
             "size-3.5 transition-transform",
             open ? "" : "-rotate-90",
           )}
         />
-        # Tags
+        # {t("tagsToggle")}
         {active.length > 0 && (
           <span className="bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[10px] font-bold">
             {active.length}
@@ -52,14 +58,20 @@ export function TagDrawer({ tags }: TagDrawerProps) {
       </button>
 
       {open && (
-        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-          {visible.map((t) => {
-            const isActive = active.includes(t.id);
+        <div
+          id={panelId}
+          role="group"
+          aria-label={t("tagsToggle")}
+          className="flex flex-wrap items-center gap-1.5 pt-1"
+        >
+          {visible.map((tag) => {
+            const isActive = active.includes(tag.id);
             return (
               <button
-                key={t.id}
+                key={tag.id}
                 type="button"
-                onClick={() => toggle(t.id)}
+                aria-pressed={isActive}
+                onClick={() => toggle(tag.id)}
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-semibold transition",
                   isActive
@@ -67,14 +79,14 @@ export function TagDrawer({ tags }: TagDrawerProps) {
                     : "border-border text-muted-foreground hover:border-primary hover:text-primary",
                 )}
               >
-                {t.id}
+                {tag.id}
                 <span
                   className={cn(
                     "text-[10px]",
                     isActive ? "opacity-70" : "opacity-50",
                   )}
                 >
-                  {t.count}
+                  {tag.count}
                 </span>
               </button>
             );
@@ -86,7 +98,7 @@ export function TagDrawer({ tags }: TagDrawerProps) {
               onClick={() => setShowAll(true)}
               className="text-muted-foreground hover:text-foreground text-[11.5px] font-semibold underline underline-offset-2 transition-colors"
             >
-              +{hiddenCount} more
+              +{t("showMoreCount", { count: hiddenCount })}
             </button>
           )}
           {showAll && hiddenCount > 0 && (
@@ -95,17 +107,22 @@ export function TagDrawer({ tags }: TagDrawerProps) {
               onClick={() => setShowAll(false)}
               className="text-muted-foreground hover:text-foreground text-[11.5px] font-semibold underline underline-offset-2 transition-colors"
             >
-              − less
+              − {t("showLess")}
             </button>
           )}
 
           {active.length > 0 && (
             <>
-              <div className="bg-muted ml-2 flex rounded p-0.5">
+              <div
+                role="group"
+                aria-label={t("matchModeGroupLabel")}
+                className="bg-muted ml-2 flex rounded p-0.5"
+              >
                 {(["any", "all"] as const).map((m) => (
                   <button
                     key={m}
                     type="button"
+                    aria-pressed={tagMatch === m}
                     onClick={() =>
                       update({ tagMatch: m === "any" ? undefined : m })
                     }
@@ -116,7 +133,7 @@ export function TagDrawer({ tags }: TagDrawerProps) {
                         : "text-muted-foreground",
                     )}
                   >
-                    {m}
+                    {t(`tags.${m}`)}
                   </button>
                 ))}
               </div>
@@ -125,8 +142,8 @@ export function TagDrawer({ tags }: TagDrawerProps) {
                 onClick={() => update({ tags: undefined })}
                 className="border-border text-muted-foreground hover:text-foreground inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold transition"
               >
-                <X className="size-3" />
-                Clear tags
+                <X aria-hidden className="size-3" />
+                {t("tags.clear")}
               </button>
             </>
           )}
