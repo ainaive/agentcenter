@@ -1,0 +1,39 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "90074a984b06",
+  "strategy": "manual-commit",
+  "branch": "polish/a11y-audit",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "components/filters/dept-picker.tsx",
+    "components/filters/filter-chips.tsx",
+    "components/filters/scope-pills.tsx",
+    "components/filters/sort-select.tsx",
+    "components/filters/tag-drawer.tsx",
+    "components/layout/app-shell.tsx",
+    "components/layout/locale-switch.tsx",
+    "components/layout/sidebar.tsx",
+    "components/layout/theme-switch.tsx",
+    "components/layout/top-bar.tsx",
+    "components/layout/user-button.test.tsx",
+    "components/layout/user-button.tsx",
+    "docs/a11y-memo.md",
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/90/074a984b06/0/metadata.json",
+      "transcript": "/90/074a984b06/0/full.jsonl",
+      "content_hash": "/90/074a984b06/0/content_hash.txt",
+      "prompt": "/90/074a984b06/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 86,
+    "cache_creation_tokens": 72097,
+    "cache_read_tokens": 18992560,
+    "output_tokens": 46110,
+    "api_call_count": 61
+  }
+}
