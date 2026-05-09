@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "c88455c15be4",
+  "strategy": "manual-commit",
+  "branch": "feat/publish-polish",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "app/[locale]/publish/[id]/edit/loading.tsx",
+    "app/[locale]/publish/error.tsx",
+    "app/[locale]/publish/loading.tsx",
+    "app/[locale]/publish/new/loading.tsx",
+    "components/publish/dashboard-skeleton.tsx",
+    "components/publish/wizard-skeleton.tsx",
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/c8/8455c15be4/0/metadata.json",
+      "transcript": "/c8/8455c15be4/0/full.jsonl",
+      "content_hash": "/c8/8455c15be4/0/content_hash.txt",
+      "prompt": "/c8/8455c15be4/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 63,
+    "cache_creation_tokens": 30110,
+    "cache_read_tokens": 14532709,
+    "output_tokens": 20309,
+    "api_call_count": 38
+  }
+}
