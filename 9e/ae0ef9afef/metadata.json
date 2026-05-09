@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "9eae0ef9afef",
+  "strategy": "manual-commit",
+  "branch": "feat/publish-redesign",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "drizzle/0002_thick_madame_hydra.sql",
+    "drizzle/meta/0002_snapshot.json",
+    "drizzle/meta/_journal.json",
+    "lib/actions/publish-ownership.test.ts",
+    "lib/actions/publish.ts",
+    "lib/db/schema/extension.ts",
+    "lib/validators/manifest.test.ts",
+    "lib/validators/manifest.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/9e/ae0ef9afef/0/metadata.json",
+      "transcript": "/9e/ae0ef9afef/0/full.jsonl",
+      "content_hash": "/9e/ae0ef9afef/0/content_hash.txt",
+      "prompt": "/9e/ae0ef9afef/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 192,
+    "cache_creation_tokens": 291801,
+    "cache_read_tokens": 28184881,
+    "output_tokens": 109462,
+    "api_call_count": 157
+  }
+}

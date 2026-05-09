@@ -1,0 +1,60 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "9eae0ef9afef",
+  "session_id": "7d58f0df-89c0-488d-ad48-3f25db67138b",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-09T10:25:48.620403Z",
+  "branch": "feat/publish-redesign",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "drizzle/0002_thick_madame_hydra.sql",
+    "drizzle/meta/0002_snapshot.json",
+    "drizzle/meta/_journal.json",
+    "lib/actions/publish-ownership.test.ts",
+    "lib/actions/publish.ts",
+    "lib/db/schema/extension.ts",
+    "lib/validators/manifest.test.ts",
+    "lib/validators/manifest.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7[1m]",
+  "turn_id": "c4173e3532d2",
+  "token_usage": {
+    "input_tokens": 192,
+    "cache_creation_tokens": 291801,
+    "cache_read_tokens": 28184881,
+    "output_tokens": 109462,
+    "api_call_count": 157
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-09T10:25:48.401024Z",
+    "agent_lines": 1977,
+    "agent_removed": 106,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1977,
+    "total_lines_changed": 2083,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 4289,
+      "agent_lines_removed": 1037
+    }
+  ]
+}
