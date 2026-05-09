@@ -72,10 +72,16 @@ describe("UploadWizard saveDraft gate", () => {
     expect(vi.mocked(updateDraftExtension)).not.toHaveBeenCalled();
   });
 
-  it("re-enables Save Draft once a resumed draft is loaded, even if Basics is blank", () => {
+  it("re-enables Save Draft once a resumed draft is loaded, even if Basics is blank", async () => {
     // The OR side of the gate: an existing extensionId from resume mode
     // means there's something on the server to update, regardless of
     // whether the in-memory Basics fields would pass stepsValid[0].
+    // Verify both the enabled state AND that clicking actually fires
+    // updateDraftExtension + redirects — otherwise the gate could be
+    // open but the action hooked to a no-op handler.
+    const user = userEvent.setup();
+    vi.mocked(updateDraftExtension).mockResolvedValue({ ok: true });
+
     render(
       <UploadWizard
         resume={{
@@ -111,5 +117,15 @@ describe("UploadWizard saveDraft gate", () => {
 
     const button = screen.getByRole("button", { name: "saveDraft" });
     expect(button).not.toBeDisabled();
+
+    await user.click(button);
+
+    expect(vi.mocked(updateDraftExtension)).toHaveBeenCalledWith(
+      "ext-1",
+      expect.objectContaining({ slug: "my-skill", name: "My Skill" }),
+    );
+    expect(mockPush).toHaveBeenCalledWith(
+      expect.stringContaining("/publish"),
+    );
   });
 });

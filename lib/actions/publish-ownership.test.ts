@@ -571,7 +571,7 @@ describe("createDraftExtension write shape", () => {
     expect(row).not.toHaveProperty("summary");
   });
 
-  it("persists permissions as the captured object (defaulting to {})", async () => {
+  it("persists permissions as the captured object", async () => {
     const inserts = captureInserts();
     await createDraftExtension({
       ...baseValues,
@@ -579,5 +579,21 @@ describe("createDraftExtension write shape", () => {
     });
     const row = findExtensionsRow(inserts);
     expect(row?.permissions).toEqual({ network: true, files: true });
+  });
+
+  it("defaults permissions to {} when the form omits them", async () => {
+    const inserts = captureInserts();
+    // Use a Partial<> cast to delete a required-by-form field — the
+    // server action treats missing permissions as the empty object,
+    // and that default is what lands on the row.
+    const valuesWithoutPermissions: Partial<ManifestFormValues> = {
+      ...baseValues,
+    };
+    delete valuesWithoutPermissions.permissions;
+    await createDraftExtension(
+      valuesWithoutPermissions as ManifestFormValues,
+    );
+    const row = findExtensionsRow(inserts);
+    expect(row?.permissions).toEqual({});
   });
 });
