@@ -1,0 +1,5 @@
+2. make the extension's card clickable, not only click the title jump to the detail page. what do you think?
+
+---
+
+implement it
