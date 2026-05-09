@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "72fb2ecdaa3e",
+  "strategy": "manual-commit",
+  "branch": "docs/architecture-refresh",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/72/fb2ecdaa3e/0/metadata.json",
+      "transcript": "/72/fb2ecdaa3e/0/full.jsonl",
+      "content_hash": "/72/fb2ecdaa3e/0/content_hash.txt",
+      "prompt": "/72/fb2ecdaa3e/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 16,
+    "cache_creation_tokens": 2751,
+    "cache_read_tokens": 2328206,
+    "output_tokens": 2402,
+    "api_call_count": 6
+  }
+}
