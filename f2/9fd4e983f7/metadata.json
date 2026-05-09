@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "f29fd4e983f7",
+  "strategy": "manual-commit",
+  "branch": "feat/publish-polish",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "app/[locale]/publish/page.tsx",
+    "lib/publish/scan-report.test.ts",
+    "lib/publish/scan-report.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/f2/9fd4e983f7/0/metadata.json",
+      "transcript": "/f2/9fd4e983f7/0/full.jsonl",
+      "content_hash": "/f2/9fd4e983f7/0/content_hash.txt",
+      "prompt": "/f2/9fd4e983f7/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 21,
+    "cache_creation_tokens": 6458,
+    "cache_read_tokens": 4562643,
+    "output_tokens": 3695,
+    "api_call_count": 11
+  }
+}
