@@ -18,6 +18,11 @@ export const filtersSchema = z.object({
   l2: z.string().trim().min(1).max(40).optional(),
   // Department id (dotted-path) or the literal "__all" to disable the filter.
   dept: z.string().trim().min(1).max(120).optional(),
+  // Creator = users.id (the user who published). Schema column is named
+  // publisherUserId for legacy reasons; we expose it as "creator" everywhere.
+  creator: z.string().trim().min(1).max(80).optional(),
+  // Publisher = organizations.id (the owning org).
+  publisher: z.string().trim().min(1).max(80).optional(),
   tags: z.array(z.string().trim().min(1).max(40)).max(16).optional(),
   tagMatch: z.enum(TAG_MATCHES).optional(),
   filter: z.enum(FILTER_CHIPS).optional(),
