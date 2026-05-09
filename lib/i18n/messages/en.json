@@ -343,6 +343,7 @@
       "invalid_reference": "A referenced item is missing. Please refresh and try again.",
       "missing_required": "A required field is missing. Please review the form.",
       "no_bundle": "Upload a bundle file before submitting.",
+      "scan_queue_unavailable": "Couldn't queue the bundle scan. The review service is temporarily unavailable — please try again in a moment.",
       "db_error": "We couldn't save your extension right now. Please try again in a moment.",
       "fallback": "Something went wrong. Please try again.",
       "uploadSign": "Couldn't get an upload URL. Please try again.",

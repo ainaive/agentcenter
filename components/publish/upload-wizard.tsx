@@ -40,6 +40,7 @@ const KNOWN_ERROR_CODES = new Set([
   "invalid_reference",
   "missing_required",
   "no_bundle",
+  "scan_queue_unavailable",
   "db_error",
 ]);
 

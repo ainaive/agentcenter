@@ -1,6 +1,6 @@
 "use server";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 
 import { auth } from "@/lib/auth";
@@ -181,11 +181,39 @@ export async function submitForReview(versionId: string): Promise<SubmitResult> 
     return { ok: false, error: "db_error", detail: devErrorDetail(err) };
   }
 
-  const { inngest } = await import("@/lib/jobs/client");
-  await inngest.send({
-    name: "extension/scan.requested",
-    data: { versionId, fileId: version.bundleFileId },
-  });
+  // Queue the scan job. If this fails (e.g. INNGEST_EVENT_KEY missing,
+  // Inngest unreachable), roll the version status back to `pending` so it
+  // doesn't sit stuck in `scanning` with no scan ever happening.
+  try {
+    const { inngest } = await import("@/lib/jobs/client");
+    await inngest.send({
+      name: "extension/scan.requested",
+      data: { versionId, fileId: version.bundleFileId },
+    });
+  } catch (err) {
+    console.error("[publish] inngest.send failed", err);
+    try {
+      await db
+        .update(extensionVersions)
+        .set({ status: "pending" })
+        .where(
+          and(
+            eq(extensionVersions.id, versionId),
+            eq(extensionVersions.status, "scanning"),
+          ),
+        );
+    } catch (rollbackErr) {
+      console.error(
+        "[publish] failed to roll back scanning -> pending after inngest error",
+        rollbackErr,
+      );
+    }
+    return {
+      ok: false,
+      error: "scan_queue_unavailable",
+      detail: devErrorDetail(err),
+    };
+  }
 
   return { ok: true };
 }
