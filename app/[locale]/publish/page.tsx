@@ -11,6 +11,22 @@ export async function generateMetadata() {
   return { title: t("title") };
 }
 
+// Decide what action the dashboard exposes for an extension based on its
+// latest version state. Resumable rows link into the wizard; everything
+// else shows status only.
+function rowAction(
+  status: string | null,
+  bundleUploaded: boolean,
+): "resume_upload" | "resume_submit" | "scanning" | "ready" | "rejected" | "none" {
+  if (status === "pending") {
+    return bundleUploaded ? "resume_submit" : "resume_upload";
+  }
+  if (status === "scanning") return "scanning";
+  if (status === "ready") return "ready";
+  if (status === "rejected") return "rejected";
+  return "none";
+}
+
 export default async function PublishDashboardPage() {
   const session = await getSession();
   if (!session) redirect("/sign-in");
@@ -18,10 +34,18 @@ export default async function PublishDashboardPage() {
   const t = await getTranslations("publish.dashboard");
   const exts = await getMyExtensions(session.user.id);
 
-  const statusLabel: Record<string, string> = {
+  const visibilityLabel: Record<string, string> = {
     draft: t("statusDraft"),
     published: t("statusPublished"),
     archived: t("statusArchived"),
+  };
+
+  const versionStatusLabel: Record<string, string> = {
+    resume_upload: t("versionPendingUpload"),
+    resume_submit: t("versionReadyToSubmit"),
+    scanning: t("versionScanning"),
+    ready: t("versionReady"),
+    rejected: t("versionRejected"),
   };
 
   return (
@@ -56,20 +80,49 @@ export default async function PublishDashboardPage() {
         </div>
       ) : (
         <ul className="space-y-3">
-          {exts.map((ext) => (
-            <li
-              key={ext.id}
-              className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-5 py-4"
-            >
-              <div className="min-w-0 flex-1 truncate">
-                <span className="font-medium">{ext.name}</span>
-                <span className="ml-2 font-mono text-xs text-muted-foreground">{ext.slug}</span>
-              </div>
-              <span className="shrink-0 rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground">
-                {statusLabel[ext.visibility] ?? ext.visibility}
-              </span>
-            </li>
-          ))}
+          {exts.map((ext) => {
+            const action = rowAction(ext.latestStatus, ext.latestBundleFileId !== null);
+            const resumable = action === "resume_upload" || action === "resume_submit";
+            const visibility = visibilityLabel[ext.visibility] ?? ext.visibility;
+            const versionLabel =
+              action !== "none" ? versionStatusLabel[action] : null;
+
+            const body = (
+              <>
+                <div className="min-w-0 flex-1 truncate">
+                  <span className="font-medium">{ext.name}</span>
+                  <span className="ml-2 font-mono text-xs text-muted-foreground">
+                    {ext.slug}
+                  </span>
+                  {versionLabel && (
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      · {versionLabel}
+                    </span>
+                  )}
+                </div>
+                <span className="shrink-0 rounded-full border border-border px-2.5 py-0.5 text-xs text-muted-foreground">
+                  {visibility}
+                </span>
+              </>
+            );
+
+            return (
+              <li key={ext.id}>
+                {resumable ? (
+                  <Link
+                    href={`/publish/${ext.id}/edit`}
+                    className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:border-primary"
+                  >
+                    {body}
+                  </Link>
+                ) : (
+                  <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-5 py-4">
+                    {body}
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </main>

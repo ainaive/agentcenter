@@ -45,20 +45,54 @@ const KNOWN_ERROR_CODES = new Set([
   "db_error",
 ]);
 
-export function UploadWizard() {
+// Subset of `DraftSnapshot` from the resume server action — kept here as a
+// structural type so this component doesn't import server-only modules.
+export interface ResumeDraft {
+  extensionId: string;
+  versionId: string;
+  slug: string;
+  version: string;
+  name: string;
+  category: string;
+  bundleUploaded: boolean;
+}
+
+interface UploadWizardProps {
+  // When set, the wizard runs in "resume" mode: Step 1 is skipped, the
+  // manifest details are shown read-only at the top of every step, and the
+  // initial step is derived from whether the bundle is already uploaded.
+  resume?: ResumeDraft;
+}
+
+export function UploadWizard({ resume }: UploadWizardProps = {}) {
   const tw = useTranslations("publish.wizard");
   const tu = useTranslations("publish.upload");
+  const tf = useTranslations("publish.form");
   const te = useTranslations("publish.errors");
 
-  const [step, setStep] = useState<Step>(1);
-  const [draft, setDraft] = useState<DraftState | null>(null);
-  const [fileUploaded, setFileUploaded] = useState(false);
+  const initialStep: Step = resume ? (resume.bundleUploaded ? 3 : 2) : 1;
+
+  const [step, setStep] = useState<Step>(initialStep);
+  const [draft, setDraft] = useState<DraftState | null>(
+    resume
+      ? {
+          extensionId: resume.extensionId,
+          versionId: resume.versionId,
+          slug: resume.slug,
+          version: resume.version,
+        }
+      : null,
+  );
+  const [fileUploaded, setFileUploaded] = useState(resume?.bundleUploaded ?? false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<"idle" | "uploading" | "done">("idle");
+  const [uploadProgress, setUploadProgress] = useState<"idle" | "uploading" | "done">(
+    resume?.bundleUploaded ? "done" : "idle",
+  );
   const fileRef = useRef<HTMLInputElement>(null);
+  const isResume = resume !== undefined;
 
   function clearError() {
     setError(null);
@@ -200,6 +234,28 @@ export function UploadWizard() {
 
   return (
     <div className="max-w-2xl mx-auto">
+      {/* Resume banner: surfaces what we're picking back up so the wizard
+          isn't a context-free three-step UI in the middle of a flow. */}
+      {resume && (
+        <div className="mb-6 rounded-xl border border-border bg-card px-5 py-4 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground">
+              {tw("resumingLabel")}
+            </div>
+            <div className="mt-0.5 truncate font-medium">{resume.name}</div>
+            <div className="mt-0.5 font-mono text-xs text-muted-foreground">
+              {resume.slug} · v{resume.version}
+            </div>
+          </div>
+          <Link
+            href="/publish"
+            className="shrink-0 text-sm text-muted-foreground underline hover:text-foreground"
+          >
+            {tw("backToDashboard")}
+          </Link>
+        </div>
+      )}
+
       {/* Step indicator */}
       <div className="flex items-center gap-3 mb-8">
         {([1, 2, 3] as Step[]).map((s) => (
@@ -230,8 +286,9 @@ export function UploadWizard() {
         </div>
       )}
 
-      {/* Step 1: Manifest */}
-      {step === 1 && <ManifestForm onSubmit={handleManifestSubmit} />}
+      {/* Step 1: Manifest. Skipped in resume mode — the manifest already
+          exists in the database; editing it is a Plan-B feature. */}
+      {step === 1 && !isResume && <ManifestForm onSubmit={handleManifestSubmit} />}
 
       {/* Step 2: File upload */}
       {step === 2 && (
@@ -261,13 +318,24 @@ export function UploadWizard() {
           </div>
 
           <div className="flex justify-between">
-            <button
-              type="button"
-              onClick={() => setStep(1)}
-              className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted transition-colors"
-            >
-              {tw("backButton")}
-            </button>
+            {/* In resume mode there is no Step 1 to go back to — link out
+                to the dashboard instead. */}
+            {isResume ? (
+              <Link
+                href="/publish"
+                className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted transition-colors"
+              >
+                {tw("backToDashboard")}
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted transition-colors"
+              >
+                {tw("backButton")}
+              </button>
+            )}
             <button
               type="button"
               disabled={!fileUploaded}
@@ -285,16 +353,16 @@ export function UploadWizard() {
         <div className="space-y-6">
           <div className="rounded-xl border border-border bg-card p-6 space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Slug</span>
+              <span className="text-muted-foreground">{tf("slug")}</span>
               <span className="font-mono font-medium">{draft.slug}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Version</span>
+              <span className="text-muted-foreground">{tf("version")}</span>
               <span className="font-mono font-medium">{draft.version}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Bundle</span>
-              <span className="text-green-600 font-medium">✓ Uploaded</span>
+              <span className="text-muted-foreground">{tf("bundle")}</span>
+              <span className="text-green-600 font-medium">✓ {tu("uploaded")}</span>
             </div>
           </div>
 

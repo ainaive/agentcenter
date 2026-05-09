@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { headers } from "next/headers";
 
 import { auth } from "@/lib/auth";
@@ -229,7 +229,10 @@ export async function submitForReview(versionId: string): Promise<SubmitResult> 
 }
 
 export async function getMyExtensions(userId: string) {
-  return db
+  // Pull the latest version per extension alongside the extension row so the
+  // dashboard can show "where am I in the wizard" (e.g. needs upload vs.
+  // submitted, awaiting scan) — visibility alone hides that info.
+  const rows = await db
     .select({
       id: extensions.id,
       slug: extensions.slug,
@@ -237,10 +240,27 @@ export async function getMyExtensions(userId: string) {
       category: extensions.category,
       visibility: extensions.visibility,
       createdAt: extensions.createdAt,
+      latestVersionId: extensionVersions.id,
+      latestVersion: extensionVersions.version,
+      latestStatus: extensionVersions.status,
+      latestBundleFileId: extensionVersions.bundleFileId,
     })
     .from(extensions)
+    .leftJoin(
+      extensionVersions,
+      eq(extensionVersions.extensionId, extensions.id),
+    )
     .where(eq(extensions.publisherUserId, userId))
-    .orderBy(extensions.createdAt);
+    .orderBy(desc(extensions.createdAt), desc(extensionVersions.createdAt));
+
+  // Collapse to one row per extension (latest version first thanks to the
+  // ORDER BY). If we someday support multiple in-flight versions per
+  // extension, this becomes a `DISTINCT ON` query.
+  const byExtension = new Map<string, (typeof rows)[number]>();
+  for (const row of rows) {
+    if (!byExtension.has(row.id)) byExtension.set(row.id, row);
+  }
+  return Array.from(byExtension.values());
 }
 
 export async function getVersionStatus(versionId: string) {
@@ -250,4 +270,77 @@ export async function getVersionStatus(versionId: string) {
     .where(eq(extensionVersions.id, versionId))
     .limit(1);
   return row?.status ?? null;
+}
+
+export type DraftSnapshot = {
+  extensionId: string;
+  versionId: string;
+  slug: string;
+  version: string;
+  name: string;
+  category: string;
+  visibility: string;
+  versionStatus: string;
+  bundleUploaded: boolean;
+};
+
+export type GetDraftResult =
+  | { ok: true; draft: DraftSnapshot }
+  // Deliberately collapse non-owner to `not_found` so the public contract
+  // can't be used to probe whether an extension exists for someone else's
+  // account.
+  | { ok: false; error: "not_found" | "unauthenticated" };
+
+// Load an extension + its latest version for the publish wizard's resume
+// flow. Owner-checked: callers cannot read another user's draft. Returns
+// just enough state for the wizard to land on the right step and render
+// a read-only manifest summary.
+export async function getDraft(extensionId: string): Promise<GetDraftResult> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) return { ok: false, error: "unauthenticated" };
+
+  const [row] = await db
+    .select({
+      extensionId: extensions.id,
+      publisherUserId: extensions.publisherUserId,
+      slug: extensions.slug,
+      name: extensions.name,
+      category: extensions.category,
+      visibility: extensions.visibility,
+      versionId: extensionVersions.id,
+      version: extensionVersions.version,
+      versionStatus: extensionVersions.status,
+      bundleFileId: extensionVersions.bundleFileId,
+    })
+    .from(extensions)
+    .leftJoin(
+      extensionVersions,
+      eq(extensionVersions.extensionId, extensions.id),
+    )
+    .where(eq(extensions.id, extensionId))
+    .orderBy(desc(extensionVersions.createdAt))
+    .limit(1);
+
+  if (!row || !row.versionId || !row.version || !row.versionStatus) {
+    return { ok: false, error: "not_found" };
+  }
+  if (row.publisherUserId !== session.user.id) {
+    // Same shape as a missing row; see comment on `GetDraftResult`.
+    return { ok: false, error: "not_found" };
+  }
+
+  return {
+    ok: true,
+    draft: {
+      extensionId: row.extensionId,
+      versionId: row.versionId,
+      slug: row.slug,
+      version: row.version,
+      name: row.name,
+      category: row.category,
+      visibility: row.visibility,
+      versionStatus: row.versionStatus,
+      bundleUploaded: row.bundleFileId !== null,
+    },
+  };
 }
