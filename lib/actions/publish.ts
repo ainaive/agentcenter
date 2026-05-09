@@ -12,7 +12,10 @@ import {
   files,
 } from "@/lib/db/schema";
 import { submit, VersionStateError } from "@/lib/extensions/state";
-import { ManifestFormSchema, type ManifestFormValues } from "@/lib/validators/manifest";
+import {
+  ManifestFormSchema,
+  type ManifestFormValues,
+} from "@/lib/validators/manifest";
 
 import { extractScanReason } from "@/lib/publish/scan-report";
 
@@ -30,6 +33,26 @@ const DEFAULT_ORG_ID = "default";
 // avoid `|| null` because it would also drop a legitimate `"0"`.
 function emptyToNull(v: string | undefined | null): string | null {
   return v == null || v === "" ? null : v;
+}
+
+// The redesigned wizard does not collect funcCat/subCat. Fall back to a
+// stable default keyed off the extension category so existing filter
+// queries (which key on funcCat/subCat) keep matching newly-published
+// rows. Admins can refine these later via curation tooling.
+function defaultClassification(category: ManifestFormValues["category"]): {
+  funcCat: "tools" | "workTask" | "business";
+  subCat: string;
+} {
+  switch (category) {
+    case "mcp":
+      return { funcCat: "tools", subCat: "integrations" };
+    case "slash":
+      return { funcCat: "tools", subCat: "commands" };
+    case "skills":
+    case "plugins":
+    default:
+      return { funcCat: "tools", subCat: "general" };
+  }
 }
 
 export type CreateDraftResult =
@@ -54,6 +77,7 @@ export async function createDraftExtension(
     };
   }
   const data = parsed.data;
+  const cls = defaultClassification(data.category);
 
   const extensionId = crypto.randomUUID();
   const versionId = crypto.randomUUID();
@@ -65,19 +89,20 @@ export async function createDraftExtension(
         slug: data.slug,
         name: data.name,
         nameZh: emptyToNull(data.nameZh),
-        tagline: emptyToNull(data.tagline),
-        description: emptyToNull(data.description),
-        descriptionZh: emptyToNull(data.descriptionZh),
+        // The wizard's "summary" maps onto the existing tagline column.
+        tagline: data.summary,
+        taglineZh: emptyToNull(data.taglineZh),
         category: data.category,
         scope: data.scope,
-        funcCat: data.funcCat,
-        subCat: data.subCat,
-        l2: emptyToNull(data.l2),
+        // The wizard does not collect funcCat/subCat — server defaults
+        // backfill them off the chosen category so filter queries still match.
+        funcCat: cls.funcCat,
+        subCat: cls.subCat,
         // Empty strings are FK violations against departments.id — coerce to null.
         deptId: emptyToNull(data.deptId),
-        homepageUrl: emptyToNull(data.homepageUrl),
-        repoUrl: emptyToNull(data.repoUrl),
-        licenseSpdx: emptyToNull(data.licenseSpdx),
+        iconColor: data.iconColor,
+        readmeMd: emptyToNull(data.readmeMd ?? ""),
+        permissions: data.permissions ?? {},
         publisherUserId: session.user.id,
         ownerOrgId: DEFAULT_ORG_ID,
         visibility: "draft",
@@ -88,6 +113,7 @@ export async function createDraftExtension(
         extensionId,
         version: data.version,
         status: "pending",
+        sourceMethod: data.sourceMethod,
       });
 
       if (data.tagIds.length > 0) {
@@ -339,30 +365,31 @@ export async function updateDraftExtension(
       // hitting this action directly (devtools, scripted POST) could
       // otherwise change the slug or version, which would orphan the
       // already-uploaded R2 bundle at its old `<slug>/<version>` key.
-      // Rejecting mismatches outright would also work; silently keeping
-      // the stored values is the smaller-surface choice and keeps the
-      // resume flow forgiving when the form round-trips its locked
-      // values back unchanged.
       await tx
         .update(extensions)
         .set({
           name: data.name,
           nameZh: emptyToNull(data.nameZh),
-          tagline: emptyToNull(data.tagline),
-          description: emptyToNull(data.description),
-          descriptionZh: emptyToNull(data.descriptionZh),
+          tagline: data.summary,
+          taglineZh: emptyToNull(data.taglineZh),
           category: data.category,
           scope: data.scope,
-          funcCat: data.funcCat,
-          subCat: data.subCat,
-          l2: emptyToNull(data.l2),
+          // funcCat/subCat are intentionally NOT touched on update — admin
+          // curation may have set non-default values, and the wizard never
+          // surfaces them so a re-write would silently revert that work.
           deptId: emptyToNull(data.deptId),
-          homepageUrl: emptyToNull(data.homepageUrl),
-          repoUrl: emptyToNull(data.repoUrl),
-          licenseSpdx: emptyToNull(data.licenseSpdx),
+          iconColor: data.iconColor,
+          readmeMd: emptyToNull(data.readmeMd ?? ""),
+          permissions: data.permissions ?? {},
           updatedAt: new Date(),
         })
         .where(eq(extensions.id, extensionId));
+
+      // Persist source method on the version too (the wizard re-sends it).
+      await tx
+        .update(extensionVersions)
+        .set({ sourceMethod: data.sourceMethod })
+        .where(eq(extensionVersions.id, row.versionId!));
 
       // Tags: replace wholesale. The set is capped at 8 by the form
       // schema, so a delete-then-insert is cheaper and clearer than
@@ -446,6 +473,7 @@ export type DraftSnapshot = {
   version: string;
   name: string;
   category: string;
+  scope: string;
   visibility: string;
   versionStatus: string;
   bundleUploaded: boolean;
@@ -479,22 +507,21 @@ export async function getDraft(extensionId: string): Promise<GetDraftResult> {
       name: extensions.name,
       nameZh: extensions.nameZh,
       tagline: extensions.tagline,
-      description: extensions.description,
-      descriptionZh: extensions.descriptionZh,
+      taglineZh: extensions.taglineZh,
+      readmeMd: extensions.readmeMd,
+      iconColor: extensions.iconColor,
+      permissions: extensions.permissions,
       category: extensions.category,
       scope: extensions.scope,
       funcCat: extensions.funcCat,
       subCat: extensions.subCat,
-      l2: extensions.l2,
       deptId: extensions.deptId,
-      homepageUrl: extensions.homepageUrl,
-      repoUrl: extensions.repoUrl,
-      licenseSpdx: extensions.licenseSpdx,
       visibility: extensions.visibility,
       versionId: extensionVersions.id,
       version: extensionVersions.version,
       versionStatus: extensionVersions.status,
       bundleFileId: extensionVersions.bundleFileId,
+      sourceMethod: extensionVersions.sourceMethod,
     })
     .from(extensions)
     .leftJoin(
@@ -521,6 +548,10 @@ export async function getDraft(extensionId: string): Promise<GetDraftResult> {
     .where(eq(extensionTags.extensionId, row.extensionId));
   const tagIds = tagRows.map((r) => r.tagId);
 
+  const iconColor = (row.iconColor ?? "indigo") as ManifestFormValues["iconColor"];
+  const sourceMethod = (row.sourceMethod ?? "zip") as ManifestFormValues["sourceMethod"];
+  const permissions = (row.permissions ?? {}) as ManifestFormValues["permissions"];
+
   return {
     ok: true,
     draft: {
@@ -530,6 +561,7 @@ export async function getDraft(extensionId: string): Promise<GetDraftResult> {
       version: row.version,
       name: row.name,
       category: row.category,
+      scope: row.scope,
       visibility: row.visibility,
       versionStatus: row.versionStatus,
       bundleUploaded: row.bundleFileId !== null,
@@ -540,17 +572,14 @@ export async function getDraft(extensionId: string): Promise<GetDraftResult> {
         version: row.version,
         category: row.category as ManifestFormValues["category"],
         scope: row.scope as ManifestFormValues["scope"],
-        funcCat: row.funcCat as ManifestFormValues["funcCat"],
-        subCat: row.subCat,
-        l2: row.l2 ?? "",
         deptId: row.deptId ?? "",
         tagIds,
-        description: row.description ?? "",
-        descriptionZh: row.descriptionZh ?? "",
-        tagline: row.tagline ?? "",
-        homepageUrl: row.homepageUrl ?? "",
-        repoUrl: row.repoUrl ?? "",
-        licenseSpdx: row.licenseSpdx ?? "",
+        summary: row.tagline ?? "",
+        taglineZh: row.taglineZh ?? "",
+        readmeMd: row.readmeMd ?? "",
+        iconColor,
+        permissions,
+        sourceMethod,
       },
     },
   };
