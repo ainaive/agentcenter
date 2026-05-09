@@ -1,0 +1,29 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "4b20804e9d6e",
+  "strategy": "manual-commit",
+  "branch": "docs/architecture-refresh",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "components/filters/dept-picker.test.tsx",
+    "components/filters/filter-chips.test.tsx",
+    "components/filters/scope-pills.test.tsx",
+    "components/filters/sort-select.test.tsx",
+    "components/filters/tag-drawer.test.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/4b/20804e9d6e/0/metadata.json",
+      "transcript": "/4b/20804e9d6e/0/full.jsonl",
+      "content_hash": "/4b/20804e9d6e/0/content_hash.txt",
+      "prompt": "/4b/20804e9d6e/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 29,
+    "cache_creation_tokens": 17024,
+    "cache_read_tokens": 9066502,
+    "output_tokens": 13055,
+    "api_call_count": 24
+  }
+}
