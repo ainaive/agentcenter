@@ -18,6 +18,14 @@ interface DraftState {
   version: string;
 }
 
+// Render a thrown client-side error's message under the friendly headline,
+// but only in development. Mirrors the server-side `devErrorDetail` helper.
+function clientErrorDetail(err: unknown): string | null {
+  if (process.env.NODE_ENV === "production") return null;
+  if (err instanceof Error) return err.message;
+  return String(err);
+}
+
 // Error codes the server actions can return. Anything else falls through to
 // the generic "fallback" message.
 const KNOWN_ERROR_CODES = new Set([
@@ -32,6 +40,8 @@ const KNOWN_ERROR_CODES = new Set([
   "invalid_reference",
   "missing_required",
   "no_bundle",
+  "version_not_submittable",
+  "scan_queue_unavailable",
   "db_error",
 ]);
 
@@ -91,7 +101,7 @@ export function UploadWizard() {
     } catch (err) {
       console.error("[publish] handleManifestSubmit threw", err);
       setError(te("fallback"));
-      setErrorDetail(null);
+      setErrorDetail(clientErrorDetail(err));
     }
   }
 
@@ -111,7 +121,22 @@ export function UploadWizard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug: draft.slug, version: draft.version, contentType: "application/zip", size: file.size }),
       });
-      if (!signRes.ok) { setError(te("uploadSign")); setUploadProgress("idle"); return; }
+      if (!signRes.ok) {
+        // Try to read a `detail` from the error body — the route attaches
+        // the underlying message in development to help diagnose missing
+        // R2 config etc. Tolerate non-JSON bodies (e.g. proxy errors).
+        let detail: string | null = null;
+        try {
+          const body = (await signRes.json()) as { detail?: string };
+          detail = body.detail ?? null;
+        } catch {
+          /* non-JSON response, no detail */
+        }
+        setError(te("uploadSign"));
+        setErrorDetail(detail);
+        setUploadProgress("idle");
+        return;
+      }
       const { uploadUrl, r2Key } = await signRes.json() as { uploadUrl: string; r2Key: string };
 
       // 2. Upload directly to R2
@@ -132,7 +157,7 @@ export function UploadWizard() {
     } catch (err) {
       console.error("[publish] handleFileChange threw", err);
       setError(te("fallback"));
-      setErrorDetail(null);
+      setErrorDetail(clientErrorDetail(err));
       setUploadProgress("idle");
     }
   }
@@ -152,7 +177,7 @@ export function UploadWizard() {
     } catch (err) {
       console.error("[publish] handleSubmit threw", err);
       setError(te("fallback"));
-      setErrorDetail(null);
+      setErrorDetail(clientErrorDetail(err));
     } finally {
       setSubmitting(false);
     }

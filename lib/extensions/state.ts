@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
 import { extensions, extensionVersions, files } from "@/lib/db/schema";
@@ -24,8 +24,12 @@ export class VersionStateError extends Error {
   }
 }
 
-// Move a version from pending to scanning. Caller is responsible for
-// kicking off the scan job (Inngest event) — this module owns DB state.
+// Move a version to scanning. Allowed source states are `pending` (the
+// normal first submit) and `scanning` itself (an idempotent retry, e.g.
+// when a previous attempt's Inngest send failed and left the row stuck —
+// without this the user would have no way to recover). Versions already
+// in `ready` or `rejected` reject the transition. Caller is responsible
+// for kicking off the scan job (Inngest event) — this module owns DB state.
 export async function submit(versionId: string): Promise<void> {
   const updated = await db
     .update(extensionVersions)
@@ -33,7 +37,7 @@ export async function submit(versionId: string): Promise<void> {
     .where(
       and(
         eq(extensionVersions.id, versionId),
-        eq(extensionVersions.status, "pending"),
+        inArray(extensionVersions.status, ["pending", "scanning"]),
       ),
     )
     .returning({ id: extensionVersions.id });

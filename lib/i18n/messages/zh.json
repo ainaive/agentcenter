@@ -343,6 +343,8 @@
       "invalid_reference": "引用的内容缺失，请刷新后重试。",
       "missing_required": "存在未填写的必填字段，请检查表单。",
       "no_bundle": "请先上传扩展包再提交。",
+      "version_not_submittable": "当前版本无法提交，可能正在审核或已发布。请刷新页面查看最新状态。",
+      "scan_queue_unavailable": "无法将扩展包加入扫描队列，审核服务暂时不可用，请稍后重试。",
       "db_error": "暂时无法保存，请稍后重试。",
       "fallback": "出错了，请重试。",
       "uploadSign": "获取上传链接失败，请重试。",
