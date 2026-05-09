@@ -33,7 +33,10 @@ app/
 │   ├── page.tsx               # home (featured + trending)
 │   ├── extensions/
 │   │   ├── page.tsx           # browse (filter bar + grid)
-│   │   └── [slug]/page.tsx    # detail (README + metadata panel)
+│   │   ├── error.tsx          # listing route error boundary
+│   │   └── [slug]/
+│   │       ├── page.tsx       # detail (hero + tabs + sidebar)
+│   │       └── error.tsx      # detail route error boundary
 │   ├── publish/
 │   │   ├── page.tsx           # dashboard (my extensions)
 │   │   └── new/page.tsx       # upload wizard
@@ -75,12 +78,26 @@ GET /en/extensions?category=skills&dept=eng.cloud&sort=stars
 ```text
 GET /en/extensions/my-skill
   └─ app/[locale]/extensions/[slug]/page.tsx (RSC)
-      ├─ getExtensionBySlug(slug)
-      ├─ react-markdown + rehype-sanitize on the stored README
-      └─ <ExtHero /> + <Markdown /> + <ExtMetadataPanel /> + <InstallButton />
+      ├─ getExtensionBySlug(slug)                ─► extensions row + tag ids
+      ├─ Promise.all:
+      │     ├─ getLatestExtensionVersion(id)     ─► version + bundle size for hero / About
+      │     ├─ listExtensionVersions(id)         ─► full changelog feed for the Versions tab
+      │     └─ getRelatedExtensions(id, cat)     ─► top 4 by downloads in the same category
+      └─ <ExtHero /> + <ExtTabs> + <ExtAboutCard /> + <ExtRelatedList />
 ```
 
-The README is raw markdown stored in Postgres and server-rendered with `rehype-sanitize`. The metadata side panel (homepage, repo, license, compatibility, taxonomy) is a server component fed from the same row.
+The page is a two-column layout: the hero (icon block, title + badge, Install/Save/Share CTA row, four-stat grid) sits above a tab strip, with a sticky sidebar on the right.
+
+`<ExtTabs>` is a thin wrapper over `@base-ui/react/tabs`, so keyboard navigation, `aria-controls` wiring, and selected-state styling come from the primitive. Four tabs:
+
+- **Overview** — README rendered with `react-markdown` + `rehype-sanitize`, followed by a tag chip strip.
+- **Setup** — the `agentcenter install <slug>` command in a copyable terminal block, plus a Requirements list derived from `extensions.compatibilityJson`.
+- **Versions** — flat changelog from `listExtensionVersions` (status `ready` only, ordered by `publishedAt DESC`), with the latest entry tagged "Current".
+- **Reviews** — empty-state placeholder; the reviews flow isn't wired yet.
+
+The sidebar has two cards. `<ExtAboutCard>` renders publisher / version / size / license / updated / scope plus the homepage and repo links — every URL passes through `safeExternalUrl()` (allowlists `http(s):`, drops anything else) before reaching `href`. `<ExtRelatedList>` shows the four related extensions; it returns `null` when empty so an empty card never shows.
+
+The share URL on the hero is composed from `process.env.NEXT_PUBLIC_APP_URL` rather than the request `Host` header, since spoofable forwarded headers would let an attacker control what gets copied to clipboard.
 
 ### Publish
 
@@ -136,6 +153,18 @@ agentcenter install my-skill
 The web "Install" button takes the same conceptual path but goes through the `installExtension` server action instead of the public API: it bumps the same counters and records the same install event, so leaderboards stay consistent across surfaces.
 
 Both surfaces are thin wrappers around `recordInstall` in `lib/installs/record.ts`, which owns: extension lookup (by `id` from the web button or `slug` from the CLI), version resolution (an omitted version means "latest published" — `extension_versions` ordered by `publishedAt DESC` among `status='ready'`), the `installs` row insert, the `installed` collection upsert, and the atomic `downloadsCount` bump — all three writes go through `db.transaction`. Each call records a row, so `downloadsCount` is total install events; the `installed` collection is a separate, idempotent membership concept used by the UI's "Installed" view. Failures throw a typed `InstallError` (`extension_not_found`, `no_published_version`); wrappers translate to their surface (action union or HTTP status).
+
+## Error handling
+
+Server-component throws are caught by App Router `error.tsx` boundaries layered closest-first. Three boundaries today:
+
+- `app/[locale]/extensions/error.tsx` — listing-route boundary. Renders a friendly "couldn't load extensions" empty card with a retry button (calls `reset()`); the locale layout (sidebar + topbar) keeps rendering, so users can navigate away even while the listing is broken.
+- `app/[locale]/extensions/[slug]/error.tsx` — detail-route boundary. Same pattern, plus a **Back to marketplace** link alongside Retry — users may not want to retry the same broken slug. `notFound()` from `getExtensionBySlug` is intercepted by the framework and routes to `not-found.tsx`, not here.
+- `app/[locale]/error.tsx` — locale-level catchall for any throw the inner boundaries don't cover.
+
+All three render generic copy and surface only `error.digest` (the opaque correlation id) — never `error.message`, since Drizzle's `NeonDbError` and friends embed raw SQL fragments and stack traces that would leak internals to users. Boundary copy lives under `extensions.errorBoundary.*`, `detail.errorBoundary.*`, and `errors.generic.*` in the i18n catalogs.
+
+The boundaries are uniform — there's no per-query `try/catch` in the page components. A transient Neon `fetch failed` is treated the same as any other server-side throw.
 
 ## Authentication
 
