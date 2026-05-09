@@ -88,15 +88,38 @@ describe("pgErrorCode / pgConstraint / pgMessage", () => {
     expect(pgErrorCode(null)).toBeUndefined();
     expect(pgErrorCode(undefined)).toBeUndefined();
   });
+
+  // SQLSTATE is exactly 5 chars. A wrapper with a Node-style code shouldn't
+  // shadow the real PG error deeper in the chain.
+  it("ignores non-SQLSTATE codes (e.g. ECONNRESET) and walks past them", () => {
+    const inner = pgError({ code: "23503", message: "fk failure" });
+    const nodeWrapper = new Error("connection reset", {
+      cause: inner,
+    }) as Error & { code: string };
+    nodeWrapper.code = "ECONNRESET";
+
+    expect(pgErrorCode(nodeWrapper)).toBe("23503");
+    expect(pgMessage(nodeWrapper)).toBe("fk failure");
+  });
 });
 
 describe("classifyDraftError", () => {
-  it("maps unique_violation to slug_taken", () => {
+  it("maps unique_violation by constraint: slug, version, and other", () => {
     expect(
       classifyDraftError(
         pgError({ code: "23505", constraint: "extensions_slug_unique" }),
       ),
     ).toBe("slug_taken");
+    expect(
+      classifyDraftError(
+        pgError({ code: "23505", constraint: "ext_version_unique" }),
+      ),
+    ).toBe("version_taken");
+    expect(
+      classifyDraftError(
+        pgError({ code: "23505", constraint: "some_other_unique" }),
+      ),
+    ).toBe("unique_conflict");
   });
 
   it("maps fk violations by constraint name", () => {

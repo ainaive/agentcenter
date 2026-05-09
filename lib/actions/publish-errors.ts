@@ -20,35 +20,38 @@ function findInCauseChain<T>(
   return undefined;
 }
 
+// Postgres SQLSTATE codes are exactly 5 characters. Restricting to that
+// shape stops us from picking up Node-style string codes (e.g.
+// "ECONNRESET") that may appear on outer wrappers in the cause chain.
+const SQLSTATE_RE = /^[A-Z0-9]{5}$/;
+
 // Postgres error code, e.g. "23503" (foreign_key_violation). Set by
 // node-postgres on `DatabaseError` instances.
 export function pgErrorCode(err: unknown): string | undefined {
   return findInCauseChain(err, (e) => {
-    if ("code" in e && typeof (e as { code: unknown }).code === "string") {
-      return (e as { code: string }).code;
-    }
+    const c = (e as { code?: unknown }).code;
+    if (typeof c === "string" && SQLSTATE_RE.test(c)) return c;
     return undefined;
   });
 }
 
 export function pgConstraint(err: unknown): string | undefined {
   return findInCauseChain(err, (e) => {
-    if (
-      "constraint" in e &&
-      typeof (e as { constraint: unknown }).constraint === "string"
-    ) {
-      return (e as { constraint: string }).constraint;
-    }
+    const c = (e as { constraint?: unknown }).constraint;
+    if (typeof c === "string") return c;
     return undefined;
   });
 }
 
 // The underlying PG message (e.g. 'insert or update on table "extensions"
 // violates foreign key constraint ...'), not Drizzle's wrapper which is
-// just the SQL.
+// just the SQL. Gated on a 5-char SQLSTATE so a wrapper with a Node-style
+// code can't shadow the real PG message deeper in the chain.
 export function pgMessage(err: unknown): string | undefined {
   return findInCauseChain(err, (e) => {
-    if ("code" in e && e instanceof Error) return e.message;
+    if (!(e instanceof Error)) return undefined;
+    const c = (e as { code?: unknown }).code;
+    if (typeof c === "string" && SQLSTATE_RE.test(c)) return e.message;
     return undefined;
   });
 }
@@ -59,7 +62,13 @@ export function pgMessage(err: unknown): string | undefined {
 export function classifyDraftError(err: unknown): string {
   const code = pgErrorCode(err);
   const constraint = pgConstraint(err);
-  if (code === "23505") return "slug_taken"; // unique_violation
+  if (code === "23505") {
+    // unique_violation: which unique index? `extensions.slug` is `slug`,
+    // `ext_version_unique` is on (extension_id, version).
+    if (constraint?.includes("slug")) return "slug_taken";
+    if (constraint?.includes("version")) return "version_taken";
+    return "unique_conflict";
+  }
   if (code === "23503") {
     // foreign_key_violation: figure out which FK failed
     if (constraint?.includes("dept")) return "invalid_dept";
