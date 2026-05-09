@@ -1,0 +1,39 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "3fb8de1f5675",
+  "session_id": "605cad09-0434-47c5-a80f-eaa9d079fa41",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-09T18:02:53.204663Z",
+  "branch": "feat/home-improvements",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "lib/db/queries/facets.ts",
+    "lib/search/query.ts",
+    "lib/validators/filters.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7[1m]",
+  "turn_id": "39c2fe8a2fef",
+  "token_usage": {
+    "input_tokens": 232,
+    "cache_creation_tokens": 232870,
+    "cache_read_tokens": 10698362,
+    "output_tokens": 70965,
+    "api_call_count": 127
+  },
+  "session_metrics": {
+    "turn_count": 17
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-09T18:02:53.186487Z",
+    "agent_lines": 57,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 57,
+    "total_lines_changed": 57,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
