@@ -292,7 +292,14 @@
       "versionReadyToSubmit": "可提交审核",
       "versionScanning": "扫描中",
       "versionReady": "待发布",
-      "versionRejected": "已拒绝"
+      "versionRejected": "已拒绝",
+      "rejectedReasonLabel": "原因"
+    },
+    "errorBoundary": {
+      "title": "页面加载失败",
+      "body": "渲染发布流程时出现问题，通常是暂时的，请稍后重试。",
+      "retry": "重试",
+      "back": "返回控制台"
     },
     "discard": {
       "ariaLabel": "丢弃 {name}",

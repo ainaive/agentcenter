@@ -292,7 +292,14 @@
       "versionReadyToSubmit": "Ready to submit",
       "versionScanning": "Awaiting scan",
       "versionReady": "Awaiting publish",
-      "versionRejected": "Rejected"
+      "versionRejected": "Rejected",
+      "rejectedReasonLabel": "Reason"
+    },
+    "errorBoundary": {
+      "title": "Couldn't load this page",
+      "body": "We hit a snag rendering the publish flow. This is usually temporary — try again in a moment.",
+      "retry": "Try again",
+      "back": "Back to dashboard"
     },
     "discard": {
       "ariaLabel": "Discard {name}",
