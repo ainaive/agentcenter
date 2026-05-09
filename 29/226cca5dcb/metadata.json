@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "29226cca5dcb",
+  "strategy": "manual-commit",
+  "branch": "feat/publish-polish",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "docs/architecture.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/29/226cca5dcb/0/metadata.json",
+      "transcript": "/29/226cca5dcb/0/full.jsonl",
+      "content_hash": "/29/226cca5dcb/0/content_hash.txt",
+      "prompt": "/29/226cca5dcb/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 14,
+    "cache_creation_tokens": 2552,
+    "cache_read_tokens": 1638645,
+    "output_tokens": 2379,
+    "api_call_count": 4
+  }
+}
