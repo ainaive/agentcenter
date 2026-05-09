@@ -287,7 +287,12 @@
       "newButton": "新建扩展",
       "statusDraft": "草稿",
       "statusPublished": "已发布",
-      "statusArchived": "已归档"
+      "statusArchived": "已归档",
+      "versionPendingUpload": "待上传扩展包",
+      "versionReadyToSubmit": "可提交审核",
+      "versionScanning": "扫描中",
+      "versionReady": "待发布",
+      "versionRejected": "已拒绝"
     },
     "wizard": {
       "step1Title": "扩展详情",
@@ -299,7 +304,8 @@
       "submitting": "提交中…",
       "successTitle": "已提交！",
       "successBody": "您的扩展已进入审核队列，发布后我们会通知您。",
-      "backToDashboard": "返回控制台"
+      "backToDashboard": "返回控制台",
+      "resumingLabel": "继续草稿"
     },
     "form": {
       "slug": "标识符",

@@ -287,7 +287,12 @@
       "newButton": "New extension",
       "statusDraft": "Draft",
       "statusPublished": "Published",
-      "statusArchived": "Archived"
+      "statusArchived": "Archived",
+      "versionPendingUpload": "Needs bundle upload",
+      "versionReadyToSubmit": "Ready to submit",
+      "versionScanning": "Awaiting scan",
+      "versionReady": "Awaiting publish",
+      "versionRejected": "Rejected"
     },
     "wizard": {
       "step1Title": "Extension details",
@@ -299,7 +304,8 @@
       "submitting": "Submitting…",
       "successTitle": "Submitted!",
       "successBody": "Your extension is queued for review. We'll notify you when it's live.",
-      "backToDashboard": "Back to dashboard"
+      "backToDashboard": "Back to dashboard",
+      "resumingLabel": "Resuming draft"
     },
     "form": {
       "slug": "Slug",
