@@ -1,0 +1,17 @@
+let's make some improvements of homepage, what do you think?
+
+---
+
+1. the featured banner card seems lots of empty on right side, what do you think? can you improve it, make it elegant.
+
+---
+
+do wee need to create a new branch and commit?
+
+---
+
+ok, go ahead
+
+---
+
+I think may be the branch name should be homepage improve or something, because we do not only improve the banner
