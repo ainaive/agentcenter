@@ -11,7 +11,7 @@ import {
   extensionTags,
   files,
 } from "@/lib/db/schema";
-import { submit } from "@/lib/extensions/state";
+import { submit, VersionStateError } from "@/lib/extensions/state";
 import { ManifestFormSchema, type ManifestFormValues } from "@/lib/validators/manifest";
 
 import {
@@ -178,6 +178,16 @@ export async function submitForReview(versionId: string): Promise<SubmitResult> 
       versionId,
       message: err instanceof Error ? err.message : String(err),
     });
+    // The state machine refused the transition — the version isn't in a
+    // submittable state (already reviewed/rejected, or the row vanished).
+    // This is not a generic DB error and shouldn't be reported as one.
+    if (err instanceof VersionStateError) {
+      return {
+        ok: false,
+        error: "version_not_submittable",
+        detail: devErrorDetail(err),
+      };
+    }
     return { ok: false, error: "db_error", detail: devErrorDetail(err) };
   }
 
