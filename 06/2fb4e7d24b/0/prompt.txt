@@ -1,0 +1,5 @@
+do we need to add or update some docs for the publish redesign?
+
+---
+
+commit on this branch, same PR
