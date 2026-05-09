@@ -39,13 +39,13 @@ export default async function Home({
             aria-hidden
             className="bg-primary/10 pointer-events-none absolute -top-32 left-1/2 size-[28rem] -translate-x-1/2 rounded-full blur-3xl"
           />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -bottom-32 left-1/2 size-80 -translate-x-1/2 rounded-full blur-3xl"
-            style={{
-              background: `${featured.iconColor ?? "var(--primary)"}18`,
-            }}
-          />
+          {featured.iconColor && (
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -bottom-32 left-1/2 size-80 -translate-x-1/2 rounded-full blur-3xl"
+              style={{ background: `${featured.iconColor}18` }}
+            />
+          )}
           <div className="relative px-9 pt-5 pb-4">
             <div className="flex items-center gap-5">
               <div className="border-border/60 h-px flex-1" />

@@ -125,12 +125,16 @@ async function main() {
 
   // Build per-author publisher orgs. Each unique `author` on an extension
   // becomes its own organization so the publisher filter has real options.
+  // Slugs must be unique (DB constraint) — dedupe with a -N suffix on collision.
   const authorOrgIdMap = new Map<string, string>();
+  const usedSlugs = new Set<string>([ORG_ID]);
   for (const e of EXTENSIONS) {
-    if (!authorOrgIdMap.has(e.author)) {
-      const slug = slugify(e.author) || `author-${authorOrgIdMap.size}`;
-      authorOrgIdMap.set(e.author, slug);
-    }
+    if (authorOrgIdMap.has(e.author)) continue;
+    const base = slugify(e.author) || `author-${authorOrgIdMap.size}`;
+    let slug = base;
+    for (let n = 1; usedSlugs.has(slug); n++) slug = `${base}-${n}`;
+    usedSlugs.add(slug);
+    authorOrgIdMap.set(e.author, slug);
   }
   const orgRows = [
     {
