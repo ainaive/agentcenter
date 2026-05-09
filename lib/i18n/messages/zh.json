@@ -23,7 +23,7 @@
   },
   "home": {
     "featuredLabel": "本周精选",
-    "trendingTitle": "热门技能",
+    "trendingTitle": "热门 Skill",
     "browseAll": "浏览全部 {count} 个",
     "viewExtension": "查看扩展",
     "installsCount": "{count} 次安装"
@@ -112,8 +112,8 @@
     "new": "最新"
   },
   "category": {
-    "skills": "技能",
-    "mcp": "MCP 服务器",
+    "skills": "Skill",
+    "mcp": "MCP",
     "slash": "斜杠命令",
     "plugins": "插件"
   },
@@ -227,8 +227,8 @@
     "collections": "收藏夹",
     "mine": "我的",
     "allExtensions": "全部扩展",
-    "skills": "技能",
-    "mcpServers": "MCP 服务器",
+    "skills": "Skill",
+    "mcpServers": "MCP",
     "slashCommands": "斜杠命令",
     "plugins": "插件",
     "all": "全部",
@@ -237,7 +237,7 @@
     "newGroup": "新建分组"
   },
   "search": {
-    "placeholder": "搜索技能、MCP 服务器、斜杠命令…"
+    "placeholder": "搜索 Skill、MCP、斜杠命令…"
   },
   "locale": {
     "en": "English",
@@ -293,7 +293,7 @@
   "publish": {
     "dashboard": {
       "title": "我的扩展",
-      "empty": "把你的技能、MCP 服务器、斜杠命令或插件打包发布，分享给团队使用。",
+      "empty": "把你的 Skill、MCP、斜杠命令或插件打包发布，分享给团队使用。",
       "emptyTitle": "暂未发布",
       "emptyCta": "发布第一个扩展",
       "newButton": "新建扩展",
@@ -323,7 +323,7 @@
     },
     "wizard": {
       "title": "发布扩展",
-      "subtitle": "把技能、MCP 服务、斜线命令或插件分享给团队，或者整个世界。",
+      "subtitle": "把 Skill、MCP、斜线命令或插件分享给团队，或者整个世界。",
       "saveDraft": "保存草稿",
       "basicsTitle": "基础信息",
       "basicsDesc": "它是什么？归属于哪里？",
@@ -347,8 +347,8 @@
     },
     "type": {
       "label": "类型",
-      "skills": "技能",
-      "mcp": "MCP 服务",
+      "skills": "Skill",
+      "mcp": "MCP",
       "slash": "斜线命令",
       "plugins": "插件"
     },
