@@ -59,11 +59,15 @@ export function ListingStep({
     patch({ tagIds: tags.filter((x) => x !== tag) });
   }
   function togglePermission(key: PermissionKey) {
-    const cur = (draft.permissions ?? {}) as Record<PermissionKey, boolean>;
+    // PermissionsSchema is `Partial<Record<PermissionKey, boolean>>` —
+    // copy as that exact shape so unexpected keys can't sneak through.
+    const cur: Partial<Record<PermissionKey, boolean>> =
+      draft.permissions ?? {};
     patch({ permissions: { ...cur, [key]: !cur[key] } });
   }
 
   const suggested = SUGGESTED_TAGS.filter((s) => !tags.includes(s));
+  const tagsAtLimit = tags.length >= 8;
 
   return (
     <div className="flex flex-col gap-5">
@@ -97,7 +101,11 @@ export function ListingStep({
         </div>
       </PubField>
 
-      <PubField label={t("tags")} hint={t("tagsHint")} required>
+      <PubField
+        label={t("tags")}
+        hint={t("tagsCount", { count: tags.length, max: 8 })}
+        required
+      >
         <div className="flex min-h-[42px] flex-wrap items-center gap-1.5 rounded-md border border-border bg-card p-2">
           {tags.map((tag) => (
             <span
@@ -131,11 +139,14 @@ export function ListingStep({
                 removeTag(tags[tags.length - 1]);
               }
             }}
-            placeholder={t("tagsPlaceholder")}
-            className="min-w-[120px] flex-1 border-none bg-transparent px-1.5 py-1 text-[13px] outline-none"
+            disabled={tagsAtLimit}
+            placeholder={
+              tagsAtLimit ? t("tagsLimitReached") : t("tagsPlaceholder")
+            }
+            className="min-w-[120px] flex-1 border-none bg-transparent px-1.5 py-1 text-[13px] outline-none disabled:cursor-not-allowed"
           />
         </div>
-        {suggested.length > 0 && (
+        {suggested.length > 0 && !tagsAtLimit && (
           <div className="mt-1.5 flex flex-wrap gap-1">
             {suggested.slice(0, 6).map((s) => (
               <button

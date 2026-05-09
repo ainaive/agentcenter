@@ -128,6 +128,8 @@ export function PubChoice({
   return (
     <button
       type="button"
+      role="radio"
+      aria-checked={active}
       onClick={onClick}
       disabled={disabled}
       className={cn(

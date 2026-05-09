@@ -12,6 +12,17 @@ import { PubChoice, PubField } from "../shared";
 
 type SourceTab = "zip" | "git" | "cli";
 
+// Runtime guard for the `/api/upload/sign` response. The server-side
+// route is internal so we trust it broadly, but a contract change here
+// shouldn't `undefined`-leak into the PUT or attachFile call below.
+function isSignedUploadResponse(
+  body: unknown,
+): body is { uploadUrl: string; r2Key: string } {
+  if (typeof body !== "object" || body === null) return false;
+  const b = body as Record<string, unknown>;
+  return typeof b.uploadUrl === "string" && typeof b.r2Key === "string";
+}
+
 export function SourceStep({
   draft,
   versionId,
@@ -47,7 +58,16 @@ export function SourceStep({
       onError(te("invalid_input"));
       return;
     }
-    if (!file.name.endsWith(".zip")) {
+    // Extension match is the cheap front-line check; pair it with a MIME
+    // sanity check so a renamed payload (`evil.exe` → `evil.zip`) at
+    // least has to fool the browser too. Some browsers report empty
+    // file.type for drag-drop — only reject when type is set AND wrong.
+    const looksZip =
+      file.name.endsWith(".zip") &&
+      (file.type === "" ||
+        file.type === "application/zip" ||
+        file.type === "application/x-zip-compressed");
+    if (!looksZip) {
       onError(tu("errorType"));
       return;
     }
@@ -80,15 +100,36 @@ export function SourceStep({
         setProgress("idle");
         return;
       }
-      const { uploadUrl, r2Key } = (await signRes.json()) as {
-        uploadUrl: string;
-        r2Key: string;
-      };
-      const putRes = await fetch(uploadUrl, {
-        method: "PUT",
-        headers: { "Content-Type": "application/zip" },
-        body: file,
-      });
+      // Validate the response shape at runtime — it's an internal API but
+      // a future change to the response contract should fail loudly here
+      // rather than silently `undefined`-ing into the PUT or attachFile.
+      const signed = (await signRes.json()) as unknown;
+      if (!isSignedUploadResponse(signed)) {
+        onError(te("uploadSign"));
+        setProgress("idle");
+        return;
+      }
+      const { uploadUrl, r2Key } = signed;
+      // Bound the PUT — 50 MB on a slow link is plausible, but we don't
+      // want a stalled connection to leave the wizard wedged in
+      // "uploading" forever. 10 minutes is generous; aborts surface as
+      // the standard upload-failed error message.
+      const controller = new AbortController();
+      const timeoutId = setTimeout(
+        () => controller.abort(),
+        10 * 60 * 1000,
+      );
+      let putRes: Response;
+      try {
+        putRes = await fetch(uploadUrl, {
+          method: "PUT",
+          headers: { "Content-Type": "application/zip" },
+          body: file,
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
       if (!putRes.ok) {
         onError(te("uploadFailed"));
         setProgress("idle");
@@ -135,7 +176,11 @@ export function SourceStep({
   return (
     <div className="flex flex-col gap-5">
       <PubField label={t("methodLabel")} required>
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+        <div
+          role="radiogroup"
+          aria-label={t("methodLabel")}
+          className="grid grid-cols-1 gap-2.5 sm:grid-cols-3"
+        >
           <PubChoice
             value="zip"
             current={tab}

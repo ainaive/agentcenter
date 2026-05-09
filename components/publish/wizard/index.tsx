@@ -161,7 +161,13 @@ export function UploadWizard({ resume }: UploadWizardProps = {}) {
     }
   }
 
+  // Save Draft persists current edits and bounces to the dashboard.
+  // If there's nothing to save (no draft yet AND Basics is incomplete),
+  // surface that instead of redirecting — otherwise the user's in-memory
+  // edits silently disappear when they land on the dashboard.
+  const canSaveDraft = Boolean(extensionId) || stepsValid[0];
   async function saveDraft() {
+    if (!canSaveDraft) return;
     clearError();
     setBusy(true);
     try {
@@ -171,14 +177,12 @@ export function UploadWizard({ resume }: UploadWizardProps = {}) {
           reportError(describeError(result.error), result.detail ?? null);
           return;
         }
-      } else if (stepsValid[0]) {
+      } else {
         const result = await createDraftExtension(draft);
         if (!result.ok) {
           reportError(describeError(result.error), result.detail ?? null);
           return;
         }
-      } else {
-        // Nothing to save yet — bounce silently.
       }
       router.push(`/${locale}/publish`);
     } finally {
@@ -261,8 +265,8 @@ export function UploadWizard({ resume }: UploadWizardProps = {}) {
         <button
           type="button"
           onClick={saveDraft}
-          disabled={busy}
-          className="rounded-md border border-border bg-transparent px-3 py-1.5 text-[12px] font-semibold text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+          disabled={busy || !canSaveDraft}
+          className="rounded-md border border-border bg-transparent px-3 py-1.5 text-[12px] font-semibold text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
         >
           {tw("saveDraft")}
         </button>
@@ -355,11 +359,11 @@ export function UploadWizard({ resume }: UploadWizardProps = {}) {
             <BasicsStep
               draft={draft}
               patch={patch}
-              lockedFields={
-                resume && resume.bundleUploaded
-                  ? ["slug", "version"]
-                  : undefined
-              }
+              // Slug + version form the R2 bundle key — once a draft exists
+              // server-side, `updateDraftExtension` deliberately refuses to
+              // change them. Lock them in the form so Review/Preview can't
+              // show values that won't be persisted.
+              lockedFields={extensionId ? ["slug", "version"] : undefined}
             />
           )}
           {step === 1 && (

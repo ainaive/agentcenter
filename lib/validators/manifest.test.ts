@@ -175,6 +175,27 @@ describe("ManifestFormSchema", () => {
     });
   });
 
+  describe("readmeMd", () => {
+    // Auto-save re-sends the full README on every step transition, so
+    // an unbounded text field can balloon request size. The schema caps
+    // it; this regression makes sure that cap stays in place.
+    it("rejects > 16000 chars", () => {
+      const huge = "x".repeat(16_001);
+      expect(
+        ManifestFormSchema.safeParse({ ...VALID_FORM, readmeMd: huge })
+          .success,
+      ).toBe(false);
+    });
+
+    it("accepts 16000 chars", () => {
+      const big = "x".repeat(16_000);
+      expect(
+        ManifestFormSchema.safeParse({ ...VALID_FORM, readmeMd: big })
+          .success,
+      ).toBe(true);
+    });
+  });
+
   describe("tagIds", () => {
     it("accepts up to 8 tags", () => {
       const tagIds = Array.from({ length: 8 }, (_, i) => `tag${i}`);

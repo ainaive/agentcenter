@@ -61,7 +61,10 @@ export const ManifestFormSchema = z.object({
   scope: ExtensionManifestCore.shape.scope,
   summary: z.string().min(1, "Required").max(SUMMARY_MAX),
   taglineZh: z.string().max(SUMMARY_MAX).optional(),
-  readmeMd: z.string().optional(),
+  // Bound the README so saveDraft + step transitions don't ship
+  // arbitrarily large markdown payloads on every keystroke. 16k is
+  // generous for an extension README without ballooning auto-save.
+  readmeMd: z.string().max(16_000).optional(),
   iconColor: z
     .enum(["indigo", "amber", "emerald", "rose", "slate"])
     .default("indigo"),

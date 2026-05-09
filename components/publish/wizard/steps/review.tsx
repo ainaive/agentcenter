@@ -146,11 +146,11 @@ export function ReviewStep({
         </div>
       </div>
 
+      {/* Publisher Terms link is intentionally rendered as plain text
+          until the actual policy route ships — a dead `href="#"` would
+          mislead users who think they can read the terms before agreeing. */}
       <div className="text-[11.5px] leading-relaxed text-muted-foreground">
-        {t("terms")}{" "}
-        <a className="text-primary hover:underline" href="#">
-          {t("termsLink")}
-        </a>
+        {t("terms")}
       </div>
     </div>
   );

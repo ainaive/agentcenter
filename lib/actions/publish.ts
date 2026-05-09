@@ -356,6 +356,10 @@ export async function updateDraftExtension(
   if (row.versionStatus !== "pending") {
     return { ok: false, error: "version_not_editable" };
   }
+  // Lift the narrowed value to a local — TS loses the `!== null` proof
+  // across the transaction closure boundary, and a non-null assertion
+  // inside the closure is harder to audit than a guarded constant.
+  const versionId = row.versionId;
 
   try {
     await db.transaction(async (tx) => {
@@ -389,7 +393,7 @@ export async function updateDraftExtension(
       await tx
         .update(extensionVersions)
         .set({ sourceMethod: data.sourceMethod })
-        .where(eq(extensionVersions.id, row.versionId!));
+        .where(eq(extensionVersions.id, versionId));
 
       // Tags: replace wholesale. The set is capped at 8 by the form
       // schema, so a delete-then-insert is cheaper and clearer than

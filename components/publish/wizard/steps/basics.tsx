@@ -100,13 +100,21 @@ export function BasicsStep({
       </PubField>
 
       <PubField label={tType("label")} required>
-        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+        {/* radiogroup semantics so screen readers announce the selected
+            type — visual highlight alone is invisible to assistive tech. */}
+        <div
+          role="radiogroup"
+          aria-label={tType("label")}
+          className="grid grid-cols-2 gap-2.5 sm:grid-cols-4"
+        >
           {types.map(({ k, icon: Icon }) => {
             const active = draft.category === k;
             return (
               <button
                 key={k}
                 type="button"
+                role="radio"
+                aria-checked={active}
                 onClick={() => patch({ category: k })}
                 className={cn(
                   "flex flex-col items-center gap-1.5 rounded-lg border border-[1.5px] px-2 py-3.5 text-[12px] font-semibold transition-all",
@@ -130,7 +138,11 @@ export function BasicsStep({
       </PubField>
 
       <PubField label={tScope("label")} required>
-        <div className="flex flex-col gap-2.5">
+        <div
+          role="radiogroup"
+          aria-label={tScope("label")}
+          className="flex flex-col gap-2.5"
+        >
           <PubChoice
             value="personal"
             current={draft.scope}
