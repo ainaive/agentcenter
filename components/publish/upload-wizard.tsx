@@ -67,6 +67,7 @@ interface UploadWizardProps {
 export function UploadWizard({ resume }: UploadWizardProps = {}) {
   const tw = useTranslations("publish.wizard");
   const tu = useTranslations("publish.upload");
+  const tf = useTranslations("publish.form");
   const te = useTranslations("publish.errors");
 
   const initialStep: Step = resume ? (resume.bundleUploaded ? 3 : 2) : 1;
@@ -352,16 +353,16 @@ export function UploadWizard({ resume }: UploadWizardProps = {}) {
         <div className="space-y-6">
           <div className="rounded-xl border border-border bg-card p-6 space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Slug</span>
+              <span className="text-muted-foreground">{tf("slug")}</span>
               <span className="font-mono font-medium">{draft.slug}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Version</span>
+              <span className="text-muted-foreground">{tf("version")}</span>
               <span className="font-mono font-medium">{draft.version}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Bundle</span>
-              <span className="text-green-600 font-medium">✓ Uploaded</span>
+              <span className="text-muted-foreground">{tf("bundle")}</span>
+              <span className="text-green-600 font-medium">✓ {tu("uploaded")}</span>
             </div>
           </div>
 

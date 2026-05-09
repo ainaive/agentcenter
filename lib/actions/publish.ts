@@ -286,7 +286,10 @@ export type DraftSnapshot = {
 
 export type GetDraftResult =
   | { ok: true; draft: DraftSnapshot }
-  | { ok: false; error: "not_found" | "not_owner" | "unauthenticated" };
+  // Deliberately collapse non-owner to `not_found` so the public contract
+  // can't be used to probe whether an extension exists for someone else's
+  // account.
+  | { ok: false; error: "not_found" | "unauthenticated" };
 
 // Load an extension + its latest version for the publish wizard's resume
 // flow. Owner-checked: callers cannot read another user's draft. Returns
@@ -322,7 +325,8 @@ export async function getDraft(extensionId: string): Promise<GetDraftResult> {
     return { ok: false, error: "not_found" };
   }
   if (row.publisherUserId !== session.user.id) {
-    return { ok: false, error: "not_owner" };
+    // Same shape as a missing row; see comment on `GetDraftResult`.
+    return { ok: false, error: "not_found" };
   }
 
   return {

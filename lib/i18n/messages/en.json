@@ -327,7 +327,8 @@
       "tagline": "Tagline",
       "homepageUrl": "Homepage URL",
       "repoUrl": "Repository URL",
-      "licenseSpdx": "License (SPDX)"
+      "licenseSpdx": "License (SPDX)",
+      "bundle": "Bundle"
     },
     "upload": {
       "dropzone": "Drop your bundle ZIP here, or click to browse",

@@ -327,7 +327,8 @@
       "tagline": "一句话介绍",
       "homepageUrl": "官网地址",
       "repoUrl": "代码仓库",
-      "licenseSpdx": "许可证（SPDX）"
+      "licenseSpdx": "许可证（SPDX）",
+      "bundle": "扩展包"
     },
     "upload": {
       "dropzone": "将 ZIP 包拖到此处，或点击浏览文件",
