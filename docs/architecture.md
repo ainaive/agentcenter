@@ -38,8 +38,9 @@ app/
 │   │       ├── page.tsx       # detail (hero + tabs + sidebar)
 │   │       └── error.tsx      # detail route error boundary
 │   ├── publish/
-│   │   ├── page.tsx           # dashboard (my extensions)
-│   │   └── new/page.tsx       # upload wizard
+│   │   ├── page.tsx           # dashboard (my extensions, with resume + discard)
+│   │   ├── new/page.tsx       # upload wizard (new draft)
+│   │   └── [id]/edit/page.tsx # upload wizard (resume / edit existing draft)
 │   ├── (auth)/sign-in,sign-up
 │   └── cli/auth/page.tsx      # device-code authorization UI
 └── api/                       # see "API surfaces" below
@@ -129,11 +130,19 @@ The upload goes browser → R2 directly (presigned PUT) — Vercel only signs th
 
 A note on `scan-bundle`: download + checksum + manifest parsing live in a single `step.run` rather than separate steps, because Inngest serializes step return values across boundaries and `Buffer` doesn't survive that round-trip.
 
+R2 bundle keys are `bundles/<slug>/<version>/bundle.zip` (`bundleKey()` in `lib/storage/r2.ts`). Two consequences worth knowing: (1) the wizard locks `slug` and `version` in resume/edit mode whenever a bundle has been uploaded — letting either change would orphan the bundle at the old key — and (2) discarding a draft only deletes DB rows; the R2 object is left for bucket lifecycle to garbage-collect.
+
+### Resume, edit, and discard
+
+The dashboard at `/[locale]/publish` shows each draft's stage (`Needs bundle upload` / `Ready to submit` / `Awaiting scan` / etc., derived from `extensionVersions.status` + `bundleFileId` via `rowAction()` in `lib/publish/row-action.ts`). Rows whose latest version is `pending` are clickable and link into `/publish/[id]/edit`, which loads the draft via `getDraft()` and mounts the same `<UploadWizard>` in resume mode — Step 1 form pre-filled, slug/version locked, initial step derived from whether a bundle is uploaded. Step 1's submit calls `updateDraftExtension()` instead of `createDraftExtension()`; the action refuses (`version_not_editable`) once status leaves `pending`.
+
+Each draft row also gets a `<DiscardButton>` that calls `discardDraft()` — owner-checked, draft-visibility-only, hard delete (FK cascades clean up versions/tags/files-row links). `getDraft` and `discardDraft` deliberately collapse non-owner into `not_found` so the public action contract can't be used to probe existence.
+
 ### Version state transitions
 
 `lib/extensions/state.ts` owns every transition of `extensionVersions.status`, `files.scanStatus`, and `extensions.visibility`. Three functions:
 
-- `submit(versionId)` — moves a version from `pending` to `scanning` (called by `submitForReview` before it dispatches the scan event).
+- `submit(versionId)` — moves a version into `scanning`. Idempotent: accepts `pending` *or* `scanning` as the source state, so a Step 3 retry after a failed `inngest.send` can re-queue the scan instead of getting stuck. Versions in `ready` / `rejected` reject the transition.
 - `recordScanResult(versionId, fileId, result)` — applies the outcome of a bundle scan in one transaction; success sets `files.scanStatus='clean' + version.status='ready' + checksumSha256`, failure sets `'flagged' + 'rejected'`. The job calls this once with a discriminated `result`.
 - `publishVersion(versionId)` — flips `extensions.visibility='published'` and stamps both rows with `publishedAt`, returning the `extensionId` for the job's downstream `revalidateTag` and `extension/published` event.
 

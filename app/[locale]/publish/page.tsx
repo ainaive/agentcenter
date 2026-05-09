@@ -4,27 +4,13 @@ import { Package, Plus } from "lucide-react";
 
 import { getSession } from "@/lib/auth/session";
 import { getMyExtensions } from "@/lib/actions/publish";
+import { isResumable, rowAction } from "@/lib/publish/row-action";
 import { Link } from "@/lib/i18n/navigation";
+import { DiscardButton } from "@/components/publish/discard-button";
 
 export async function generateMetadata() {
   const t = await getTranslations("publish.dashboard");
   return { title: t("title") };
-}
-
-// Decide what action the dashboard exposes for an extension based on its
-// latest version state. Resumable rows link into the wizard; everything
-// else shows status only.
-function rowAction(
-  status: string | null,
-  bundleUploaded: boolean,
-): "resume_upload" | "resume_submit" | "scanning" | "ready" | "rejected" | "none" {
-  if (status === "pending") {
-    return bundleUploaded ? "resume_submit" : "resume_upload";
-  }
-  if (status === "scanning") return "scanning";
-  if (status === "ready") return "ready";
-  if (status === "rejected") return "rejected";
-  return "none";
 }
 
 export default async function PublishDashboardPage() {
@@ -82,7 +68,7 @@ export default async function PublishDashboardPage() {
         <ul className="space-y-3">
           {exts.map((ext) => {
             const action = rowAction(ext.latestStatus, ext.latestBundleFileId !== null);
-            const resumable = action === "resume_upload" || action === "resume_submit";
+            const resumable = isResumable(action);
             const visibility = visibilityLabel[ext.visibility] ?? ext.visibility;
             const versionLabel =
               action !== "none" ? versionStatusLabel[action] : null;
@@ -107,17 +93,28 @@ export default async function PublishDashboardPage() {
             );
 
             return (
-              <li key={ext.id}>
+              <li
+                key={ext.id}
+                className="flex items-stretch gap-2 rounded-xl border border-border bg-card transition-colors hover:border-primary/60"
+              >
                 {resumable ? (
                   <Link
                     href={`/publish/${ext.id}/edit`}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:border-primary"
+                    className="flex flex-1 items-center justify-between gap-3 px-5 py-4"
                   >
                     {body}
                   </Link>
                 ) : (
-                  <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-5 py-4">
+                  <div className="flex flex-1 items-center justify-between gap-3 px-5 py-4">
                     {body}
+                  </div>
+                )}
+                {ext.visibility === "draft" && (
+                  <div className="flex items-center pr-3">
+                    <DiscardButton
+                      extensionId={ext.id}
+                      extensionName={ext.name}
+                    />
                   </div>
                 )}
               </li>

@@ -294,6 +294,14 @@
       "versionReady": "Awaiting publish",
       "versionRejected": "Rejected"
     },
+    "discard": {
+      "ariaLabel": "Discard {name}",
+      "confirm": "Discard \"{name}\"? This permanently deletes the draft and any uploaded bundle metadata.",
+      "error_not_found": "Draft not found.",
+      "error_not_discardable": "This extension is published and can't be discarded.",
+      "error_unauthenticated": "Please sign in again.",
+      "error_fallback": "Couldn't discard the draft. Please try again."
+    },
     "wizard": {
       "step1Title": "Extension details",
       "step2Title": "Upload bundle",
@@ -305,7 +313,8 @@
       "successTitle": "Submitted!",
       "successBody": "Your extension is queued for review. We'll notify you when it's live.",
       "backToDashboard": "Back to dashboard",
-      "resumingLabel": "Resuming draft"
+      "resumingLabel": "Resuming draft",
+      "saveAndContinue": "Save & continue"
     },
     "form": {
       "slug": "Slug",
@@ -328,7 +337,8 @@
       "homepageUrl": "Homepage URL",
       "repoUrl": "Repository URL",
       "licenseSpdx": "License (SPDX)",
-      "bundle": "Bundle"
+      "bundle": "Bundle",
+      "lockedHint": "Locked while a bundle is uploaded — discard the draft to change."
     },
     "upload": {
       "dropzone": "Drop your bundle ZIP here, or click to browse",
@@ -350,6 +360,7 @@
       "invalid_reference": "A referenced item is missing. Please refresh and try again.",
       "missing_required": "A required field is missing. Please review the form.",
       "no_bundle": "Upload a bundle file before submitting.",
+      "version_not_editable": "This draft can't be edited anymore — it's already under review or beyond. Refresh the page to see the latest status.",
       "version_not_submittable": "This version can't be submitted right now — it may already be under review or have been published. Refresh the page and check the status.",
       "scan_queue_unavailable": "Couldn't queue the bundle scan. The review service is temporarily unavailable — please try again in a moment.",
       "db_error": "We couldn't save your extension right now. Please try again in a moment.",
