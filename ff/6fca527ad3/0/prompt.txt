@@ -1,0 +1,9 @@
+ok, go ahead
+
+---
+
+reply and merge it
+
+---
+
+ok, let's take a look at the step 2 (upload bundle)'s problem, when I upload a skill bundle zip file, it shows: Something went wrong. Please try again.
