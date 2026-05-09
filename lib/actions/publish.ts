@@ -14,6 +14,8 @@ import {
 import { submit, VersionStateError } from "@/lib/extensions/state";
 import { ManifestFormSchema, type ManifestFormValues } from "@/lib/validators/manifest";
 
+import { extractScanReason } from "@/lib/publish/scan-report";
+
 import {
   classifyDraftError,
   devErrorDetail,
@@ -226,21 +228,6 @@ export async function submitForReview(versionId: string): Promise<SubmitResult> 
   }
 
   return { ok: true };
-}
-
-// Shape produced by `lib/jobs/scan-bundle.ts` and stored in
-// `files.scanReport`. Extracted into a small extractor below so the
-// dashboard doesn't have to know the JSON layout.
-function extractScanReason(report: unknown): string | null {
-  if (
-    typeof report === "object" &&
-    report !== null &&
-    "reason" in report &&
-    typeof (report as { reason: unknown }).reason === "string"
-  ) {
-    return (report as { reason: string }).reason;
-  }
-  return null;
 }
 
 export async function getMyExtensions(userId: string) {
