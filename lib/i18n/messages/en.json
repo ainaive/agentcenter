@@ -330,6 +330,21 @@
       "uploaded": "Uploaded",
       "errorSize": "File exceeds 50 MB limit",
       "errorType": "Only .zip bundles are accepted"
+    },
+    "errors": {
+      "unauthenticated": "Please sign in again to continue.",
+      "invalid_input": "Some fields look invalid — please double-check and try again.",
+      "slug_taken": "That slug is already taken — choose another.",
+      "invalid_dept": "The selected department doesn't exist anymore. Please pick a different one.",
+      "invalid_tag": "One of the selected tags is no longer available. Remove it and try again.",
+      "org_missing": "Your workspace isn't fully set up yet. Contact an administrator.",
+      "invalid_reference": "A referenced item is missing. Please refresh and try again.",
+      "missing_required": "A required field is missing. Please review the form.",
+      "no_bundle": "Upload a bundle file before submitting.",
+      "db_error": "We couldn't save your extension right now. Please try again in a moment.",
+      "fallback": "Something went wrong. Please try again.",
+      "uploadSign": "Couldn't get an upload URL. Please try again.",
+      "uploadFailed": "The upload didn't finish. Check your connection and try again."
     }
   }
 }

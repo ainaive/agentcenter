@@ -18,9 +18,25 @@ interface DraftState {
   version: string;
 }
 
+// Error codes the server actions can return. Anything else falls through to
+// the generic "fallback" message.
+const KNOWN_ERROR_CODES = new Set([
+  "unauthenticated",
+  "invalid_input",
+  "slug_taken",
+  "invalid_dept",
+  "invalid_tag",
+  "org_missing",
+  "invalid_reference",
+  "missing_required",
+  "no_bundle",
+  "db_error",
+]);
+
 export function UploadWizard() {
   const tw = useTranslations("publish.wizard");
   const tu = useTranslations("publish.upload");
+  const te = useTranslations("publish.errors");
 
   const [step, setStep] = useState<Step>(1);
   const [draft, setDraft] = useState<DraftState | null>(null);
@@ -31,11 +47,18 @@ export function UploadWizard() {
   const [uploadProgress, setUploadProgress] = useState<"idle" | "uploading" | "done">("idle");
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Translate a server-action error code into a localized message. Unknown
+  // codes fall back to a generic message rather than leaking raw codes (e.g.
+  // "db_error") to the user.
+  function describeError(code: string): string {
+    return KNOWN_ERROR_CODES.has(code) ? te(code) : te("fallback");
+  }
+
   async function handleManifestSubmit(values: ManifestFormValues) {
     setError(null);
     const result = await createDraftExtension(values);
     if (!result.ok) {
-      setError(result.error === "slug_taken" ? "Slug already taken — choose another." : result.error);
+      setError(describeError(result.error));
       return;
     }
     setDraft({ extensionId: result.extensionId, versionId: result.versionId, slug: values.slug, version: values.version });
@@ -57,16 +80,16 @@ export function UploadWizard() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ slug: draft.slug, version: draft.version, contentType: "application/zip", size: file.size }),
     });
-    if (!signRes.ok) { setError("Failed to get upload URL."); setUploadProgress("idle"); return; }
+    if (!signRes.ok) { setError(te("uploadSign")); setUploadProgress("idle"); return; }
     const { uploadUrl, r2Key } = await signRes.json() as { uploadUrl: string; r2Key: string };
 
     // 2. Upload directly to R2
     const putRes = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": "application/zip" }, body: file });
-    if (!putRes.ok) { setError("Upload failed. Please try again."); setUploadProgress("idle"); return; }
+    if (!putRes.ok) { setError(te("uploadFailed")); setUploadProgress("idle"); return; }
 
     // 3. Record file in DB (checksum placeholder — real checksum done by Inngest scan)
     const attachResult = await attachFile(draft.versionId, r2Key, file.size, "pending");
-    if (!attachResult.ok) { setError(attachResult.error); setUploadProgress("idle"); return; }
+    if (!attachResult.ok) { setError(describeError(attachResult.error)); setUploadProgress("idle"); return; }
 
     setUploadProgress("done");
     setFileUploaded(true);
@@ -78,7 +101,7 @@ export function UploadWizard() {
     setError(null);
     const result = await submitForReview(draft.versionId);
     setSubmitting(false);
-    if (!result.ok) { setError(result.error); return; }
+    if (!result.ok) { setError(describeError(result.error)); return; }
     setSubmitted(true);
   }
 

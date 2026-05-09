@@ -16,6 +16,43 @@ import { ManifestFormSchema, type ManifestFormValues } from "@/lib/validators/ma
 
 const DEFAULT_ORG_ID = "default";
 
+// Postgres error codes we care about. The `code` field is set by node-postgres
+// on DatabaseError instances; we narrow with `unknown` rather than importing
+// pg types so this stays runtime-only.
+function pgErrorCode(err: unknown): string | undefined {
+  if (typeof err === "object" && err !== null && "code" in err) {
+    const code = (err as { code: unknown }).code;
+    if (typeof code === "string") return code;
+  }
+  return undefined;
+}
+
+function pgConstraint(err: unknown): string | undefined {
+  if (typeof err === "object" && err !== null && "constraint" in err) {
+    const c = (err as { constraint: unknown }).constraint;
+    if (typeof c === "string") return c;
+  }
+  return undefined;
+}
+
+// Map a thrown DB error to a stable error code the UI can translate.
+// Codes are strings (not enums) so adding new ones doesn't require a type
+// migration. Keep in sync with `publish.errors.*` in messages/{en,zh}.json.
+function classifyDraftError(err: unknown): string {
+  const code = pgErrorCode(err);
+  const constraint = pgConstraint(err);
+  if (code === "23505") return "slug_taken"; // unique_violation
+  if (code === "23503") {
+    // foreign_key_violation: figure out which FK failed
+    if (constraint?.includes("dept")) return "invalid_dept";
+    if (constraint?.includes("tag")) return "invalid_tag";
+    if (constraint?.includes("org")) return "org_missing";
+    return "invalid_reference";
+  }
+  if (code === "23502") return "missing_required"; // not_null_violation
+  return "db_error";
+}
+
 export type CreateDraftResult =
   | { ok: true; extensionId: string; versionId: string }
   | { ok: false; error: string };
@@ -28,7 +65,7 @@ export async function createDraftExtension(
 
   const parsed = ManifestFormSchema.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input" };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "invalid_input" };
   }
   const data = parsed.data;
 
@@ -41,19 +78,20 @@ export async function createDraftExtension(
         id: extensionId,
         slug: data.slug,
         name: data.name,
-        nameZh: data.nameZh ?? null,
-        tagline: data.tagline ?? null,
-        description: data.description ?? null,
-        descriptionZh: data.descriptionZh ?? null,
+        nameZh: data.nameZh || null,
+        tagline: data.tagline || null,
+        description: data.description || null,
+        descriptionZh: data.descriptionZh || null,
         category: data.category,
         scope: data.scope,
         funcCat: data.funcCat,
         subCat: data.subCat,
-        l2: data.l2 ?? null,
-        deptId: data.deptId ?? null,
+        l2: data.l2 || null,
+        // Empty strings are FK violations against departments.id — coerce to null.
+        deptId: data.deptId || null,
         homepageUrl: data.homepageUrl || null,
         repoUrl: data.repoUrl || null,
-        licenseSpdx: data.licenseSpdx ?? null,
+        licenseSpdx: data.licenseSpdx || null,
         publisherUserId: session.user.id,
         ownerOrgId: DEFAULT_ORG_ID,
         visibility: "draft",
@@ -73,9 +111,15 @@ export async function createDraftExtension(
       }
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "unknown";
-    if (msg.includes("unique")) return { ok: false, error: "slug_taken" };
-    return { ok: false, error: "db_error" };
+    const code = classifyDraftError(err);
+    console.error("[publish] createDraftExtension failed", {
+      code,
+      pgCode: pgErrorCode(err),
+      constraint: pgConstraint(err),
+      slug: data.slug,
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return { ok: false, error: code };
   }
 
   return { ok: true, extensionId, versionId };
@@ -109,7 +153,14 @@ export async function attachFile(
         .set({ bundleFileId: fileId })
         .where(eq(extensionVersions.id, versionId));
     });
-  } catch {
+  } catch (err) {
+    console.error("[publish] attachFile failed", {
+      pgCode: pgErrorCode(err),
+      constraint: pgConstraint(err),
+      versionId,
+      r2Key,
+      message: err instanceof Error ? err.message : String(err),
+    });
     return { ok: false, error: "db_error" };
   }
 
@@ -133,7 +184,12 @@ export async function submitForReview(versionId: string): Promise<SubmitResult> 
 
   try {
     await submit(versionId);
-  } catch {
+  } catch (err) {
+    console.error("[publish] submitForReview failed", {
+      pgCode: pgErrorCode(err),
+      versionId,
+      message: err instanceof Error ? err.message : String(err),
+    });
     return { ok: false, error: "db_error" };
   }
 
