@@ -228,10 +228,28 @@ export async function submitForReview(versionId: string): Promise<SubmitResult> 
   return { ok: true };
 }
 
+// Shape produced by `lib/jobs/scan-bundle.ts` and stored in
+// `files.scanReport`. Extracted into a small extractor below so the
+// dashboard doesn't have to know the JSON layout.
+function extractScanReason(report: unknown): string | null {
+  if (
+    typeof report === "object" &&
+    report !== null &&
+    "reason" in report &&
+    typeof (report as { reason: unknown }).reason === "string"
+  ) {
+    return (report as { reason: string }).reason;
+  }
+  return null;
+}
+
 export async function getMyExtensions(userId: string) {
   // Pull the latest version per extension alongside the extension row so the
   // dashboard can show "where am I in the wizard" (e.g. needs upload vs.
-  // submitted, awaiting scan) — visibility alone hides that info.
+  // submitted, awaiting scan) — visibility alone hides that info. Also
+  // joins the bundle file via `bundleFileId` (logical reference, no FK)
+  // so the dashboard can surface the scan rejection reason inline for
+  // rejected versions without an extra round-trip.
   const rows = await db
     .select({
       id: extensions.id,
@@ -244,21 +262,31 @@ export async function getMyExtensions(userId: string) {
       latestVersion: extensionVersions.version,
       latestStatus: extensionVersions.status,
       latestBundleFileId: extensionVersions.bundleFileId,
+      latestScanReport: files.scanReport,
     })
     .from(extensions)
     .leftJoin(
       extensionVersions,
       eq(extensionVersions.extensionId, extensions.id),
     )
+    .leftJoin(files, eq(files.id, extensionVersions.bundleFileId))
     .where(eq(extensions.publisherUserId, userId))
     .orderBy(desc(extensions.createdAt), desc(extensionVersions.createdAt));
 
   // Collapse to one row per extension (latest version first thanks to the
   // ORDER BY). If we someday support multiple in-flight versions per
   // extension, this becomes a `DISTINCT ON` query.
-  const byExtension = new Map<string, (typeof rows)[number]>();
+  const byExtension = new Map<
+    string,
+    (typeof rows)[number] & { latestScanReason: string | null }
+  >();
   for (const row of rows) {
-    if (!byExtension.has(row.id)) byExtension.set(row.id, row);
+    if (!byExtension.has(row.id)) {
+      byExtension.set(row.id, {
+        ...row,
+        latestScanReason: extractScanReason(row.latestScanReport),
+      });
+    }
   }
   return Array.from(byExtension.values());
 }

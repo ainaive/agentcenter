@@ -292,7 +292,8 @@
       "versionReadyToSubmit": "Ready to submit",
       "versionScanning": "Awaiting scan",
       "versionReady": "Awaiting publish",
-      "versionRejected": "Rejected"
+      "versionRejected": "Rejected",
+      "rejectedReasonLabel": "Reason"
     },
     "errorBoundary": {
       "title": "Couldn't load this page",

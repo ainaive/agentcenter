@@ -292,7 +292,8 @@
       "versionReadyToSubmit": "可提交审核",
       "versionScanning": "扫描中",
       "versionReady": "待发布",
-      "versionRejected": "已拒绝"
+      "versionRejected": "已拒绝",
+      "rejectedReasonLabel": "原因"
     },
     "errorBoundary": {
       "title": "页面加载失败",

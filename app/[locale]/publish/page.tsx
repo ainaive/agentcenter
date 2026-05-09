@@ -95,26 +95,39 @@ export default async function PublishDashboardPage() {
             return (
               <li
                 key={ext.id}
-                className="flex items-stretch gap-2 rounded-xl border border-border bg-card transition-colors hover:border-primary/60"
+                className="rounded-xl border border-border bg-card transition-colors hover:border-primary/60"
               >
-                {resumable ? (
-                  <Link
-                    href={`/publish/${ext.id}/edit`}
-                    className="flex flex-1 items-center justify-between gap-3 px-5 py-4"
-                  >
-                    {body}
-                  </Link>
-                ) : (
-                  <div className="flex flex-1 items-center justify-between gap-3 px-5 py-4">
-                    {body}
-                  </div>
-                )}
-                {ext.visibility === "draft" && (
-                  <div className="flex items-center pr-3">
-                    <DiscardButton
-                      extensionId={ext.id}
-                      extensionName={ext.name}
-                    />
+                <div className="flex items-stretch gap-2">
+                  {resumable ? (
+                    <Link
+                      href={`/publish/${ext.id}/edit`}
+                      className="flex flex-1 items-center justify-between gap-3 px-5 py-4"
+                    >
+                      {body}
+                    </Link>
+                  ) : (
+                    <div className="flex flex-1 items-center justify-between gap-3 px-5 py-4">
+                      {body}
+                    </div>
+                  )}
+                  {ext.visibility === "draft" && (
+                    <div className="flex items-center pr-3">
+                      <DiscardButton
+                        extensionId={ext.id}
+                        extensionName={ext.name}
+                      />
+                    </div>
+                  )}
+                </div>
+                {/* Surface the scan rejection reason inline so a
+                    "Rejected" row isn't a dead end — the user sees
+                    *why* without a separate page. */}
+                {action === "rejected" && ext.latestScanReason && (
+                  <div className="border-t border-border px-5 py-3 text-xs text-destructive">
+                    <span className="font-medium">{t("rejectedReasonLabel")}: </span>
+                    <span className="text-muted-foreground">
+                      {ext.latestScanReason}
+                    </span>
                   </div>
                 )}
               </li>
