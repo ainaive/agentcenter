@@ -294,6 +294,14 @@
       "versionReady": "待发布",
       "versionRejected": "已拒绝"
     },
+    "discard": {
+      "ariaLabel": "丢弃 {name}",
+      "confirm": "确定丢弃「{name}」吗？此操作将永久删除草稿和已上传的扩展包元数据。",
+      "error_not_found": "草稿不存在。",
+      "error_not_discardable": "该扩展已发布，无法丢弃。",
+      "error_unauthenticated": "请重新登录。",
+      "error_fallback": "丢弃失败，请重试。"
+    },
     "wizard": {
       "step1Title": "扩展详情",
       "step2Title": "上传包",

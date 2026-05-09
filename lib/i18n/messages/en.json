@@ -294,6 +294,14 @@
       "versionReady": "Awaiting publish",
       "versionRejected": "Rejected"
     },
+    "discard": {
+      "ariaLabel": "Discard {name}",
+      "confirm": "Discard \"{name}\"? This permanently deletes the draft and any uploaded bundle metadata.",
+      "error_not_found": "Draft not found.",
+      "error_not_discardable": "This extension is published and can't be discarded.",
+      "error_unauthenticated": "Please sign in again.",
+      "error_fallback": "Couldn't discard the draft. Please try again."
+    },
     "wizard": {
       "step1Title": "Extension details",
       "step2Title": "Upload bundle",

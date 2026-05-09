@@ -263,6 +263,45 @@ export async function getMyExtensions(userId: string) {
   return Array.from(byExtension.values());
 }
 
+export type DiscardDraftResult =
+  | { ok: true }
+  | { ok: false; error: "not_found" | "unauthenticated" | "not_discardable" };
+
+// Permanently delete a draft extension. Owner-checked. Only allowed while
+// visibility === "draft" — published or archived extensions are not
+// throwaway. Cascading FK constraints clean up extension_versions,
+// extension_tags, and (via versions) any associated files row.
+//
+// R2 bundle objects are intentionally left in place; orphan cleanup is
+// the bucket lifecycle's job, not the user's.
+export async function discardDraft(
+  extensionId: string,
+): Promise<DiscardDraftResult> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) return { ok: false, error: "unauthenticated" };
+
+  const [row] = await db
+    .select({
+      publisherUserId: extensions.publisherUserId,
+      visibility: extensions.visibility,
+    })
+    .from(extensions)
+    .where(eq(extensions.id, extensionId))
+    .limit(1);
+
+  // Treat not-found and not-owner identically so the contract can't be
+  // used to probe whether an extension exists for someone else.
+  if (!row || row.publisherUserId !== session.user.id) {
+    return { ok: false, error: "not_found" };
+  }
+  if (row.visibility !== "draft") {
+    return { ok: false, error: "not_discardable" };
+  }
+
+  await db.delete(extensions).where(eq(extensions.id, extensionId));
+  return { ok: true };
+}
+
 export async function getVersionStatus(versionId: string) {
   const [row] = await db
     .select({ status: extensionVersions.status })

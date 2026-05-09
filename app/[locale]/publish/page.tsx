@@ -5,6 +5,7 @@ import { Package, Plus } from "lucide-react";
 import { getSession } from "@/lib/auth/session";
 import { getMyExtensions } from "@/lib/actions/publish";
 import { Link } from "@/lib/i18n/navigation";
+import { DiscardButton } from "@/components/publish/discard-button";
 
 export async function generateMetadata() {
   const t = await getTranslations("publish.dashboard");
@@ -107,17 +108,28 @@ export default async function PublishDashboardPage() {
             );
 
             return (
-              <li key={ext.id}>
+              <li
+                key={ext.id}
+                className="flex items-stretch gap-2 rounded-xl border border-border bg-card transition-colors hover:border-primary/60"
+              >
                 {resumable ? (
                   <Link
                     href={`/publish/${ext.id}/edit`}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-5 py-4 transition-colors hover:border-primary"
+                    className="flex flex-1 items-center justify-between gap-3 px-5 py-4"
                   >
                     {body}
                   </Link>
                 ) : (
-                  <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-5 py-4">
+                  <div className="flex flex-1 items-center justify-between gap-3 px-5 py-4">
                     {body}
+                  </div>
+                )}
+                {ext.visibility === "draft" && (
+                  <div className="flex items-center pr-3">
+                    <DiscardButton
+                      extensionId={ext.id}
+                      extensionName={ext.name}
+                    />
                   </div>
                 )}
               </li>
