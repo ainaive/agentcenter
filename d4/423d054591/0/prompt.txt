@@ -1,0 +1,13 @@
+I have redegined publish feature by Claude Design, please plan to implement and refine it, the design files at: https://api.anthropic.com/v1/design/h/AcK2sjKoHD2HMSKb3j8p-Q?open_file=AgentCenter.html
+
+---
+
+please fetch it again, I have updated it today online.
+
+---
+
+it changed the url, fetch this: https://api.anthropic.com/v1/design/h/P0uJulJZcll5AP5nivXugw?open_file=AgentCenter.html
+
+---
+
+ok, go ahead
