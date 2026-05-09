@@ -1,0 +1,54 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "e6166b9cfc67",
+  "session_id": "540533df-d99a-42bf-a26f-340dbdd0e54b",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-09T06:23:40.972953Z",
+  "branch": "feat/publish-discard-and-edit",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "lib/actions/publish-ownership.test.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7[1m]",
+  "turn_id": "1cd1483518aa",
+  "checkpoint_transcript_start": 1280,
+  "transcript_lines_at_start": 1280,
+  "token_usage": {
+    "input_tokens": 26,
+    "cache_creation_tokens": 7286,
+    "cache_read_tokens": 3770009,
+    "output_tokens": 6009,
+    "api_call_count": 11
+  },
+  "session_metrics": {
+    "turn_count": 39
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-09T06:23:40.896205Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 1,
+    "total_committed": 0,
+    "total_lines_changed": 1,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 116,
+      "user_lines_removed": 1,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        "lib/actions/publish-ownership.test.ts": 116
+      },
+      "user_removed_per_file": {
+        "lib/actions/publish-ownership.test.ts": 1
+      }
+    }
+  ]
+}
