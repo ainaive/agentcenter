@@ -24,7 +24,9 @@
   "home": {
     "featuredLabel": "· 本周精选",
     "trendingTitle": "热门技能",
-    "browseAll": "浏览全部 {count} 个"
+    "browseAll": "浏览全部 {count} 个",
+    "viewExtension": "查看扩展",
+    "installsCount": "{count} 次安装"
   },
   "extensions": {
     "browseTitle": "浏览全部",

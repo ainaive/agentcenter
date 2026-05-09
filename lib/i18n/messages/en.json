@@ -24,7 +24,9 @@
   "home": {
     "featuredLabel": "· Featured this week",
     "trendingTitle": "Trending Skills",
-    "browseAll": "Browse all {count}"
+    "browseAll": "Browse all {count}",
+    "viewExtension": "View extension",
+    "installsCount": "{count} installs"
   },
   "extensions": {
     "browseTitle": "Browse all",
