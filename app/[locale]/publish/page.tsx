@@ -4,28 +4,13 @@ import { Package, Plus } from "lucide-react";
 
 import { getSession } from "@/lib/auth/session";
 import { getMyExtensions } from "@/lib/actions/publish";
+import { isResumable, rowAction } from "@/lib/publish/row-action";
 import { Link } from "@/lib/i18n/navigation";
 import { DiscardButton } from "@/components/publish/discard-button";
 
 export async function generateMetadata() {
   const t = await getTranslations("publish.dashboard");
   return { title: t("title") };
-}
-
-// Decide what action the dashboard exposes for an extension based on its
-// latest version state. Resumable rows link into the wizard; everything
-// else shows status only.
-function rowAction(
-  status: string | null,
-  bundleUploaded: boolean,
-): "resume_upload" | "resume_submit" | "scanning" | "ready" | "rejected" | "none" {
-  if (status === "pending") {
-    return bundleUploaded ? "resume_submit" : "resume_upload";
-  }
-  if (status === "scanning") return "scanning";
-  if (status === "ready") return "ready";
-  if (status === "rejected") return "rejected";
-  return "none";
 }
 
 export default async function PublishDashboardPage() {
@@ -83,7 +68,7 @@ export default async function PublishDashboardPage() {
         <ul className="space-y-3">
           {exts.map((ext) => {
             const action = rowAction(ext.latestStatus, ext.latestBundleFileId !== null);
-            const resumable = action === "resume_upload" || action === "resume_submit";
+            const resumable = isResumable(action);
             const visibility = visibilityLabel[ext.visibility] ?? ext.visibility;
             const versionLabel =
               action !== "none" ? versionStatusLabel[action] : null;
