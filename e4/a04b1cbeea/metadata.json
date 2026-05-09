@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "e4a04b1cbeea",
+  "strategy": "manual-commit",
+  "branch": "feat/publish-resume-draft",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "app/[locale]/publish/[id]/edit/page.tsx",
+    "app/[locale]/publish/page.tsx",
+    "components/publish/upload-wizard.tsx",
+    "lib/actions/publish.ts",
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/e4/a04b1cbeea/0/metadata.json",
+      "transcript": "/e4/a04b1cbeea/0/full.jsonl",
+      "content_hash": "/e4/a04b1cbeea/0/content_hash.txt",
+      "prompt": "/e4/a04b1cbeea/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 99,
+    "cache_creation_tokens": 40521,
+    "cache_read_tokens": 12169479,
+    "output_tokens": 26178,
+    "api_call_count": 49
+  }
+}
