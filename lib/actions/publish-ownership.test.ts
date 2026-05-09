@@ -10,12 +10,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const selectMock = vi.fn();
 const deleteMock = vi.fn();
+const transactionMock = vi.fn();
 const getSessionMock = vi.fn();
 
 vi.mock("@/lib/db/client", () => ({
   db: {
     select: (...a: unknown[]) => selectMock(...a),
     delete: (...a: unknown[]) => deleteMock(...a),
+    transaction: (cb: (tx: unknown) => Promise<unknown>) => transactionMock(cb),
   },
 }));
 
@@ -31,7 +33,12 @@ vi.mock("next/headers", () => ({
   headers: () => Promise.resolve(new Headers()),
 }));
 
-import { discardDraft, getDraft } from "@/lib/actions/publish";
+import {
+  discardDraft,
+  getDraft,
+  updateDraftExtension,
+} from "@/lib/actions/publish";
+import type { ManifestFormValues } from "@/lib/validators/manifest";
 
 // Build a select chain whose `.where()` is BOTH thenable (for the simple
 // `select(...).from(t).where(...)` shape) AND continues into `.orderBy`/
@@ -241,5 +248,113 @@ describe("getDraft", () => {
     const result = await getDraft("ext-1");
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.draft.bundleUploaded).toBe(false);
+  });
+});
+
+describe("updateDraftExtension", () => {
+  // Minimal valid form payload for ManifestFormSchema. Reused so each
+  // test only specifies the field it actually cares about.
+  const validValues: ManifestFormValues = {
+    slug: "my-skill",
+    name: "My Skill",
+    nameZh: "",
+    version: "1.0.0",
+    category: "skills",
+    scope: "personal",
+    funcCat: "workTask",
+    subCat: "search",
+    l2: "",
+    deptId: "",
+    tagIds: [],
+    description: "hello",
+    descriptionZh: "",
+    tagline: "",
+    homepageUrl: "",
+    repoUrl: "",
+    licenseSpdx: "",
+  };
+
+  it("returns unauthenticated when no session", async () => {
+    getSessionMock.mockResolvedValue(null);
+    const result = await updateDraftExtension("ext-1", validValues);
+    expect(result).toEqual({ ok: false, error: "unauthenticated" });
+    expect(selectMock).not.toHaveBeenCalled();
+    expect(transactionMock).not.toHaveBeenCalled();
+  });
+
+  it("rejects invalid input with the stable invalid_input code", async () => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-A" } });
+    const bad = { ...validValues, slug: "BAD slug!" };
+    const result = await updateDraftExtension("ext-1", bad);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toBe("invalid_input");
+      // Detail carries the human-readable Zod messages.
+      expect(result.detail).toBeTruthy();
+    }
+    // Should bail before touching the DB.
+    expect(transactionMock).not.toHaveBeenCalled();
+  });
+
+  it("returns not_found for a missing extension", async () => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-A" } });
+    selectMock.mockReturnValue(selectChain([]));
+    const result = await updateDraftExtension("ext-missing", validValues);
+    expect(result).toEqual({ ok: false, error: "not_found" });
+    expect(transactionMock).not.toHaveBeenCalled();
+  });
+
+  // Regression: non-owner MUST collapse to `not_found` so the contract
+  // can't be used to probe whether an extension exists for someone else.
+  it("returns not_found (not 'not_owner') for another user's extension", async () => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-A" } });
+    selectMock.mockReturnValue(
+      selectChain([
+        {
+          publisherUserId: "user-B",
+          versionId: "v-1",
+          versionStatus: "pending",
+        },
+      ]),
+    );
+    const result = await updateDraftExtension("ext-1", validValues);
+    expect(result).toEqual({ ok: false, error: "not_found" });
+    expect(transactionMock).not.toHaveBeenCalled();
+  });
+
+  it("refuses to edit once the version has left pending", async () => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-A" } });
+    for (const status of ["scanning", "ready", "rejected"] as const) {
+      selectMock.mockReturnValue(
+        selectChain([
+          {
+            publisherUserId: "user-A",
+            versionId: "v-1",
+            versionStatus: status,
+          },
+        ]),
+      );
+      const result = await updateDraftExtension("ext-1", validValues);
+      expect(result).toEqual({ ok: false, error: "version_not_editable" });
+    }
+    expect(transactionMock).not.toHaveBeenCalled();
+  });
+
+  it("runs the update transaction when caller owns a pending draft", async () => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-A" } });
+    selectMock.mockReturnValue(
+      selectChain([
+        {
+          publisherUserId: "user-A",
+          versionId: "v-1",
+          versionStatus: "pending",
+        },
+      ]),
+    );
+    transactionMock.mockResolvedValue(undefined);
+
+    const result = await updateDraftExtension("ext-1", validValues);
+    expect(result).toEqual({ ok: true });
+    expect(transactionMock).toHaveBeenCalledTimes(1);
   });
 });
