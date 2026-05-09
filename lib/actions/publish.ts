@@ -318,10 +318,19 @@ export async function updateDraftExtension(
 
   try {
     await db.transaction(async (tx) => {
+      // SECURITY: `slug` and `version` are deliberately NOT written from
+      // `data`. The wizard renders those inputs as `readOnly` in resume
+      // mode, but `readOnly` is a client-side hint only — a caller
+      // hitting this action directly (devtools, scripted POST) could
+      // otherwise change the slug or version, which would orphan the
+      // already-uploaded R2 bundle at its old `<slug>/<version>` key.
+      // Rejecting mismatches outright would also work; silently keeping
+      // the stored values is the smaller-surface choice and keeps the
+      // resume flow forgiving when the form round-trips its locked
+      // values back unchanged.
       await tx
         .update(extensions)
         .set({
-          slug: data.slug,
           name: data.name,
           nameZh: emptyToNull(data.nameZh),
           tagline: emptyToNull(data.tagline),
@@ -339,11 +348,6 @@ export async function updateDraftExtension(
           updatedAt: new Date(),
         })
         .where(eq(extensions.id, extensionId));
-
-      await tx
-        .update(extensionVersions)
-        .set({ version: data.version })
-        .where(eq(extensionVersions.id, row.versionId as string));
 
       // Tags: replace wholesale. The set is capped at 8 by the form
       // schema, so a delete-then-insert is cheaper and clearer than

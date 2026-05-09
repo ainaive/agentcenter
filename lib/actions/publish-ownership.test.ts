@@ -357,4 +357,58 @@ describe("updateDraftExtension", () => {
     expect(result).toEqual({ ok: true });
     expect(transactionMock).toHaveBeenCalledTimes(1);
   });
+
+  // Regression: the wizard renders slug + version as `readOnly` in
+  // resume mode, but readOnly is client-side only. The action must NOT
+  // write slug or version from the request payload — otherwise a
+  // direct call (devtools, scripted POST) could rename the slug and
+  // orphan the already-uploaded R2 bundle at its old <slug>/<version>
+  // key.
+  it("does not write slug or version even when the payload tries to change them", async () => {
+    getSessionMock.mockResolvedValue({ user: { id: "user-A" } });
+    selectMock.mockReturnValue(
+      selectChain([
+        {
+          publisherUserId: "user-A",
+          versionId: "v-1",
+          versionStatus: "pending",
+        },
+      ]),
+    );
+
+    // Capture the patches the transaction body issues against `tx.update`.
+    const updatePatches: Array<Record<string, unknown>> = [];
+    transactionMock.mockImplementation(
+      async (cb: (tx: unknown) => Promise<unknown>) => {
+        const tx = {
+          update: () => ({
+            set: (patch: Record<string, unknown>) => {
+              updatePatches.push(patch);
+              return { where: () => Promise.resolve(undefined) };
+            },
+          }),
+          delete: () => ({ where: () => Promise.resolve(undefined) }),
+          insert: () => ({ values: () => Promise.resolve(undefined) }),
+        };
+        return cb(tx);
+      },
+    );
+
+    const attempted = {
+      ...validValues,
+      slug: "hijacked-slug",
+      version: "9.9.9",
+    };
+    const result = await updateDraftExtension("ext-1", attempted);
+    expect(result).toEqual({ ok: true });
+
+    // The wizard's update should produce exactly one extensions patch
+    // and zero version-row patches — slug + version aren't written.
+    expect(updatePatches).toHaveLength(1);
+    const patch = updatePatches[0];
+    expect(patch).not.toHaveProperty("slug");
+    expect(patch).not.toHaveProperty("version");
+    // Sanity: the editable fields are still going through.
+    expect(patch.name).toBe("My Skill");
+  });
 });
