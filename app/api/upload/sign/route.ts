@@ -41,8 +41,19 @@ export async function POST(req: Request) {
   let uploadUrl: string;
   try {
     uploadUrl = await generatePresignedPutUrl(key, contentType);
-  } catch {
-    return Response.json({ error: "Could not generate upload URL" }, { status: 503 });
+  } catch (err) {
+    console.error("[upload/sign] presign failed", err);
+    // Pass the thrown message through in development so the wizard can
+    // show e.g. "R2 is not configured — missing env vars: ...". Hide it
+    // in production to avoid leaking config detail to end users.
+    const detail =
+      process.env.NODE_ENV !== "production" && err instanceof Error
+        ? err.message
+        : undefined;
+    return Response.json(
+      { error: "Could not generate upload URL", detail },
+      { status: 503 },
+    );
   }
 
   return Response.json({ uploadUrl, r2Key: key });

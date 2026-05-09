@@ -119,7 +119,22 @@ export function UploadWizard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug: draft.slug, version: draft.version, contentType: "application/zip", size: file.size }),
       });
-      if (!signRes.ok) { setError(te("uploadSign")); setUploadProgress("idle"); return; }
+      if (!signRes.ok) {
+        // Try to read a `detail` from the error body — the route attaches
+        // the underlying message in development to help diagnose missing
+        // R2 config etc. Tolerate non-JSON bodies (e.g. proxy errors).
+        let detail: string | null = null;
+        try {
+          const body = (await signRes.json()) as { detail?: string };
+          detail = body.detail ?? null;
+        } catch {
+          /* non-JSON response, no detail */
+        }
+        setError(te("uploadSign"));
+        setErrorDetail(detail);
+        setUploadProgress("idle");
+        return;
+      }
       const { uploadUrl, r2Key } = await signRes.json() as { uploadUrl: string; r2Key: string };
 
       // 2. Upload directly to R2
