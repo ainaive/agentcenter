@@ -35,6 +35,21 @@ function pgConstraint(err: unknown): string | undefined {
   return undefined;
 }
 
+// Dev-only debug string. Returns undefined in production so we never leak
+// PG codes / constraint names to end users. Format is compact so it fits
+// under the friendly message in the UI.
+function devErrorDetail(err: unknown): string | undefined {
+  if (process.env.NODE_ENV === "production") return undefined;
+  const code = pgErrorCode(err);
+  const constraint = pgConstraint(err);
+  const message = err instanceof Error ? err.message : String(err);
+  const parts: string[] = [];
+  if (code) parts.push(`pg=${code}`);
+  if (constraint) parts.push(`constraint=${constraint}`);
+  parts.push(message);
+  return parts.join(" · ");
+}
+
 // Map a thrown DB error to a stable error code the UI can translate.
 // Codes are strings (not enums) so adding new ones doesn't require a type
 // migration. Keep in sync with `publish.errors.*` in messages/{en,zh}.json.
@@ -55,7 +70,7 @@ function classifyDraftError(err: unknown): string {
 
 export type CreateDraftResult =
   | { ok: true; extensionId: string; versionId: string }
-  | { ok: false; error: string };
+  | { ok: false; error: string; detail?: string };
 
 export async function createDraftExtension(
   raw: ManifestFormValues,
@@ -119,13 +134,15 @@ export async function createDraftExtension(
       slug: data.slug,
       message: err instanceof Error ? err.message : String(err),
     });
-    return { ok: false, error: code };
+    return { ok: false, error: code, detail: devErrorDetail(err) };
   }
 
   return { ok: true, extensionId, versionId };
 }
 
-export type AttachFileResult = { ok: true } | { ok: false; error: string };
+export type AttachFileResult =
+  | { ok: true }
+  | { ok: false; error: string; detail?: string };
 
 export async function attachFile(
   versionId: string,
@@ -161,13 +178,15 @@ export async function attachFile(
       r2Key,
       message: err instanceof Error ? err.message : String(err),
     });
-    return { ok: false, error: "db_error" };
+    return { ok: false, error: "db_error", detail: devErrorDetail(err) };
   }
 
   return { ok: true };
 }
 
-export type SubmitResult = { ok: true } | { ok: false; error: string };
+export type SubmitResult =
+  | { ok: true }
+  | { ok: false; error: string; detail?: string };
 
 export async function submitForReview(versionId: string): Promise<SubmitResult> {
   const session = await auth.api.getSession({ headers: await headers() });
@@ -190,7 +209,7 @@ export async function submitForReview(versionId: string): Promise<SubmitResult> 
       versionId,
       message: err instanceof Error ? err.message : String(err),
     });
-    return { ok: false, error: "db_error" };
+    return { ok: false, error: "db_error", detail: devErrorDetail(err) };
   }
 
   const { inngest } = await import("@/lib/jobs/client");

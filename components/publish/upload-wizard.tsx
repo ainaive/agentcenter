@@ -44,8 +44,14 @@ export function UploadWizard() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<"idle" | "uploading" | "done">("idle");
   const fileRef = useRef<HTMLInputElement>(null);
+
+  function clearError() {
+    setError(null);
+    setErrorDetail(null);
+  }
 
   // Translate a server-action error code into a localized message. Unknown
   // codes fall back to a generic message rather than leaking raw codes (e.g.
@@ -55,10 +61,11 @@ export function UploadWizard() {
   }
 
   async function handleManifestSubmit(values: ManifestFormValues) {
-    setError(null);
+    clearError();
     const result = await createDraftExtension(values);
     if (!result.ok) {
       setError(describeError(result.error));
+      setErrorDetail(result.detail ?? null);
       return;
     }
     setDraft({ extensionId: result.extensionId, versionId: result.versionId, slug: values.slug, version: values.version });
@@ -69,9 +76,9 @@ export function UploadWizard() {
     const file = e.target.files?.[0];
     if (!file || !draft) return;
 
-    if (!file.name.endsWith(".zip")) { setError(tu("errorType")); return; }
-    if (file.size > 50 * 1024 * 1024) { setError(tu("errorSize")); return; }
-    setError(null);
+    if (!file.name.endsWith(".zip")) { setError(tu("errorType")); setErrorDetail(null); return; }
+    if (file.size > 50 * 1024 * 1024) { setError(tu("errorSize")); setErrorDetail(null); return; }
+    clearError();
     setUploadProgress("uploading");
 
     // 1. Get presigned URL
@@ -89,7 +96,12 @@ export function UploadWizard() {
 
     // 3. Record file in DB (checksum placeholder — real checksum done by Inngest scan)
     const attachResult = await attachFile(draft.versionId, r2Key, file.size, "pending");
-    if (!attachResult.ok) { setError(describeError(attachResult.error)); setUploadProgress("idle"); return; }
+    if (!attachResult.ok) {
+      setError(describeError(attachResult.error));
+      setErrorDetail(attachResult.detail ?? null);
+      setUploadProgress("idle");
+      return;
+    }
 
     setUploadProgress("done");
     setFileUploaded(true);
@@ -98,10 +110,14 @@ export function UploadWizard() {
   async function handleSubmit() {
     if (!draft) return;
     setSubmitting(true);
-    setError(null);
+    clearError();
     const result = await submitForReview(draft.versionId);
     setSubmitting(false);
-    if (!result.ok) { setError(describeError(result.error)); return; }
+    if (!result.ok) {
+      setError(describeError(result.error));
+      setErrorDetail(result.detail ?? null);
+      return;
+    }
     setSubmitted(true);
   }
 
@@ -143,7 +159,12 @@ export function UploadWizard() {
 
       {error && (
         <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error}
+          <div>{error}</div>
+          {errorDetail && (
+            <pre className="mt-2 whitespace-pre-wrap break-all rounded bg-red-100/70 px-2 py-1 font-mono text-xs text-red-900/80">
+              {errorDetail}
+            </pre>
+          )}
         </div>
       )}
 
