@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "3099bc96c09e",
+  "strategy": "manual-commit",
+  "branch": "feat/publish-discard-and-edit",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "app/[locale]/publish/[id]/edit/page.tsx",
+    "components/publish/manifest-form.tsx",
+    "components/publish/upload-wizard.tsx",
+    "lib/actions/publish-ownership.test.ts",
+    "lib/actions/publish.ts",
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/30/99bc96c09e/0/metadata.json",
+      "transcript": "/30/99bc96c09e/0/full.jsonl",
+      "content_hash": "/30/99bc96c09e/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 34,
+    "cache_creation_tokens": 27355,
+    "cache_read_tokens": 11098753,
+    "output_tokens": 21592,
+    "api_call_count": 34
+  }
+}
