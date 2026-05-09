@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "fd10184f3ec5",
+  "strategy": "manual-commit",
+  "branch": "feat/publish-redesign",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "components/publish/wizard/index.tsx",
+    "components/publish/wizard/shared.tsx",
+    "components/publish/wizard/steps/basics.tsx",
+    "components/publish/wizard/steps/listing.tsx",
+    "components/publish/wizard/steps/review.tsx",
+    "components/publish/wizard/steps/source.tsx",
+    "lib/actions/publish.ts",
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json",
+    "lib/validators/manifest.test.ts",
+    "lib/validators/manifest.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/fd/10184f3ec5/0/metadata.json",
+      "transcript": "/fd/10184f3ec5/0/full.jsonl",
+      "content_hash": "/fd/10184f3ec5/0/content_hash.txt",
+      "prompt": "/fd/10184f3ec5/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 53,
+    "cache_creation_tokens": 326941,
+    "cache_read_tokens": 12953549,
+    "output_tokens": 20819,
+    "api_call_count": 43
+  }
+}
