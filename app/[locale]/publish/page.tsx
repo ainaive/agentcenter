@@ -95,7 +95,9 @@ export default async function PublishDashboardPage() {
             return (
               <li
                 key={ext.id}
-                className="rounded-xl border border-border bg-card transition-colors hover:border-primary/60"
+                className={`rounded-xl border border-border bg-card transition-colors ${
+                  resumable ? "hover:border-primary/60" : ""
+                }`}
               >
                 <div className="flex items-stretch gap-2">
                   {resumable ? (

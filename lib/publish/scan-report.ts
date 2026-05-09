@@ -13,10 +13,12 @@ export function extractScanReason(report: unknown): string | null {
     typeof report === "object" &&
     report !== null &&
     "reason" in report &&
-    typeof (report as { reason: unknown }).reason === "string" &&
-    (report as { reason: string }).reason.length > 0
+    typeof (report as { reason: unknown }).reason === "string"
   ) {
-    return (report as { reason: string }).reason;
+    // Trim before length-checking so a whitespace-only reason
+    // (e.g. `"   "`) doesn't render as an empty label-with-no-text.
+    const reason = (report as { reason: string }).reason.trim();
+    if (reason.length > 0) return reason;
   }
   return null;
 }

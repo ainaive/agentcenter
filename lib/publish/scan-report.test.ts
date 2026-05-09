@@ -32,8 +32,16 @@ describe("extractScanReason", () => {
     expect(extractScanReason({ reason: { nested: "x" } })).toBeNull();
   });
 
-  it("returns null for an empty string reason (don't render an empty label)", () => {
+  it("returns null for empty / whitespace-only reasons (don't render an empty label)", () => {
     expect(extractScanReason({ reason: "" })).toBeNull();
+    expect(extractScanReason({ reason: "   " })).toBeNull();
+    expect(extractScanReason({ reason: "\n\t  " })).toBeNull();
+  });
+
+  it("trims surrounding whitespace from a present reason", () => {
+    expect(extractScanReason({ reason: "  bad manifest  " })).toBe(
+      "bad manifest",
+    );
   });
 
   it("returns null for non-object inputs (legacy nulls, scalar values)", () => {
