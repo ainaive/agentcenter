@@ -1,0 +1,1 @@
+I am using the publish feature to publish a skill, but after I enter infomations in step 1, after I click continue, the shows error: db_error. please try to fix the problem, and make the error info mation more useful, and improve the user experience. what do you think?

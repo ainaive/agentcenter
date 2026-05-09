@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "53585719574c",
+  "strategy": "manual-commit",
+  "branch": "fix/publish-step1-error-handling",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "components/publish/upload-wizard.tsx",
+    "lib/actions/publish.ts",
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/53/585719574c/0/metadata.json",
+      "transcript": "/53/585719574c/0/full.jsonl",
+      "content_hash": "/53/585719574c/0/content_hash.txt",
+      "prompt": "/53/585719574c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 41,
+    "cache_creation_tokens": 104659,
+    "cache_read_tokens": 1240098,
+    "output_tokens": 16897,
+    "api_call_count": 26
+  }
+}
