@@ -32,7 +32,7 @@
     "breadcrumb": "Browse",
     "noReadme": "No README has been published for this extension yet.",
     "versionsTitle": "Versions",
-    "noVersions": "No versions have been published yet. Once the upload wizard ships in Phase 10, version history lands here.",
+    "noVersions": "No versions have been published yet. Version history will appear here once a release ships.",
     "empty": {
       "noResultsFor": "No results for “{query}”",
       "noResultsFiltered": "No extensions match these filters",

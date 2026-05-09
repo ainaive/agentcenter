@@ -32,7 +32,7 @@
     "breadcrumb": "浏览",
     "noReadme": "该扩展尚未发布 README 文档。",
     "versionsTitle": "版本历史",
-    "noVersions": "尚未发布任何版本。上传向导（阶段 10）上线后，版本历史将显示在此处。",
+    "noVersions": "尚未发布任何版本。发布版本后，版本历史将显示在此处。",
     "empty": {
       "noResultsFor": "没有“{query}”的结果",
       "noResultsFiltered": "没有符合当前筛选条件的扩展",
