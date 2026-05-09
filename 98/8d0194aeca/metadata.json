@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "988d0194aeca",
+  "strategy": "manual-commit",
+  "branch": "feat/publish-redesign",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "app/[locale]/publish/[id]/edit/page.tsx",
+    "app/[locale]/publish/new/page.tsx",
+    "components/publish/upload-wizard.tsx",
+    "components/publish/wizard/icon-colors.ts",
+    "components/publish/wizard/index.tsx",
+    "components/publish/wizard/live-preview.test.tsx",
+    "components/publish/wizard/live-preview.tsx",
+    "components/publish/wizard/shared.tsx",
+    "components/publish/wizard/steps/basics.test.tsx",
+    "components/publish/wizard/steps/basics.tsx",
+    "components/publish/wizard/steps/listing.test.tsx",
+    "components/publish/wizard/steps/listing.tsx",
+    "components/publish/wizard/steps/review.tsx",
+    "components/publish/wizard/steps/source.tsx",
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/98/8d0194aeca/0/metadata.json",
+      "transcript": "/98/8d0194aeca/0/full.jsonl",
+      "content_hash": "/98/8d0194aeca/0/content_hash.txt",
+      "prompt": "/98/8d0194aeca/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 195,
+    "cache_creation_tokens": 293398,
+    "cache_read_tokens": 29029640,
+    "output_tokens": 110707,
+    "api_call_count": 160
+  }
+}

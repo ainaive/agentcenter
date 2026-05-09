@@ -1,0 +1,52 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "988d0194aeca",
+  "session_id": "7d58f0df-89c0-488d-ad48-3f25db67138b",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-09T10:26:36.685567Z",
+  "branch": "feat/publish-redesign",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "app/[locale]/publish/[id]/edit/page.tsx",
+    "app/[locale]/publish/new/page.tsx",
+    "components/publish/upload-wizard.tsx",
+    "components/publish/wizard/icon-colors.ts",
+    "components/publish/wizard/index.tsx",
+    "components/publish/wizard/live-preview.test.tsx",
+    "components/publish/wizard/live-preview.tsx",
+    "components/publish/wizard/shared.tsx",
+    "components/publish/wizard/steps/basics.test.tsx",
+    "components/publish/wizard/steps/basics.tsx",
+    "components/publish/wizard/steps/listing.test.tsx",
+    "components/publish/wizard/steps/listing.tsx",
+    "components/publish/wizard/steps/review.tsx",
+    "components/publish/wizard/steps/source.tsx",
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7[1m]",
+  "turn_id": "c4173e3532d2",
+  "token_usage": {
+    "input_tokens": 195,
+    "cache_creation_tokens": 293398,
+    "cache_read_tokens": 29029640,
+    "output_tokens": 110707,
+    "api_call_count": 160
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-09T10:26:36.596677Z",
+    "agent_lines": 2211,
+    "agent_removed": 489,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 2211,
+    "total_lines_changed": 3128,
+    "agent_percentage": 86.31713554987212,
+    "metric_version": 2
+  }
+}
