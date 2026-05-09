@@ -10,7 +10,16 @@
   "nav": {
     "explore": "Explore",
     "publish": "Publish",
-    "docs": "Docs"
+    "docs": "Docs",
+    "skipToContent": "Skip to main content",
+    "toggleSidebar": "Toggle sidebar",
+    "searchLabel": "Search the marketplace",
+    "switchToDark": "Switch to dark theme",
+    "switchToIvory": "Switch to ivory theme",
+    "switchToZh": "Switch to Chinese",
+    "switchToEn": "Switch to English",
+    "userMenu": "Account menu",
+    "comingSoon": "Coming soon"
   },
   "home": {
     "featuredLabel": "· Featured this week",
@@ -46,11 +55,17 @@
     }
   },
   "filters": {
-    "sortLabel": "Sort",
+    "sortLabel": "Sort by",
+    "scopeLabel": "Scope",
+    "filtersLabel": "Filters",
+    "tagsToggle": "Tags",
+    "showMoreCount": "{count} more",
+    "showLess": "Less",
+    "matchModeGroupLabel": "Tag match mode",
     "sort": {
       "downloads": "Downloads",
       "stars": "Stars",
-      "newest": "Recently Added"
+      "recent": "Recently Added"
     },
     "scope": {
       "all": "All",
@@ -63,13 +78,20 @@
       "trending": "Trending",
       "new": "New",
       "official": "Official",
-      "oss": "Open Source"
+      "free": "Open Source"
     },
     "tags": {
       "any": "Any",
       "all": "All",
-      "clear": "Clear",
+      "clear": "Clear tags",
       "showMore": "Show more tags"
+    },
+    "dept": {
+      "all": "All Departments",
+      "mine": "My Department",
+      "org": "My Org",
+      "expand": "Expand",
+      "collapse": "Collapse"
     }
   },
   "badge": {

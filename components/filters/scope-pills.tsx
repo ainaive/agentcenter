@@ -1,35 +1,43 @@
 "use client";
 
+import { useId } from "react";
+import { useTranslations } from "next-intl";
+
 import { useFilters } from "@/lib/hooks/use-filters";
 import type { Filters } from "@/lib/validators/filters";
 import { cn } from "@/lib/utils";
 
-const SCOPES = [
-  { key: "all", label: "All" },
-  { key: "personal", label: "Personal" },
-  { key: "org", label: "Organization" },
-  { key: "enterprise", label: "Enterprise" },
-] as const;
+const SCOPE_KEYS = ["all", "personal", "org", "enterprise"] as const;
 
 export function ScopePills() {
+  const t = useTranslations("filters");
+  const labelId = useId();
   const { filters, update } = useFilters();
   const active = filters.scope ?? "all";
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-muted-foreground shrink-0 text-[12px] font-semibold">
-        Scope:
+      <span
+        id={labelId}
+        className="text-muted-foreground shrink-0 text-[12px] font-semibold"
+      >
+        {t("scopeLabel")}:
       </span>
-      <div className="flex flex-wrap gap-1">
-        {SCOPES.map((s) => {
-          const isActive = active === s.key;
+      <div
+        role="group"
+        aria-labelledby={labelId}
+        className="flex flex-wrap gap-1"
+      >
+        {SCOPE_KEYS.map((key) => {
+          const isActive = active === key;
           return (
             <button
-              key={s.key}
+              key={key}
               type="button"
+              aria-pressed={isActive}
               onClick={() =>
                 update({
-                  scope: s.key === "all" ? undefined : (s.key as Filters["scope"]),
+                  scope: key === "all" ? undefined : (key as Filters["scope"]),
                 })
               }
               className={cn(
@@ -39,7 +47,7 @@ export function ScopePills() {
                   : "border-border text-muted-foreground hover:border-primary hover:text-primary",
               )}
             >
-              {s.label}
+              {t(`scope.${key}`)}
             </button>
           );
         })}

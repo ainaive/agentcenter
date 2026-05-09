@@ -9,6 +9,7 @@ import { Link, useRouter } from "@/lib/i18n/navigation";
 
 export function UserButton() {
   const t = useTranslations("auth.userMenu");
+  const tNav = useTranslations("nav");
   const router = useRouter();
   // useSession is reactive — it re-renders when sign-in/sign-out happens
   // via the same authClient, so the avatar appears without a page refresh.
@@ -64,9 +65,12 @@ export function UserButton() {
       <button
         type="button"
         onClick={() => setOpen((p) => !p)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={tNav("userMenu")}
         className="bg-primary/10 border-primary/40 flex size-8 cursor-pointer items-center justify-center rounded-full border-[1.5px] text-[11px] font-bold transition hover:bg-primary/20"
       >
-        <span className="text-primary">{initials}</span>
+        <span aria-hidden className="text-primary">{initials}</span>
       </button>
 
       {open && (

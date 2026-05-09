@@ -45,14 +45,17 @@ export function TopBar({ theme, locale, onToggleSidebar }: TopBarProps) {
       <button
         type="button"
         onClick={onToggleSidebar}
-        aria-label="Toggle sidebar"
+        aria-label={t("toggleSidebar")}
         className="text-muted-foreground hover:text-foreground rounded-md p-1.5 transition-colors"
       >
-        <Menu className="size-[18px]" />
+        <Menu aria-hidden className="size-[18px]" />
       </button>
 
       <Link href="/" className="mr-2 flex items-baseline gap-2.5">
-        <span className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-full">
+        <span
+          aria-hidden
+          className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-full"
+        >
           <span className="serif text-sm font-medium italic">A</span>
         </span>
         <span className="serif text-lg tracking-tight">
@@ -61,11 +64,19 @@ export function TopBar({ theme, locale, onToggleSidebar }: TopBarProps) {
         </span>
       </Link>
 
-      <form onSubmit={handleSearch} className="relative max-w-[520px] flex-1">
-        <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-[15px] -translate-y-1/2" />
+      <form
+        role="search"
+        onSubmit={handleSearch}
+        className="relative max-w-[520px] flex-1"
+      >
+        <Search
+          aria-hidden
+          className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-[15px] -translate-y-1/2"
+        />
         <input
           ref={inputRef}
           type="search"
+          aria-label={t("searchLabel")}
           defaultValue={searchParams.get("q") ?? ""}
           placeholder={ts("placeholder")}
           className="bg-muted border-input placeholder:text-muted-foreground focus:border-ring focus:ring-ring/20 w-full rounded-lg border py-1.5 pr-3 pl-9 text-[13px] outline-none transition-colors focus:ring-3"
@@ -87,12 +98,15 @@ export function TopBar({ theme, locale, onToggleSidebar }: TopBarProps) {
         >
           {t("publish")}
         </Link>
-        <Link
-          href="#"
-          className="text-muted-foreground hover:text-foreground rounded-md px-2.5 py-1.5 text-[13px] font-medium transition-colors"
+        {/* Docs route doesn't exist yet — render as a non-interactive
+            placeholder so keyboard users don't tab to a dead link. */}
+        <span
+          aria-disabled="true"
+          title={t("comingSoon")}
+          className="text-muted-foreground/60 cursor-not-allowed rounded-md px-2.5 py-1.5 text-[13px] font-medium"
         >
           {t("docs")}
-        </Link>
+        </span>
       </nav>
 
       <ThemeSwitch theme={theme} />

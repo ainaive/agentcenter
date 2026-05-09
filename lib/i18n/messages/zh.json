@@ -10,7 +10,16 @@
   "nav": {
     "explore": "探索",
     "publish": "发布",
-    "docs": "文档"
+    "docs": "文档",
+    "skipToContent": "跳到主内容",
+    "toggleSidebar": "切换侧边栏",
+    "searchLabel": "搜索市场",
+    "switchToDark": "切换到深色主题",
+    "switchToIvory": "切换到浅色主题",
+    "switchToZh": "切换到中文",
+    "switchToEn": "切换到英文",
+    "userMenu": "账号菜单",
+    "comingSoon": "敬请期待"
   },
   "home": {
     "featuredLabel": "· 本周精选",
@@ -47,10 +56,16 @@
   },
   "filters": {
     "sortLabel": "排序",
+    "scopeLabel": "范围",
+    "filtersLabel": "筛选",
+    "tagsToggle": "标签",
+    "showMoreCount": "再显示 {count} 个",
+    "showLess": "收起",
+    "matchModeGroupLabel": "标签匹配模式",
     "sort": {
       "downloads": "下载量",
       "stars": "评分",
-      "newest": "最新添加"
+      "recent": "最新添加"
     },
     "scope": {
       "all": "全部",
@@ -63,13 +78,20 @@
       "trending": "热门",
       "new": "最新",
       "official": "官方",
-      "oss": "开源"
+      "free": "开源"
     },
     "tags": {
       "any": "任一",
       "all": "全部",
-      "clear": "清除",
+      "clear": "清除标签",
       "showMore": "显示更多标签"
+    },
+    "dept": {
+      "all": "全部部门",
+      "mine": "我的部门",
+      "org": "我的组织",
+      "expand": "展开",
+      "collapse": "收起"
     }
   },
   "badge": {

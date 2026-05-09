@@ -49,7 +49,10 @@ describe("UserButton", () => {
 
     render(<UserButton />);
 
-    expect(screen.getByRole("button", { name: "AB" })).toBeInTheDocument();
+    // Accessible name comes from aria-label; the initials are visual only.
+    const button = screen.getByRole("button", { name: "userMenu" });
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveTextContent("AB");
   });
 
   it("falls back to the first email letter when name is missing", () => {
@@ -59,7 +62,9 @@ describe("UserButton", () => {
 
     render(<UserButton />);
 
-    expect(screen.getByRole("button", { name: "Z" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "userMenu" }),
+    ).toHaveTextContent("Z");
   });
 
   it("opens the dropdown and shows email + sign out on avatar click", async () => {
@@ -69,7 +74,7 @@ describe("UserButton", () => {
     const user = userEvent.setup();
 
     render(<UserButton />);
-    await user.click(screen.getByRole("button", { name: "AB" }));
+    await user.click(screen.getByRole("button", { name: "userMenu" }));
 
     expect(screen.getByText("alice@example.com")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /signOut/ })).toBeInTheDocument();
@@ -83,11 +88,26 @@ describe("UserButton", () => {
     const user = userEvent.setup();
 
     render(<UserButton />);
-    await user.click(screen.getByRole("button", { name: "AB" }));
+    await user.click(screen.getByRole("button", { name: "userMenu" }));
     await user.click(screen.getByRole("button", { name: /signOut/ }));
 
     await waitFor(() => expect(mockSignOut).toHaveBeenCalledOnce());
     await waitFor(() => expect(mockPush).toHaveBeenCalledWith("/"));
     expect(mockRefresh).toHaveBeenCalled();
+  });
+
+  it("exposes haspopup + expanded state on the avatar button", async () => {
+    mockUseSession.mockReturnValue({
+      data: { user: { name: "Alice Bob", email: "alice@example.com" } },
+    });
+    const user = userEvent.setup();
+
+    render(<UserButton />);
+    const button = screen.getByRole("button", { name: "userMenu" });
+    expect(button).toHaveAttribute("aria-haspopup", "menu");
+    expect(button).toHaveAttribute("aria-expanded", "false");
+
+    await user.click(button);
+    expect(button).toHaveAttribute("aria-expanded", "true");
   });
 });

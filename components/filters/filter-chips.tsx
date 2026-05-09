@@ -1,32 +1,34 @@
 "use client";
 
+import { useTranslations } from "next-intl";
+
 import { useFilters } from "@/lib/hooks/use-filters";
 import type { Filters } from "@/lib/validators/filters";
 import { cn } from "@/lib/utils";
 
-const CHIPS = [
-  { key: "all", label: "All" },
-  { key: "trending", label: "Trending" },
-  { key: "new", label: "New" },
-  { key: "official", label: "Official" },
-  { key: "free", label: "Open Source" },
-] as const;
+const CHIP_KEYS = ["all", "trending", "new", "official", "free"] as const;
 
 export function FilterChips() {
+  const t = useTranslations("filters");
   const { filters, update } = useFilters();
   const active = filters.filter ?? "all";
 
   return (
-    <div className="flex flex-wrap gap-1.5">
-      {CHIPS.map((c) => {
-        const isActive = active === c.key;
+    <div
+      role="group"
+      aria-label={t("filtersLabel")}
+      className="flex flex-wrap gap-1.5"
+    >
+      {CHIP_KEYS.map((key) => {
+        const isActive = active === key;
         return (
           <button
-            key={c.key}
+            key={key}
             type="button"
+            aria-pressed={isActive}
             onClick={() =>
               update({
-                filter: c.key === "all" ? undefined : (c.key as Filters["filter"]),
+                filter: key === "all" ? undefined : (key as Filters["filter"]),
               })
             }
             className={cn(
@@ -36,7 +38,7 @@ export function FilterChips() {
                 : "border-border text-muted-foreground hover:border-primary hover:text-primary",
             )}
           >
-            {c.label}
+            {t(`chips.${key}`)}
           </button>
         );
       })}

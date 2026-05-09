@@ -56,6 +56,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
   const activeSubCat = searchParams.get("subCat");
   const activeL2 = searchParams.get("l2");
 
+  const tDept = useTranslations("filters.dept");
   const [expandedSections, setExpandedSections] = useState({
     browse: true,
     categories: true,
@@ -161,7 +162,8 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                   </Link>
                   <button
                     type="button"
-                    aria-label={isExpanded ? "Collapse" : "Expand"}
+                    aria-label={`${isExpanded ? tDept("collapse") : tDept("expand")} ${tx(`funcCat.${cat.key}`)}`}
+                    aria-expanded={isExpanded}
                     onClick={() =>
                       setExpandedFuncCats((p) => ({
                         ...p,
@@ -171,9 +173,9 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                     className="text-sidebar-foreground/60 hover:text-sidebar-foreground rounded p-1 transition-colors"
                   >
                     {isExpanded ? (
-                      <ChevronDown className="size-3" />
+                      <ChevronDown aria-hidden className="size-3" />
                     ) : (
-                      <ChevronRight className="size-3" />
+                      <ChevronRight aria-hidden className="size-3" />
                     )}
                   </button>
                 </div>
@@ -218,7 +220,8 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                           {l1.l2.length > 0 && (
                             <button
                               type="button"
-                              aria-label={isL1Expanded ? "Collapse" : "Expand"}
+                              aria-label={`${isL1Expanded ? tDept("collapse") : tDept("expand")} ${tx(`l1.${l1.key}`)}`}
+                              aria-expanded={isL1Expanded}
                               onClick={() =>
                                 setExpandedL1((p) => ({
                                   ...p,
@@ -228,9 +231,9 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                               className="text-sidebar-foreground/50 hover:text-sidebar-foreground rounded p-1 transition-colors"
                             >
                               {isL1Expanded ? (
-                                <ChevronDown className="size-[11px]" />
+                                <ChevronDown aria-hidden className="size-[11px]" />
                               ) : (
-                                <ChevronRight className="size-[11px]" />
+                                <ChevronRight aria-hidden className="size-[11px]" />
                               )}
                             </button>
                           )}
@@ -327,13 +330,14 @@ function SidebarSection({
       <button
         type="button"
         onClick={onToggle}
+        aria-expanded={expanded}
         className="text-sidebar-foreground/85 hover:text-sidebar-foreground flex w-full items-center justify-between rounded-md px-2 py-1.5 text-[11px] font-bold tracking-wider uppercase transition-colors"
       >
         {title}
         {expanded ? (
-          <ChevronDown className="size-[14px]" />
+          <ChevronDown aria-hidden className="size-[14px]" />
         ) : (
-          <ChevronRight className="size-[14px]" />
+          <ChevronRight aria-hidden className="size-[14px]" />
         )}
       </button>
       {expanded && <div className="mt-0.5 flex flex-col gap-px">{children}</div>}
@@ -373,16 +377,20 @@ function SidebarStaticItem({
   muted?: boolean;
   children: React.ReactNode;
 }) {
+  // Placeholder rows for not-yet-wired collections (Installed/Saved counts,
+  // user collections, "New group"). Render as a non-interactive div instead
+  // of a focusable button-that-does-nothing — keyboard users were tabbing
+  // through dead controls.
   return (
-    <button
-      type="button"
+    <div
+      aria-disabled="true"
       className={cn(
-        "text-sidebar-foreground hover:bg-sidebar-accent/50 flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] font-medium transition",
+        "text-sidebar-foreground/70 flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[13px] font-medium",
         muted && "opacity-60",
       )}
     >
       {children}
-    </button>
+    </div>
   );
 }
 
