@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "ae696164f59f",
+  "strategy": "manual-commit",
+  "branch": "feat/home-improvements",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "components/layout/sidebar.tsx",
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/ae/696164f59f/0/metadata.json",
+      "transcript": "/ae/696164f59f/0/full.jsonl",
+      "content_hash": "/ae/696164f59f/0/content_hash.txt",
+      "prompt": "/ae/696164f59f/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 21,
+    "cache_creation_tokens": 5549,
+    "cache_read_tokens": 1694060,
+    "output_tokens": 3231,
+    "api_call_count": 11
+  }
+}
