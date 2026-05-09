@@ -94,6 +94,16 @@
       "org": "My Org",
       "expand": "Expand",
       "collapse": "Collapse"
+    },
+    "creator": {
+      "any": "Any creator",
+      "empty": "No creators yet",
+      "label": "Creator"
+    },
+    "publisher": {
+      "any": "Any publisher",
+      "empty": "No publishers yet",
+      "label": "Publisher"
     }
   },
   "badge": {

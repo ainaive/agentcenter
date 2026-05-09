@@ -94,6 +94,16 @@
       "org": "我的组织",
       "expand": "展开",
       "collapse": "收起"
+    },
+    "creator": {
+      "any": "任意作者",
+      "empty": "暂无作者",
+      "label": "作者"
+    },
+    "publisher": {
+      "any": "任意发布方",
+      "empty": "暂无发布方",
+      "label": "发布方"
     }
   },
   "badge": {

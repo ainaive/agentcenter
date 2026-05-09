@@ -7,6 +7,10 @@ import {
   countFilteredExtensions,
   listExtensions,
 } from "@/lib/db/queries/extensions";
+import {
+  listPublishedCreators,
+  listPublishedPublishers,
+} from "@/lib/db/queries/facets";
 import { getTagsWithCounts } from "@/lib/db/queries/tags";
 import { parseFilters } from "@/lib/validators/filters";
 import type { Locale } from "@/types";
@@ -27,10 +31,12 @@ export default async function ExtensionsPage({
   const filters = parseFilters(rawParams);
   const userDeptId = session?.user.defaultDeptId ?? undefined;
 
-  const [items, total, tags] = await Promise.all([
+  const [items, total, tags, creators, publishers] = await Promise.all([
     listExtensions(filters, userDeptId),
     countFilteredExtensions(filters, userDeptId),
     getTagsWithCounts(),
+    listPublishedCreators(),
+    listPublishedPublishers(),
   ]);
 
   return (
@@ -42,7 +48,7 @@ export default async function ExtensionsPage({
         </span>
       </header>
 
-      <FilterBar tags={tags} />
+      <FilterBar tags={tags} creators={creators} publishers={publishers} />
 
       <ExtGrid
         items={items}
