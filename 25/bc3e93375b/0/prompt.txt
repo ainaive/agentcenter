@@ -1,0 +1,9 @@
+now it says: pg=42703 · column "search_vector" of relation "extensions" does not exist
+
+---
+
+I have run this migrate command, and restart the dev server, it still shows error: pg=42703 · column "search_vector" of relation "extensions" does not exist
+
+---
+
+can you do it for me?
