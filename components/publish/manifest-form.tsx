@@ -15,6 +15,14 @@ import type { Department } from "@/types";
 interface Props {
   onSubmit: (values: ManifestFormValues) => void;
   defaultValues?: Partial<ManifestFormValues>;
+  // Render specific inputs as read-only. Used by the resume/edit flow to
+  // freeze fields whose values are already keys for downstream resources
+  // (slug + version make up the R2 bundle path; changing them would
+  // orphan the uploaded bundle).
+  lockedFields?: ReadonlyArray<"slug" | "version">;
+  // Override the submit-button label. Defaults to the wizard's
+  // "Continue" copy.
+  submitLabel?: string;
 }
 
 function flattenDepts(list: Department[], depth = 0): { id: string; label: string }[] {
@@ -29,9 +37,15 @@ function flattenDepts(list: Department[], depth = 0): { id: string; label: strin
 const DEPT_OPTIONS = flattenDepts(DEPARTMENTS);
 const TAG_OPTIONS = Object.entries(TAG_LABELS).map(([id, label]) => ({ id, label: label.en }));
 
-export function ManifestForm({ onSubmit, defaultValues }: Props) {
+export function ManifestForm({
+  onSubmit,
+  defaultValues,
+  lockedFields,
+  submitLabel,
+}: Props) {
   const t = useTranslations("publish.form");
   const tw = useTranslations("publish.wizard");
+  const isLocked = (key: "slug" | "version") => lockedFields?.includes(key) ?? false;
 
   const [values, setValues] = useState<ManifestFormValues>({
     slug: "",
@@ -104,14 +118,33 @@ export function ManifestForm({ onSubmit, defaultValues }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className={labelCls}>{t("slug")} *</label>
-          <input className={inputCls} {...field("slug")} placeholder="my-extension" minLength={3} maxLength={64} />
+          <input
+            className={inputCls}
+            {...field("slug")}
+            placeholder="my-extension"
+            minLength={3}
+            maxLength={64}
+            readOnly={isLocked("slug")}
+            aria-readonly={isLocked("slug")}
+          />
           {errors.slug && <p className={errorCls}>{errors.slug}</p>}
-          <p className="mt-1 text-xs text-muted-foreground">{t("slugHint")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {isLocked("slug") ? t("lockedHint") : t("slugHint")}
+          </p>
         </div>
         <div>
           <label className={labelCls}>{t("version")} *</label>
-          <input className={inputCls} {...field("version")} placeholder="1.0.0" />
+          <input
+            className={inputCls}
+            {...field("version")}
+            placeholder="1.0.0"
+            readOnly={isLocked("version")}
+            aria-readonly={isLocked("version")}
+          />
           {errors.version && <p className={errorCls}>{errors.version}</p>}
+          {isLocked("version") && (
+            <p className="mt-1 text-xs text-muted-foreground">{t("lockedHint")}</p>
+          )}
         </div>
       </div>
 
@@ -244,7 +277,7 @@ export function ManifestForm({ onSubmit, defaultValues }: Props) {
           type="submit"
           className="rounded-md bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
         >
-          {tw("nextButton")}
+          {submitLabel ?? tw("nextButton")}
         </button>
       </div>
     </form>

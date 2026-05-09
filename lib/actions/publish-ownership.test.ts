@@ -33,11 +33,27 @@ vi.mock("next/headers", () => ({
 
 import { discardDraft, getDraft } from "@/lib/actions/publish";
 
-// Build a select chain that resolves to a single row (or empty) at .limit().
+// Build a select chain whose `.where()` is BOTH thenable (for the simple
+// `select(...).from(t).where(...)` shape) AND continues into `.orderBy`/
+// `.limit` (for the joined-row shape). This lets the same mock cover
+// both query patterns getDraft uses.
 function selectChain(rows: unknown[]) {
   const limit = vi.fn().mockResolvedValue(rows);
   const orderBy = vi.fn().mockReturnValue({ limit });
-  const where = vi.fn().mockReturnValue({ limit, orderBy });
+  const whereResult: {
+    limit: typeof limit;
+    orderBy: typeof orderBy;
+    then: Promise<unknown[]>["then"];
+  } = {
+    limit,
+    orderBy,
+    then: ((onFulfilled, onRejected) =>
+      Promise.resolve(rows).then(
+        onFulfilled,
+        onRejected,
+      )) as Promise<unknown[]>["then"],
+  };
+  const where = vi.fn().mockReturnValue(whereResult);
   const leftJoin = vi.fn().mockReturnValue({ where });
   const from = vi.fn().mockReturnValue({ where, leftJoin });
   return { from, leftJoin, where, orderBy, limit };
@@ -163,59 +179,65 @@ describe("getDraft", () => {
     expect(result).toEqual({ ok: false, error: "not_found" });
   });
 
-  it("returns the DraftSnapshot for the owner", async () => {
+  // Full manifest row matching the new `getDraft` SELECT — includes the
+  // form-prefill fields on top of the dashboard fields.
+  function fullManifestRow(overrides: Partial<Record<string, unknown>> = {}) {
+    return {
+      extensionId: "ext-1",
+      publisherUserId: "user-A",
+      slug: "my-skill",
+      name: "My Skill",
+      nameZh: null,
+      tagline: null,
+      description: "hello",
+      descriptionZh: null,
+      category: "skills",
+      scope: "personal",
+      funcCat: "workTask",
+      subCat: "search",
+      l2: null,
+      deptId: null,
+      homepageUrl: null,
+      repoUrl: null,
+      licenseSpdx: null,
+      visibility: "draft",
+      versionId: "v-1",
+      version: "1.0.0",
+      versionStatus: "pending",
+      bundleFileId: "f-1",
+      ...overrides,
+    };
+  }
+
+  it("returns the DraftSnapshot for the owner with form values pre-filled", async () => {
     getSessionMock.mockResolvedValue({ user: { id: "user-A" } });
-    selectMock.mockReturnValue(
-      selectChain([
-        {
-          extensionId: "ext-1",
-          publisherUserId: "user-A",
-          slug: "my-skill",
-          name: "My Skill",
-          category: "skills",
-          visibility: "draft",
-          versionId: "v-1",
-          version: "1.0.0",
-          versionStatus: "pending",
-          bundleFileId: "f-1", // bundle uploaded
-        },
-      ]),
-    );
+    // First call: the joined manifest row. Second call: tag IDs.
+    selectMock
+      .mockReturnValueOnce(selectChain([fullManifestRow()]))
+      .mockReturnValueOnce(selectChain([{ tagId: "t-1" }, { tagId: "t-2" }]));
+
     const result = await getDraft("ext-1");
-    expect(result).toEqual({
-      ok: true,
-      draft: {
-        extensionId: "ext-1",
-        versionId: "v-1",
-        slug: "my-skill",
-        version: "1.0.0",
-        name: "My Skill",
-        category: "skills",
-        visibility: "draft",
-        versionStatus: "pending",
-        bundleUploaded: true,
-      },
-    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.draft.extensionId).toBe("ext-1");
+    expect(result.draft.bundleUploaded).toBe(true);
+    expect(result.draft.formValues.slug).toBe("my-skill");
+    expect(result.draft.formValues.name).toBe("My Skill");
+    expect(result.draft.formValues.description).toBe("hello");
+    expect(result.draft.formValues.tagIds).toEqual(["t-1", "t-2"]);
+    // Nullable DB columns surface as empty strings in the form (so the
+    // controlled <input>s don't go uncontrolled).
+    expect(result.draft.formValues.nameZh).toBe("");
+    expect(result.draft.formValues.deptId).toBe("");
   });
 
   it("reports bundleUploaded: false when bundleFileId is null", async () => {
     getSessionMock.mockResolvedValue({ user: { id: "user-A" } });
-    selectMock.mockReturnValue(
-      selectChain([
-        {
-          extensionId: "ext-1",
-          publisherUserId: "user-A",
-          slug: "my-skill",
-          name: "My Skill",
-          category: "skills",
-          visibility: "draft",
-          versionId: "v-1",
-          version: "1.0.0",
-          versionStatus: "pending",
-          bundleFileId: null,
-        },
-      ]),
-    );
+    selectMock
+      .mockReturnValueOnce(
+        selectChain([fullManifestRow({ bundleFileId: null })]),
+      )
+      .mockReturnValueOnce(selectChain([])); // no tags
     const result = await getDraft("ext-1");
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.draft.bundleUploaded).toBe(false);

@@ -263,6 +263,115 @@ export async function getMyExtensions(userId: string) {
   return Array.from(byExtension.values());
 }
 
+export type UpdateDraftResult =
+  | { ok: true }
+  | { ok: false; error: string; detail?: string };
+
+// Update an in-flight draft's manifest fields. Owner-checked. Refuses to
+// touch anything once the version has left `pending` — by then the
+// scanner has likely picked it up and re-running scans is the worker's
+// job, not the wizard's. `slug` and `version` can technically be
+// changed, but the wizard locks them in resume mode because they form
+// the R2 bundle key — letting them shift orphans the uploaded bundle.
+export async function updateDraftExtension(
+  extensionId: string,
+  raw: ManifestFormValues,
+): Promise<UpdateDraftResult> {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) return { ok: false, error: "unauthenticated" };
+
+  const parsed = ManifestFormSchema.safeParse(raw);
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: "invalid_input",
+      detail: parsed.error.issues.map((i) => i.message).join("; "),
+    };
+  }
+  const data = parsed.data;
+
+  // Resolve the latest version + verify ownership + state in one read.
+  const [row] = await db
+    .select({
+      publisherUserId: extensions.publisherUserId,
+      versionId: extensionVersions.id,
+      versionStatus: extensionVersions.status,
+    })
+    .from(extensions)
+    .leftJoin(
+      extensionVersions,
+      eq(extensionVersions.extensionId, extensions.id),
+    )
+    .where(eq(extensions.id, extensionId))
+    .orderBy(desc(extensionVersions.createdAt))
+    .limit(1);
+
+  if (!row || !row.versionId) {
+    return { ok: false, error: "not_found" };
+  }
+  if (row.publisherUserId !== session.user.id) {
+    return { ok: false, error: "not_found" };
+  }
+  if (row.versionStatus !== "pending") {
+    return { ok: false, error: "version_not_editable" };
+  }
+
+  try {
+    await db.transaction(async (tx) => {
+      await tx
+        .update(extensions)
+        .set({
+          slug: data.slug,
+          name: data.name,
+          nameZh: emptyToNull(data.nameZh),
+          tagline: emptyToNull(data.tagline),
+          description: emptyToNull(data.description),
+          descriptionZh: emptyToNull(data.descriptionZh),
+          category: data.category,
+          scope: data.scope,
+          funcCat: data.funcCat,
+          subCat: data.subCat,
+          l2: emptyToNull(data.l2),
+          deptId: emptyToNull(data.deptId),
+          homepageUrl: emptyToNull(data.homepageUrl),
+          repoUrl: emptyToNull(data.repoUrl),
+          licenseSpdx: emptyToNull(data.licenseSpdx),
+          updatedAt: new Date(),
+        })
+        .where(eq(extensions.id, extensionId));
+
+      await tx
+        .update(extensionVersions)
+        .set({ version: data.version })
+        .where(eq(extensionVersions.id, row.versionId as string));
+
+      // Tags: replace wholesale. The set is capped at 8 by the form
+      // schema, so a delete-then-insert is cheaper and clearer than
+      // computing a diff.
+      await tx
+        .delete(extensionTags)
+        .where(eq(extensionTags.extensionId, extensionId));
+      if (data.tagIds.length > 0) {
+        await tx
+          .insert(extensionTags)
+          .values(data.tagIds.map((tagId) => ({ extensionId, tagId })));
+      }
+    });
+  } catch (err) {
+    const code = classifyDraftError(err);
+    console.error("[publish] updateDraftExtension failed", {
+      code,
+      pgCode: pgErrorCode(err),
+      constraint: pgConstraint(err),
+      extensionId,
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return { ok: false, error: code, detail: devErrorDetail(err) };
+  }
+
+  return { ok: true };
+}
+
 export type DiscardDraftResult =
   | { ok: true }
   | { ok: false; error: "not_found" | "unauthenticated" | "not_discardable" };
@@ -321,6 +430,11 @@ export type DraftSnapshot = {
   visibility: string;
   versionStatus: string;
   bundleUploaded: boolean;
+  // Full manifest values for the form pre-fill in edit mode. Loaded by
+  // `getDraft` regardless of state since the dashboard never shows them
+  // — only the resume page reads this. Tag IDs come from a sibling
+  // query against `extension_tags`.
+  formValues: ManifestFormValues;
 };
 
 export type GetDraftResult =
@@ -344,7 +458,19 @@ export async function getDraft(extensionId: string): Promise<GetDraftResult> {
       publisherUserId: extensions.publisherUserId,
       slug: extensions.slug,
       name: extensions.name,
+      nameZh: extensions.nameZh,
+      tagline: extensions.tagline,
+      description: extensions.description,
+      descriptionZh: extensions.descriptionZh,
       category: extensions.category,
+      scope: extensions.scope,
+      funcCat: extensions.funcCat,
+      subCat: extensions.subCat,
+      l2: extensions.l2,
+      deptId: extensions.deptId,
+      homepageUrl: extensions.homepageUrl,
+      repoUrl: extensions.repoUrl,
+      licenseSpdx: extensions.licenseSpdx,
       visibility: extensions.visibility,
       versionId: extensionVersions.id,
       version: extensionVersions.version,
@@ -368,6 +494,14 @@ export async function getDraft(extensionId: string): Promise<GetDraftResult> {
     return { ok: false, error: "not_found" };
   }
 
+  // Tag IDs in a separate, very small query — extensions cap tags at 8
+  // per the form schema, so this is at most 8 rows.
+  const tagRows = await db
+    .select({ tagId: extensionTags.tagId })
+    .from(extensionTags)
+    .where(eq(extensionTags.extensionId, row.extensionId));
+  const tagIds = tagRows.map((r) => r.tagId);
+
   return {
     ok: true,
     draft: {
@@ -380,6 +514,25 @@ export async function getDraft(extensionId: string): Promise<GetDraftResult> {
       visibility: row.visibility,
       versionStatus: row.versionStatus,
       bundleUploaded: row.bundleFileId !== null,
+      formValues: {
+        slug: row.slug,
+        name: row.name,
+        nameZh: row.nameZh ?? "",
+        version: row.version,
+        category: row.category as ManifestFormValues["category"],
+        scope: row.scope as ManifestFormValues["scope"],
+        funcCat: row.funcCat as ManifestFormValues["funcCat"],
+        subCat: row.subCat,
+        l2: row.l2 ?? "",
+        deptId: row.deptId ?? "",
+        tagIds,
+        description: row.description ?? "",
+        descriptionZh: row.descriptionZh ?? "",
+        tagline: row.tagline ?? "",
+        homepageUrl: row.homepageUrl ?? "",
+        repoUrl: row.repoUrl ?? "",
+        licenseSpdx: row.licenseSpdx ?? "",
+      },
     },
   };
 }

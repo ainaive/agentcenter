@@ -51,6 +51,7 @@ export default async function PublishEditPage({ params }: PageProps) {
           name: draft.name,
           category: draft.category,
           bundleUploaded: draft.bundleUploaded,
+          formValues: draft.formValues,
         }}
       />
     </main>

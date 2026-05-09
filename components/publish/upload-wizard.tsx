@@ -5,7 +5,12 @@ import { useTranslations } from "next-intl";
 import { CheckCircle, Upload } from "lucide-react";
 
 import { ManifestForm } from "./manifest-form";
-import { createDraftExtension, attachFile, submitForReview } from "@/lib/actions/publish";
+import {
+  attachFile,
+  createDraftExtension,
+  submitForReview,
+  updateDraftExtension,
+} from "@/lib/actions/publish";
 import type { ManifestFormValues } from "@/lib/validators/manifest";
 import { Link } from "@/lib/i18n/navigation";
 
@@ -41,6 +46,7 @@ const KNOWN_ERROR_CODES = new Set([
   "missing_required",
   "no_bundle",
   "version_not_submittable",
+  "version_not_editable",
   "scan_queue_unavailable",
   "db_error",
 ]);
@@ -55,6 +61,9 @@ export interface ResumeDraft {
   name: string;
   category: string;
   bundleUploaded: boolean;
+  // Full form values pre-fill Step 1 in resume mode, so a user can fix
+  // a typo without discarding and recreating the draft.
+  formValues: ManifestFormValues;
 }
 
 interface UploadWizardProps {
@@ -118,6 +127,28 @@ export function UploadWizard({ resume }: UploadWizardProps = {}) {
   async function handleManifestSubmit(values: ManifestFormValues) {
     clearError();
     try {
+      // Edit mode: update the existing extension + version in place.
+      // Slug and version are locked in the form so the bundle's R2 key
+      // remains valid; we don't reset upload state here.
+      if (resume) {
+        const result = await updateDraftExtension(resume.extensionId, values);
+        if (!result.ok) {
+          setError(describeError(result.error));
+          setErrorDetail(result.detail ?? null);
+          return;
+        }
+        // Mirror the latest values into local draft state so Step 3's
+        // summary panel reflects what the user just saved.
+        setDraft({
+          extensionId: resume.extensionId,
+          versionId: resume.versionId,
+          slug: values.slug,
+          version: values.version,
+        });
+        setStep(2);
+        return;
+      }
+
       const result = await createDraftExtension(values);
       if (!result.ok) {
         setError(describeError(result.error));
@@ -286,9 +317,17 @@ export function UploadWizard({ resume }: UploadWizardProps = {}) {
         </div>
       )}
 
-      {/* Step 1: Manifest. Skipped in resume mode — the manifest already
-          exists in the database; editing it is a Plan-B feature. */}
-      {step === 1 && !isResume && <ManifestForm onSubmit={handleManifestSubmit} />}
+      {/* Step 1: Manifest. In resume mode the form is pre-filled with the
+          existing values and `slug` + `version` are locked (they form
+          the R2 bundle key — letting them change orphans the bundle). */}
+      {step === 1 && (
+        <ManifestForm
+          onSubmit={handleManifestSubmit}
+          defaultValues={resume?.formValues}
+          lockedFields={isResume ? ["slug", "version"] : undefined}
+          submitLabel={isResume ? tw("saveAndContinue") : undefined}
+        />
+      )}
 
       {/* Step 2: File upload */}
       {step === 2 && (
@@ -318,24 +357,16 @@ export function UploadWizard({ resume }: UploadWizardProps = {}) {
           </div>
 
           <div className="flex justify-between">
-            {/* In resume mode there is no Step 1 to go back to — link out
-                to the dashboard instead. */}
-            {isResume ? (
-              <Link
-                href="/publish"
-                className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted transition-colors"
-              >
-                {tw("backToDashboard")}
-              </Link>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted transition-colors"
-              >
-                {tw("backButton")}
-              </button>
-            )}
+            {/* Step 1 is editable in both new and resume modes now, so
+                Back simply walks back. The "Back to dashboard" link
+                lives on the resume banner at the top of the wizard. */}
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted transition-colors"
+            >
+              {tw("backButton")}
+            </button>
             <button
               type="button"
               disabled={!fileUploaded}

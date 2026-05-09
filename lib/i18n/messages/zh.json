@@ -313,7 +313,8 @@
       "successTitle": "已提交！",
       "successBody": "您的扩展已进入审核队列，发布后我们会通知您。",
       "backToDashboard": "返回控制台",
-      "resumingLabel": "继续草稿"
+      "resumingLabel": "继续草稿",
+      "saveAndContinue": "保存并继续"
     },
     "form": {
       "slug": "标识符",
@@ -336,7 +337,8 @@
       "homepageUrl": "官网地址",
       "repoUrl": "代码仓库",
       "licenseSpdx": "许可证（SPDX）",
-      "bundle": "扩展包"
+      "bundle": "扩展包",
+      "lockedHint": "已上传扩展包后此字段不可修改，请丢弃草稿后重新创建。"
     },
     "upload": {
       "dropzone": "将 ZIP 包拖到此处，或点击浏览文件",
@@ -358,6 +360,7 @@
       "invalid_reference": "引用的内容缺失，请刷新后重试。",
       "missing_required": "存在未填写的必填字段，请检查表单。",
       "no_bundle": "请先上传扩展包再提交。",
+      "version_not_editable": "当前草稿无法编辑，可能已进入审核或之后阶段，请刷新页面查看最新状态。",
       "version_not_submittable": "当前版本无法提交，可能正在审核或已发布。请刷新页面查看最新状态。",
       "scan_queue_unavailable": "无法将扩展包加入扫描队列，审核服务暂时不可用，请稍后重试。",
       "db_error": "暂时无法保存，请稍后重试。",
