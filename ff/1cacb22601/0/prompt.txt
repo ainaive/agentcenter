@@ -1,0 +1,13 @@
+ok, go ahead
+
+---
+
+ok, go ahead
+
+---
+
+I have deopyed this site's production on vercel, the production url is agentcenter.vercel.app I found I can register and sign up in local dev, but can not regiester and sign up in production.
+
+---
+
+ok, go ahead
