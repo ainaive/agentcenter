@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "0d37e0c42289",
+  "strategy": "manual-commit",
+  "branch": "test/publish-redesign-coverage",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "components/publish/wizard/index.test.tsx",
+    "lib/actions/publish-ownership.test.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0d/37e0c42289/0/metadata.json",
+      "transcript": "/0d/37e0c42289/0/full.jsonl",
+      "content_hash": "/0d/37e0c42289/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 11,
+    "cache_creation_tokens": 9275,
+    "cache_read_tokens": 4357566,
+    "output_tokens": 4562,
+    "api_call_count": 11
+  }
+}
