@@ -1,0 +1,17 @@
+please add two kinds of filter in the extension list page: creator and publisher. creator is the user who publish the extension, publisher is an organization, which has some of creators, and one creator can belongs to more than one publisher.
+
+---
+
+continue
+
+---
+
+ok, go ahead
+
+---
+
+for the questions: 1. single select 2. check and add 3. ok
+
+---
+
+just three commits on this branch
