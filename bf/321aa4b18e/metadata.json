@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "bf321aa4b18e",
+  "strategy": "manual-commit",
+  "branch": "docs/feature-and-daily-log",
+  "checkpoints_count": 0,
+  "files_touched": [
+    ".claude/skills/update-features-and-daily-log/SKILL.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/bf/321aa4b18e/0/metadata.json",
+      "transcript": "/bf/321aa4b18e/0/full.jsonl",
+      "content_hash": "/bf/321aa4b18e/0/content_hash.txt",
+      "prompt": "/bf/321aa4b18e/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 62,
+    "cache_creation_tokens": 85070,
+    "cache_read_tokens": 1571601,
+    "output_tokens": 11420,
+    "api_call_count": 18
+  }
+}
