@@ -1,0 +1,9 @@
+update the log, make now the daily notes as detail section, and add a briefing section, much more concise.
+
+---
+
+add breifing to features too.
+
+---
+
+in the features.md, it seems should not be named "Briefing", what do you think?
