@@ -10,6 +10,11 @@ What changed each day. For the current capability list, see [features.md](./feat
 
 ### 2026-05-10
 
+**Briefing.** Home page polish (banner, clickable cards, fixed trending row), new Creator + Publisher filters, production sign-up/sign-in fix, plus copy and layout cleanups.
+
+<details>
+<summary>Details</summary>
+
 - **Home page** — Featured banner redesigned as a more polished, editorial composition (replacing the previous layout that left the right side feeling empty). The whole extension card is now clickable, not just the title. The "Trending" row used to be silently filtered to Skills only — it now shows a true cross-category mix of MCP servers, slash commands, and plugins as well, and the heading was simplified from "Trending Skills" to just "Trending". (#26, #28)
 
 - **Browse: filter by Creator and Publisher** — Two new filters on the extensions page. Creator filters by the person who published the extension; Publisher filters by the organization behind it. A creator can belong to multiple publishers, which is reflected in the demo data. (#26)
@@ -24,11 +29,18 @@ What changed each day. For the current capability list, see [features.md](./feat
 
 - **Sidebar cleanup** — Removed an unused "Installed" entry that always showed `0`. (#26)
 
+</details>
+
 ---
 
 ## 中文
 
 ### 2026-05-10
+
+**简报。** 首页打磨（banner、整卡可点击、修复热门栏）、新增"作者 + 发布商"筛选、生产环境注册/登录修复，以及若干文案与布局清理。
+
+<details>
+<summary>详情</summary>
 
 - **首页** ——精选 banner 重新设计为更精致的编辑风格构图（此前右侧大片留白显得不协调）。扩展卡片现在整体可点击，不仅仅是标题。"热门"栏此前被悄悄限制为只展示 Skill，现在能真正混合展示 MCP、斜杠命令、插件等所有类型；标题也从"热门 Skill"简化为"热门"。(#26、#28)
 
@@ -43,3 +55,5 @@ What changed each day. For the current capability list, see [features.md](./feat
 - **中文文案与排版打磨** ——多处文字与标点优化：错字修正（`斜线命令` → `斜杠命令`）、"发布商"术语统一（原本 `发布方` / `发布者` 混用）、规范的中文破折号（`——`）替换 ASCII 版本、空状态用词更友好；同时 `Skill` / `MCP` 等产品术语保留英文，并按中文排版加上空格。(#26、#28)
 
 - **侧边栏清理** ——移除一直显示 `0` 的"已安装"无用入口。(#26)
+
+</details>

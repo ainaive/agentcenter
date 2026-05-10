@@ -8,6 +8,8 @@ Source-of-truth list of what's shipped today, organized by capability area. For 
 
 ## English
 
+**Overview.** A bilingual marketplace for AI agent extensions (Skills, MCP servers, slash commands, plugins). Users can browse and search a catalog with rich filters, view detail pages with READMEs and stats, publish their own extensions through a 4-step wizard with automated bundle scanning, save favorites, and authorize a CLI for installs. Open sign-up, EN/ZH UI and content, themes, and a public registry API. Multi-tenant schema with a single-tenant UI in v1.
+
 ### Browse & discover
 
 - **Extension catalog** — Browse all published extensions in a paginated grid at `/extensions`.
@@ -84,6 +86,8 @@ Source-of-truth list of what's shipped today, organized by capability area. For 
 ---
 
 ## 中文
+
+**概览。** 面向 AI Agent 扩展（Skill、MCP 服务器、斜杠命令、插件）的双语应用市场。用户可在带筛选的目录中浏览搜索、在详情页查看 README 与统计、通过 4 步向导发布自己的扩展（含自动扫描）、收藏喜欢的扩展，并授权 CLI 完成安装。开放注册、中英双语 UI 与内容、主题切换，以及对外的公共注册表 API。多租户 Schema，v1 UI 为单租户。
 
 ### 浏览与发现
 
