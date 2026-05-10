@@ -1,0 +1,17 @@
+when I click a draft extension in publish page, it always show rendering at the left down corner, but not really entering the extension detail page.
+
+---
+
+restart dev then it is ok
+
+---
+
+the search box at the top bar seems too left, what do you think?
+
+---
+
+try it
+
+---
+
+it looks better
