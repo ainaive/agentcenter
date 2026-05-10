@@ -23,7 +23,7 @@
   },
   "home": {
     "featuredLabel": "本周精选",
-    "trendingTitle": "热门 Skill",
+    "trendingTitle": "热门",
     "browseAll": "浏览全部 {count} 个",
     "viewExtension": "查看扩展",
     "installsCount": "{count} 次安装"
@@ -32,7 +32,7 @@
     "browseTitle": "浏览全部",
     "count": "{count} 个扩展",
     "breadcrumb": "浏览",
-    "noReadme": "该扩展尚未发布 README 文档。",
+    "noReadme": "该扩展尚未提供 README 文档。",
     "versionsTitle": "版本历史",
     "noVersions": "尚未发布任何版本。发布版本后，版本历史将显示在此处。",
     "empty": {
@@ -52,7 +52,7 @@
   "errors": {
     "generic": {
       "title": "出现错误",
-      "body": "发生了意外错误。请重试 —— 如果问题持续，请将下方代码发送给支持团队。",
+      "body": "发生了意外错误。请重试——如果问题持续，请将下方代码发送给支持团队。",
       "retry": "重试"
     }
   },
@@ -101,9 +101,9 @@
       "label": "作者"
     },
     "publisher": {
-      "any": "任意发布方",
-      "empty": "暂无发布方",
-      "label": "发布方"
+      "any": "任意发布商",
+      "empty": "暂无发布商",
+      "label": "发布商"
     }
   },
   "badge": {
@@ -122,15 +122,15 @@
     "share": "分享",
     "copy": "复制",
     "copied": "已复制",
-    "verified": "已验证发布者",
+    "verified": "已验证发布商",
     "about": "关于",
-    "publisher": "发布者",
+    "publisher": "发布商",
     "size": "大小",
     "related": "相关扩展",
     "writeReview": "撰写评价",
     "currentLabel": "当前",
-    "emptyReadme": "该扩展尚未发布 README 文档。",
-    "emptyReviews": "暂无评价 —— 成为第一个评价的人。",
+    "emptyReadme": "该扩展尚未提供 README 文档。",
+    "emptyReviews": "暂无评价——成为第一个评价的人。",
     "emptyRequirements": "未声明特殊环境要求。",
     "tabs": {
       "overview": "概览",
@@ -322,12 +322,12 @@
     },
     "wizard": {
       "title": "发布扩展",
-      "subtitle": "把 Skill、MCP、斜线命令或插件分享给团队，或者整个世界。",
+      "subtitle": "把 Skill、MCP、斜杠命令或插件分享给团队，或者整个世界。",
       "saveDraft": "保存草稿",
       "basicsTitle": "基础信息",
       "basicsDesc": "它是什么？归属于哪里？",
-      "sourceTitle": "代码来源",
-      "sourceDesc": "把代码引入 AgentCenter。",
+      "sourceTitle": "扩展包",
+      "sourceDesc": "把扩展包上传到 AgentCenter。",
       "listingTitle": "上架信息",
       "listingDesc": "在市场中如何展示。",
       "reviewTitle": "确认提交",
@@ -348,7 +348,7 @@
       "label": "类型",
       "skills": "Skill",
       "mcp": "MCP",
-      "slash": "斜线命令",
+      "slash": "斜杠命令",
       "plugins": "插件"
     },
     "scope": {
@@ -375,7 +375,7 @@
       "optional": "可选"
     },
     "source": {
-      "methodLabel": "如何提供你的代码？",
+      "methodLabel": "如何提供你的扩展包？",
       "zipTitle": "上传 .zip",
       "zipDesc": "拖入打包好的扩展。",
       "gitTitle": "Git 仓库",
@@ -402,7 +402,7 @@
       "tagsHint": "5–8 个标签更易被发现，可选已有或新建。",
       "tagsCount": "{count}/{max} 个标签 · 5–8 更易被发现",
       "tagsPlaceholder": "输入标签后按回车",
-      "tagsLimitReached": "已达上限 — 删除一个标签后可继续添加",
+      "tagsLimitReached": "已达上限——删除一个标签后可继续添加",
       "dept": "部门",
       "deptHint": "主要归属于哪个部门？",
       "deptPlaceholder": "选择部门",
@@ -413,7 +413,7 @@
     },
     "permissions": {
       "label": "所需权限",
-      "hint": "请如实声明 — 用户安装前会看到这些权限。",
+      "hint": "请如实勾选——用户安装前会看到这些权限。",
       "network": "网络访问",
       "files": "文件系统",
       "runtime": "运行时 / Shell",
@@ -422,12 +422,12 @@
     "review": {
       "intro": "马上完成。提交前请确认下方信息。",
       "basics": "基础信息",
-      "source": "代码来源",
+      "source": "扩展包",
       "listing": "上架信息",
       "publishTo": "发布到",
-      "statusAuto": "自动发布 — 立即上线",
-      "statusReview": "等待管理员审核 — 通常 1 个工作日内完成",
-      "terms": "提交即表示同意 AgentCenter 发布者条款。",
+      "statusAuto": "自动发布——立即上线",
+      "statusReview": "等待管理员审核——通常 1 个工作日内完成",
+      "terms": "提交即表示同意 AgentCenter 发布商条款。",
       "termsLink": "查看条款",
       "edit": "编辑",
       "permsNone": "无",

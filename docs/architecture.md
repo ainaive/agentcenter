@@ -50,7 +50,7 @@ app/
 
 Server components render the static shell, fetch data via Drizzle, and stream HTML. Client components are reserved for interactive bits — filter chips, the install button, the upload wizard, the user menu — and are marked with `"use client"`. The pattern is "server frame, client islands."
 
-The filter bar (`components/filters/filter-bar.tsx`) is a server component but composes client islands (`FilterChips`, `SortSelect`, `DeptPicker`, `TagDrawer`). Each island calls the typed `useFilters()` hook (`lib/hooks/use-filters.ts`), which exposes a parsed `filters` object and an `update(partial)` setter. Filter state lives in the URL — no global store, no context, and back/forward works. The hook delegates URL parsing/serializing to `parseFilters` / `serializeFilters` in `lib/validators/filters.ts` so the same conventions apply to both server-side reads (in RSCs) and client-side writes.
+The filter bar (`components/filters/filter-bar.tsx`) is a server component but composes client islands (`FilterChips`, `SortSelect`, `DeptPicker`, `PublisherPicker`, `CreatorPicker`, `TagDrawer`). Each island calls the typed `useFilters()` hook (`lib/hooks/use-filters.ts`), which exposes a parsed `filters` object and an `update(partial)` setter. Filter state lives in the URL — no global store, no context, and back/forward works. The hook delegates URL parsing/serializing to `parseFilters` / `serializeFilters` in `lib/validators/filters.ts` so the same conventions apply to both server-side reads (in RSCs) and client-side writes.
 
 ### i18n
 
@@ -102,14 +102,14 @@ The share URL on the hero is composed from `process.env.NEXT_PUBLIC_APP_URL` rat
 
 ### Publish
 
-The wizard is a 4-step rail layout (`<UploadWizard>` in `components/publish/wizard/`): **Basics → Source → Listing → Review**, with a sticky live-preview pane that mirrors the listing card and the derived `manifest.json`. Step 1 (Basics) creates the draft on advance; Steps 2-3 mutate it via `updateDraftExtension`; Step 4 submits.
+The wizard is a 4-step rail layout (`<UploadWizard>` in `components/publish/wizard/`): **Basics → Bundle → Listing → Review**, with a sticky live-preview pane that mirrors the listing card and the derived `manifest.json`. Step 1 (Basics) creates the draft on advance; Steps 2-3 mutate it via `updateDraftExtension`; Step 4 submits.
 
 ```text
 Browser                          Vercel                          R2          Inngest
    │ Basics → Next                  │                              │             │
    ├──── createDraftExtension ────► server action  ──► extensions row (visibility=draft)
    │                                │                              │             │
-   ├──── Source: upload bundle ─────│─── presigned PUT URL ───────►│             │
+   ├──── Bundle: upload .zip ───────│─── presigned PUT URL ───────►│             │
    │                                │                              │             │
    ├──── attachFile(versionId) ────► server action  ──► files row + extensionVersion
    │                                │                              │             │
@@ -148,7 +148,7 @@ R2 bundle keys are `bundles/<slug>/<version>/bundle.zip` (`bundleKey()` in `lib/
 
 ### Resume, edit, and discard
 
-The dashboard at `/[locale]/publish` shows each draft's stage (`Needs bundle upload` / `Ready to submit` / `Awaiting scan` / etc., derived from `extensionVersions.status` + `bundleFileId` via `rowAction()` in `lib/publish/row-action.ts`). Rows whose latest version is `pending` are clickable and link into `/publish/[id]/edit`, which loads the draft via `getDraft()` and mounts the same `<UploadWizard>` in resume mode — Basics fields pre-filled, slug + version locked (because `extensionId` is set), and the initial step derived from whether a bundle is uploaded (no bundle → land on Source; bundle present → land on Review). Step transitions through Basics call `updateDraftExtension()` instead of `createDraftExtension()`; the action refuses (`version_not_editable`) once status leaves `pending`. Rejected rows aren't clickable but surface the scan reason inline (extracted from `files.scanReport` via `extractScanReason()` in `lib/publish/scan-report.ts`) so the dashboard isn't a dead end for failed scans.
+The dashboard at `/[locale]/publish` shows each draft's stage (`Needs bundle upload` / `Ready to submit` / `Awaiting scan` / etc., derived from `extensionVersions.status` + `bundleFileId` via `rowAction()` in `lib/publish/row-action.ts`). Rows whose latest version is `pending` are clickable and link into `/publish/[id]/edit`, which loads the draft via `getDraft()` and mounts the same `<UploadWizard>` in resume mode — Basics fields pre-filled, slug + version locked (because `extensionId` is set), and the initial step derived from whether a bundle is uploaded (no bundle → land on Bundle; bundle present → land on Review). Step transitions through Basics call `updateDraftExtension()` instead of `createDraftExtension()`; the action refuses (`version_not_editable`) once status leaves `pending`. Rejected rows aren't clickable but surface the scan reason inline (extracted from `files.scanReport` via `extractScanReason()` in `lib/publish/scan-report.ts`) so the dashboard isn't a dead end for failed scans.
 
 Each draft row also gets a `<DiscardButton>` that calls `discardDraft()` — owner-checked, draft-visibility-only, hard delete (FK cascades clean up versions/tags/files-row links). `getDraft` and `discardDraft` deliberately collapse non-owner into `not_found` so the public action contract can't be used to probe existence.
 

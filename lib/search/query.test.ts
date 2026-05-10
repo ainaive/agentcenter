@@ -47,6 +47,16 @@ describe("buildExtensionWhere", () => {
     expect(withoutFallback).toBeDefined();
   });
 
+  it("returns a SQL object for a creator filter", () => {
+    const result = buildExtensionWhere({ creator: "user-amy" });
+    expect(result).toBeDefined();
+  });
+
+  it("returns a SQL object for a publisher filter", () => {
+    const result = buildExtensionWhere({ publisher: "anthropic" });
+    expect(result).toBeDefined();
+  });
+
   it("does not throw for combined filters", () => {
     expect(() =>
       buildExtensionWhere({
@@ -56,6 +66,8 @@ describe("buildExtensionWhere", () => {
         funcCat: "workTask",
         subCat: "softDev",
         dept: "eng.cloud",
+        creator: "user-amy",
+        publisher: "anthropic",
         tags: ["api"],
         tagMatch: "any",
         filter: "official",

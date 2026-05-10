@@ -28,7 +28,7 @@ export default async function Home({
   const [featured, totalCount, trending] = await Promise.all([
     getFeaturedExtension(),
     countPublishedExtensions(),
-    listExtensions({ category: "skills", sort: "downloads", dept: "__all" }),
+    listExtensions({ sort: "downloads", dept: "__all" }),
   ]);
 
   return (

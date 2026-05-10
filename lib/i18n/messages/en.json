@@ -23,7 +23,7 @@
   },
   "home": {
     "featuredLabel": "Featured this week",
-    "trendingTitle": "Trending Skills",
+    "trendingTitle": "Trending",
     "browseAll": "Browse all {count}",
     "viewExtension": "View extension",
     "installsCount": "{count} installs"
@@ -326,8 +326,8 @@
       "saveDraft": "Save draft",
       "basicsTitle": "Basics",
       "basicsDesc": "What is it and where does it live?",
-      "sourceTitle": "Source",
-      "sourceDesc": "Bring your code into AgentCenter.",
+      "sourceTitle": "Bundle",
+      "sourceDesc": "Bring your bundle into AgentCenter.",
       "listingTitle": "Listing",
       "listingDesc": "How it appears in the marketplace.",
       "reviewTitle": "Review",
@@ -375,7 +375,7 @@
       "optional": "optional"
     },
     "source": {
-      "methodLabel": "How would you like to provide your code?",
+      "methodLabel": "How would you like to provide your bundle?",
       "zipTitle": "Upload .zip",
       "zipDesc": "Drag & drop a packaged extension.",
       "gitTitle": "Git repository",
@@ -422,7 +422,7 @@
     "review": {
       "intro": "Almost done. Review your listing below before submitting.",
       "basics": "Basics",
-      "source": "Source",
+      "source": "Bundle",
       "listing": "Listing",
       "publishTo": "Will publish to",
       "statusAuto": "Auto-publish — live immediately",

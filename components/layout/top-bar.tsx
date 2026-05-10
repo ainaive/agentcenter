@@ -64,26 +64,26 @@ export function TopBar({ theme, locale, onToggleSidebar }: TopBarProps) {
         </span>
       </Link>
 
-      <form
-        role="search"
-        onSubmit={handleSearch}
-        className="relative max-w-[520px] flex-1"
-      >
-        <Search
-          aria-hidden
-          className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-[15px] -translate-y-1/2"
-        />
-        <input
-          ref={inputRef}
-          type="search"
-          aria-label={t("searchLabel")}
-          defaultValue={searchParams.get("q") ?? ""}
-          placeholder={ts("placeholder")}
-          className="bg-muted border-input placeholder:text-muted-foreground focus:border-ring focus:ring-ring/20 w-full rounded-lg border py-1.5 pr-3 pl-9 text-[13px] outline-none transition-colors focus:ring-3"
-        />
-      </form>
-
-      <div className="flex-1" />
+      <div className="flex flex-1 justify-center">
+        <form
+          role="search"
+          onSubmit={handleSearch}
+          className="relative w-full max-w-[520px]"
+        >
+          <Search
+            aria-hidden
+            className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-[15px] -translate-y-1/2"
+          />
+          <input
+            ref={inputRef}
+            type="search"
+            aria-label={t("searchLabel")}
+            defaultValue={searchParams.get("q") ?? ""}
+            placeholder={ts("placeholder")}
+            className="bg-muted border-input placeholder:text-muted-foreground focus:border-ring focus:ring-ring/20 w-full rounded-lg border py-1.5 pr-3 pl-9 text-[13px] outline-none transition-colors focus:ring-3"
+          />
+        </form>
+      </div>
 
       <nav className="flex items-center gap-0.5">
         <Link
