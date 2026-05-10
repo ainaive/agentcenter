@@ -326,8 +326,8 @@
       "saveDraft": "保存草稿",
       "basicsTitle": "基础信息",
       "basicsDesc": "它是什么？归属于哪里？",
-      "sourceTitle": "代码来源",
-      "sourceDesc": "把代码引入 AgentCenter。",
+      "sourceTitle": "扩展包",
+      "sourceDesc": "把扩展包上传到 AgentCenter。",
       "listingTitle": "上架信息",
       "listingDesc": "在市场中如何展示。",
       "reviewTitle": "确认提交",
@@ -375,7 +375,7 @@
       "optional": "可选"
     },
     "source": {
-      "methodLabel": "如何提供你的代码？",
+      "methodLabel": "如何提供你的扩展包？",
       "zipTitle": "上传 .zip",
       "zipDesc": "拖入打包好的扩展。",
       "gitTitle": "Git 仓库",
@@ -422,7 +422,7 @@
     "review": {
       "intro": "马上完成。提交前请确认下方信息。",
       "basics": "基础信息",
-      "source": "代码来源",
+      "source": "扩展包",
       "listing": "上架信息",
       "publishTo": "发布到",
       "statusAuto": "自动发布——立即上线",
