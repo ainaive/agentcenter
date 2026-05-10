@@ -1,0 +1,5 @@
+in the publish extension step 2, I think it is better to use package or bundle or others instead of code, what do you think? can you suggest the name?
+
+---
+
+ok, use bundle

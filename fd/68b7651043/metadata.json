@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "fd68b7651043",
+  "strategy": "manual-commit",
+  "branch": "fix/copy-and-bugs",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "lib/i18n/messages/en.json",
+    "lib/i18n/messages/zh.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/fd/68b7651043/0/metadata.json",
+      "transcript": "/fd/68b7651043/0/full.jsonl",
+      "content_hash": "/fd/68b7651043/0/content_hash.txt",
+      "prompt": "/fd/68b7651043/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 30,
+    "cache_creation_tokens": 7836,
+    "cache_read_tokens": 3256100,
+    "output_tokens": 6253,
+    "api_call_count": 15
+  }
+}
