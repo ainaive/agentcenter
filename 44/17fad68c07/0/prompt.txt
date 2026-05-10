@@ -1,0 +1,33 @@
+ok, go ahead
+
+---
+
+check coderabbit reviews on PR #28
+
+---
+
+ok, go ahead
+
+---
+
+I will publish a daily report about AgentCenter itself. It should contain a complete feature table including main features, sub-features, and other improvements, along with a daily briefing. The daily briefing can begin today. what do you think?
+
+---
+
+for the two questions, what is your opinion?
+
+---
+
+ok, and I want it to be bi-lingual, English and Chinese version. how about that?
+
+---
+
+what about just two files, put English and Chinese in the same file?
+
+---
+
+separate English and Chinese into sections, not in the same section or table.
+
+---
+
+ok, go ahead
