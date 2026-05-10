@@ -1,0 +1,29 @@
+check coderabbit reviews on PR #27
+
+---
+
+ok, go ahead
+
+---
+
+let's fix some words and other bugs, create a branch first
+
+---
+
+ok, go ahead
+
+---
+
+change "斜线命令" to "斜杆命令", make it consistency
+
+---
+
+斜杠命令
+
+---
+
+find more chinese translation issues
+
+---
+
+about Publisher, translate to "发布商", others all agree.
