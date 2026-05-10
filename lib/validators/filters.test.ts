@@ -64,6 +64,27 @@ describe("filtersSchema", () => {
     const result = filtersSchema.safeParse({ tags });
     expect(result.success).toBe(false);
   });
+
+  it("accepts creator and publisher ids", () => {
+    const result = filtersSchema.safeParse({
+      creator: "user-amy",
+      publisher: "anthropic",
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.creator).toBe("user-amy");
+      expect(result.data.publisher).toBe("anthropic");
+    }
+  });
+
+  it("rejects creator/publisher longer than 80 chars", () => {
+    expect(filtersSchema.safeParse({ creator: "a".repeat(81) }).success).toBe(
+      false,
+    );
+    expect(
+      filtersSchema.safeParse({ publisher: "a".repeat(81) }).success,
+    ).toBe(false);
+  });
 });
 
 describe("parseFilters", () => {
@@ -170,6 +191,9 @@ describe("parseFilters / serializeFilters round trip", () => {
     { category: "mcp", scope: "org", sort: "stars", page: 2 },
     { tags: ["search", "api"], tagMatch: "all" },
     { q: "vector db", filter: "trending" },
+    { creator: "user-amy" },
+    { publisher: "anthropic" },
+    { creator: "user-ben", publisher: "github" },
     {
       category: "skills",
       scope: "personal",
