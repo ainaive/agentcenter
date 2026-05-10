@@ -1,0 +1,17 @@
+The daily log contains too many words; please keep the details but extract a concise version.
+
+---
+
+I don't like group by PR, please group by feature or improvements.
+
+---
+
+I don't need technical details, such as source code or functions; I just want it from a user or product manager's perspective.
+
+---
+
+From a user or product manager's perspective, please refine features.md and format it as tables.
+
+---
+
+the table seems not good for reading, please do not use table
