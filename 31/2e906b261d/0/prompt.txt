@@ -1,0 +1,17 @@
+ok, go ahead
+
+---
+
+when I click the tabs in profile page, they all shows: This section is in the works — we'll surface it here once it ships. why?
+
+---
+
+I think we can land them all in one follow-up PR, what do you think?
+
+---
+
+let's check the PR #30 first, what do you think?
+
+---
+
+ok, go ahead
