@@ -331,6 +331,12 @@
       "title": "即将推出",
       "body": "此模块正在开发中——上线后会在这里出现。"
     },
+    "installsShort": "次安装",
+    "publishOne": "发布扩展",
+    "emptyPublished": {
+      "title": "还没有发布的扩展",
+      "body": "把你的 Skill、MCP 服务、Slash 命令或插件打包发布，分享给团队。"
+    },
     "errors": {
       "unauthenticated": "请重新登录。",
       "invalid_input": "部分字段需要修改。",

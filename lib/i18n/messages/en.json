@@ -331,6 +331,12 @@
       "title": "Coming soon",
       "body": "This section is in the works — we'll surface it here once it ships."
     },
+    "installsShort": "installs",
+    "publishOne": "Publish an extension",
+    "emptyPublished": {
+      "title": "Nothing published yet",
+      "body": "Bundle your skill, MCP server, slash command, or plugin and share it with your team."
+    },
     "errors": {
       "unauthenticated": "Please sign in again.",
       "invalid_input": "Some fields need attention.",
