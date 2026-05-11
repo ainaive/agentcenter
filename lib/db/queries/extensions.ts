@@ -132,7 +132,11 @@ export async function getExtensionBySlug(slug: string) {
       extensionTags,
       eq(extensionTags.extensionId, extensions.id),
     )
-    .where(eq(extensions.slug, slug))
+    // Detail page is public — a draft extension must not be reachable
+    // by guessing or sharing its slug.
+    .where(
+      and(eq(extensions.slug, slug), eq(extensions.visibility, "published")),
+    )
     .groupBy(extensions.id)
     .limit(1);
   return row ?? null;
