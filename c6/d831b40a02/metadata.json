@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "c6d831b40a02",
+  "strategy": "manual-commit",
+  "branch": "feat/profile-page",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "components/layout/user-button.test.tsx",
+    "components/layout/user-button.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/c6/d831b40a02/0/metadata.json",
+      "transcript": "/c6/d831b40a02/0/full.jsonl",
+      "content_hash": "/c6/d831b40a02/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 7,
+    "cache_creation_tokens": 4668,
+    "cache_read_tokens": 773213,
+    "output_tokens": 3158,
+    "api_call_count": 7
+  }
+}
