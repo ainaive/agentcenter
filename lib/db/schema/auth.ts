@@ -12,6 +12,7 @@ export const users = pgTable("users", {
   emailVerified: boolean().notNull().default(false),
   name: text(),
   image: text(),
+  bio: text(),
   locale: text({ enum: localeEnum }).notNull().default("en"),
   themePreference: text({ enum: themePreferenceEnum }).notNull().default("ivory"),
   // Logical reference to departments.id; FK omitted to keep the auth/org modules
