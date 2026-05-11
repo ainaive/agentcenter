@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "cc3bb6a79155",
+  "strategy": "manual-commit",
+  "branch": "feat/profile-page",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "lib/db/schema/auth.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/cc/3bb6a79155/0/metadata.json",
+      "transcript": "/cc/3bb6a79155/0/full.jsonl",
+      "content_hash": "/cc/3bb6a79155/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 49,
+    "cache_creation_tokens": 4828,
+    "cache_read_tokens": 691655,
+    "output_tokens": 1741,
+    "api_call_count": 6
+  }
+}
