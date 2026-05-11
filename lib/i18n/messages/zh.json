@@ -286,7 +286,55 @@
     "userMenu": {
       "signIn": "登录",
       "signOut": "退出",
+      "settings": "设置",
+      "profile": "个人资料"
+    }
+  },
+  "profile": {
+    "title": "我的工作台",
+    "role": "高级工程师",
+    "deptUnset": "未设置部门",
+    "joined": "{date} 加入",
+    "stats": {
+      "installed": "已安装",
+      "published": "已发布",
+      "installs": "总安装量",
+      "rating": "创作者评分"
+    },
+    "sections": {
+      "installed": "已安装",
+      "published": "我发布的",
+      "drafts": "草稿",
+      "saved": "已收藏",
+      "activity": "动态",
       "settings": "设置"
+    },
+    "settings": {
+      "tabs": {
+        "profile": "个人资料",
+        "notifications": "通知",
+        "tokens": "API 令牌"
+      },
+      "fields": {
+        "name": "昵称",
+        "email": "邮箱",
+        "dept": "部门",
+        "joined": "加入时间",
+        "bio": "简介"
+      },
+      "save": "保存修改",
+      "saved": "已保存",
+      "saving": "保存中…",
+      "deptPlaceholder": "选择部门…"
+    },
+    "comingSoon": {
+      "title": "即将推出",
+      "body": "此模块正在开发中——上线后会在这里出现。"
+    },
+    "errors": {
+      "unauthenticated": "请重新登录。",
+      "invalid_input": "部分字段需要修改。",
+      "generic": "保存失败，请重试。"
     }
   },
   "publish": {
