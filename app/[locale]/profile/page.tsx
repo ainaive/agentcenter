@@ -5,6 +5,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { ComingSoon } from "@/components/profile/coming-soon";
 import { ProfileHero } from "@/components/profile/profile-hero";
 import { ProfileSettingsForm } from "@/components/profile/profile-settings-form";
+import { SectionInstalled } from "@/components/profile/section-installed";
 import { SectionPublished } from "@/components/profile/section-published";
 import {
   PROFILE_SECTIONS,
@@ -18,7 +19,10 @@ import {
 import { getSession } from "@/lib/auth/session";
 import { deptPath } from "@/lib/data/departments";
 import { db } from "@/lib/db/client";
-import { getPublishedForUser } from "@/lib/db/queries/profile";
+import {
+  getInstalledForUser,
+  getPublishedForUser,
+} from "@/lib/db/queries/profile";
 import { users } from "@/lib/db/schema/auth";
 import type { Locale } from "@/types";
 
@@ -109,6 +113,8 @@ export default async function ProfilePage({
   // a user who only ever opens Settings never hits the other queries.
   const published =
     activeSection === "published" ? await getPublishedForUser(user.id) : null;
+  const installed =
+    activeSection === "installed" ? await getInstalledForUser(user.id) : null;
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 py-8">
@@ -134,6 +140,8 @@ export default async function ProfilePage({
             />
           ) : activeSection === "published" && published ? (
             <SectionPublished rows={published} />
+          ) : activeSection === "installed" && installed ? (
+            <SectionInstalled rows={installed} />
           ) : (
             <ComingSoon sectionLabel={t(`sections.${activeSection}`)} />
           )}

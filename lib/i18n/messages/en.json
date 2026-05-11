@@ -337,6 +337,11 @@
       "title": "Nothing published yet",
       "body": "Bundle your skill, MCP server, slash command, or plugin and share it with your team."
     },
+    "emptyInstalled": {
+      "title": "Nothing installed yet",
+      "body": "Browse the marketplace and install your first extension to see it here."
+    },
+    "browse": "Browse marketplace",
     "errors": {
       "unauthenticated": "Please sign in again.",
       "invalid_input": "Some fields need attention.",

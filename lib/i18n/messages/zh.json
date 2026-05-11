@@ -337,6 +337,11 @@
       "title": "还没有发布的扩展",
       "body": "把你的 Skill、MCP 服务、Slash 命令或插件打包发布，分享给团队。"
     },
+    "emptyInstalled": {
+      "title": "还没有安装任何扩展",
+      "body": "去市场浏览，安装第一个扩展后会在这里看到。"
+    },
+    "browse": "浏览市场",
     "errors": {
       "unauthenticated": "请重新登录。",
       "invalid_input": "部分字段需要修改。",

@@ -1,10 +1,42 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
+import { installs } from "@/lib/db/schema/activity";
 import {
   extensionVersions,
   extensions,
 } from "@/lib/db/schema/extension";
+
+export type ProfileInstalledRow = {
+  extensionId: string;
+  slug: string;
+  name: string;
+  category: string;
+  iconColor: string | null;
+  installedVersion: string;
+  installedAt: Date;
+};
+
+export async function getInstalledForUser(
+  userId: string,
+): Promise<ProfileInstalledRow[]> {
+  // Active installs only — `uninstalledAt IS NULL`. Order by `installedAt
+  // DESC` matches the design's "most recently installed first" sort.
+  return db
+    .select({
+      extensionId: extensions.id,
+      slug: extensions.slug,
+      name: extensions.name,
+      category: extensions.category,
+      iconColor: extensions.iconColor,
+      installedVersion: installs.version,
+      installedAt: installs.installedAt,
+    })
+    .from(installs)
+    .innerJoin(extensions, eq(extensions.id, installs.extensionId))
+    .where(and(eq(installs.userId, userId), isNull(installs.uninstalledAt)))
+    .orderBy(desc(installs.installedAt));
+}
 
 export type ProfilePublishedRow = {
   extensionId: string;
