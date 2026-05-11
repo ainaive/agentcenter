@@ -3,11 +3,16 @@ import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { ProfileHero } from "@/components/profile/profile-hero";
+import { ProfileSettingsForm } from "@/components/profile/profile-settings-form";
 import {
   PROFILE_SECTIONS,
   SectionRail,
   type ProfileSection,
 } from "@/components/profile/section-rail";
+import {
+  SettingsTabLink,
+  type SettingsTab,
+} from "@/components/profile/settings-tab-link";
 import { getSession } from "@/lib/auth/session";
 import { deptPath } from "@/lib/data/departments";
 import { db } from "@/lib/db/client";
@@ -28,13 +33,35 @@ function formatJoined(date: Date, locale: Locale): string {
 }
 
 function parseSection(raw: string | string[] | undefined): ProfileSection {
-  if (typeof raw === "string" && (PROFILE_SECTIONS as readonly string[]).includes(raw)) {
+  if (
+    typeof raw === "string" &&
+    (PROFILE_SECTIONS as readonly string[]).includes(raw)
+  ) {
     return raw as ProfileSection;
   }
   return "installed";
 }
 
-type SearchParams = Promise<{ section?: string | string[] }>;
+const SETTINGS_TABS: readonly SettingsTab[] = [
+  "profile",
+  "notifications",
+  "tokens",
+];
+
+function parseSettingsTab(raw: string | string[] | undefined): SettingsTab {
+  if (
+    typeof raw === "string" &&
+    (SETTINGS_TABS as readonly string[]).includes(raw)
+  ) {
+    return raw as SettingsTab;
+  }
+  return "profile";
+}
+
+type SearchParams = Promise<{
+  section?: string | string[];
+  tab?: string | string[];
+}>;
 
 export default async function ProfilePage({
   searchParams,
@@ -68,12 +95,12 @@ export default async function ProfilePage({
   const deptLabel = user.defaultDeptId
     ? deptPath(user.defaultDeptId, locale).reverse().join(" · ") || null
     : null;
-  const joinedLabel = t("joined", {
-    date: formatJoined(user.createdAt, locale),
-  });
+  const joinedShort = formatJoined(user.createdAt, locale);
+  const joinedLabel = t("joined", { date: joinedShort });
 
   const params = await searchParams;
   const activeSection = parseSection(params.section);
+  const activeTab = parseSettingsTab(params.tab);
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 py-8">
@@ -86,12 +113,45 @@ export default async function ProfilePage({
       <div className="flex items-start gap-7">
         <SectionRail activeKey={activeSection} />
         <div className="min-w-0 flex-1">
-          {/* Section bodies land here in steps 7–8. */}
-          <p className="text-muted-foreground text-[13px]">
-            {activeSection}
-          </p>
+          {activeSection === "settings" ? (
+            <SettingsBody
+              activeTab={activeTab}
+              user={{
+                name: user.name,
+                email: user.email,
+                bio: user.bio,
+                defaultDeptId: user.defaultDeptId,
+                joinedLabel: joinedShort,
+              }}
+            />
+          ) : null}
         </div>
       </div>
     </main>
+  );
+}
+
+function SettingsBody({
+  activeTab,
+  user,
+}: {
+  activeTab: SettingsTab;
+  user: {
+    name: string | null;
+    email: string;
+    bio: string | null;
+    defaultDeptId: string | null;
+    joinedLabel: string;
+  };
+}) {
+  return (
+    <div>
+      <div className="border-border mb-5 flex gap-1 border-b">
+        {SETTINGS_TABS.map((tab) => (
+          <SettingsTabLink key={tab} tab={tab} active={tab === activeTab} />
+        ))}
+      </div>
+      {activeTab === "profile" ? <ProfileSettingsForm user={user} /> : null}
+    </div>
   );
 }
