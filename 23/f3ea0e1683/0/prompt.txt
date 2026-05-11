@@ -1,0 +1,33 @@
+/write-a-skill
+
+---
+
+update features.md and daily-log.md
+
+---
+
+1. project-level, 2, pr list + git log 3. end of the day, may be manualy trigger? 4. yes. 5. no need
+
+---
+
+can we change the skill's name, I think it is better to be "update-features-and-daily-log", what do you think?
+
+---
+
+we should use user or product manager's perspective , just as we did, does this rule in the skill?
+
+---
+
+/commit
+
+---
+
+open a PR
+
+---
+
+check coderabbit reviews on PR #29
+
+---
+
+ok, go ahead
