@@ -1,11 +1,18 @@
-// These tests pin the *JS post-query behavior* of the profile queries — the
-// merge/sort/limit logic in `getActivityForUser`, the weighted-stars math
-// and null-handling in `getProfileStats`, and the per-extension dedup
-// collapse in `getDraftsForUser` / `getPublishedForUser`. They do NOT pin
-// the SQL `where` predicates (those return the same opaque shape through a
-// mocked db.select, so a mock can't actually verify them) — that's an
-// integration-test gap.
+// Two classes of test here:
+//
+//   1. JS post-query behavior — the merge/sort/limit in
+//      `getActivityForUser`, the weighted-stars math in `getProfileStats`,
+//      and the per-extension dedup in `getDraftsForUser` /
+//      `getPublishedForUser`.
+//
+//   2. SQL `where`-predicate shape — the where-arg passed to Drizzle is a
+//      first-class SQL object with a `.getSQL()` method; we render it via
+//      `PgDialect` (matching production's `snake_case` config) and assert
+//      that the predicate references the right columns and values.
+//      This is what would have caught PR #31's "missing visibility =
+//      published" regression on the activity feed.
 
+import { PgDialect } from "drizzle-orm/pg-core";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const selectMock = vi.fn();
@@ -19,8 +26,10 @@ vi.mock("@/lib/db/client", () => ({
 import {
   getActivityForUser,
   getDraftsForUser,
+  getInstalledForUser,
   getProfileStats,
   getPublishedForUser,
+  getSavedForUser,
 } from "./profile";
 
 // Build a chain that covers all the query shapes used in profile.ts:
@@ -345,5 +354,152 @@ describe("getPublishedForUser", () => {
     const result = await getPublishedForUser("user-A");
     expect(result).toHaveLength(1);
     expect(result[0]?.latestVersion).toBe("2.0.0");
+  });
+});
+
+// ─── SQL `where`-predicate shape ─────────────────────────────────────────
+//
+// Render the captured where-arg via the same dialect production uses
+// (`snake_case`) so column names match exactly. We assert with `.toContain`
+// rather than equality so trivial formatting changes (extra parens,
+// whitespace) don't break the test — only semantic changes do.
+
+const dialect = new PgDialect({ casing: "snake_case" });
+
+function renderWhere(
+  whereMock: ReturnType<typeof vi.fn>,
+  callIndex = 0,
+): { sql: string; params: unknown[] } {
+  const arg = whereMock.mock.calls[callIndex]?.[0] as {
+    getSQL(): unknown;
+  };
+  return dialect.sqlToQuery(arg.getSQL() as never);
+}
+
+describe("SQL where predicates", () => {
+  it("getInstalledForUser filters by uninstalled_at IS NULL and the user id", async () => {
+    const chain = selectChain([]);
+    selectMock.mockReturnValueOnce(chain);
+    await getInstalledForUser("user-A");
+
+    const { sql, params } = renderWhere(chain.where);
+    // The two load-bearing facts: scoped to the caller, and only
+    // active installs. Without IS NULL, uninstalled rows would re-appear
+    // once recordUninstall lands.
+    expect(sql).toContain('"installs"."user_id" = $');
+    expect(sql).toContain('"installs"."uninstalled_at" is null');
+    expect(params).toContain("user-A");
+  });
+
+  it("getPublishedForUser filters by publisher + visibility = published", async () => {
+    const chain = selectChain([]);
+    selectMock.mockReturnValueOnce(chain);
+    await getPublishedForUser("user-A");
+
+    const { sql, params } = renderWhere(chain.where);
+    expect(sql).toContain('"extensions"."publisher_user_id" = $');
+    expect(sql).toContain('"extensions"."visibility" = $');
+    expect(params).toEqual(expect.arrayContaining(["user-A", "published"]));
+  });
+
+  it("getDraftsForUser filters by publisher + visibility = draft", async () => {
+    const chain = selectChain([]);
+    selectMock.mockReturnValueOnce(chain);
+    await getDraftsForUser("user-A");
+
+    const { sql, params } = renderWhere(chain.where);
+    expect(sql).toContain('"extensions"."publisher_user_id" = $');
+    expect(sql).toContain('"extensions"."visibility" = $');
+    expect(params).toEqual(expect.arrayContaining(["user-A", "draft"]));
+  });
+
+  it("getSavedForUser joins through the user's `saved` system collection", async () => {
+    const chain = selectChain([]);
+    selectMock.mockReturnValueOnce(chain);
+    await getSavedForUser("user-A");
+
+    // The saved query has no top-level `where` — the filters live inside
+    // the first innerJoin's ON clause.
+    const joinArg = chain.innerJoin.mock.calls[0]?.[1] as {
+      getSQL(): unknown;
+    };
+    const { sql, params } = dialect.sqlToQuery(joinArg.getSQL() as never);
+    expect(sql).toContain('"collections"."owner_user_id" = $');
+    expect(sql).toContain('"collections"."system_kind" = $');
+    expect(params).toEqual(expect.arrayContaining(["user-A", "saved"]));
+  });
+
+  describe("getActivityForUser", () => {
+    function setupAllEmpty() {
+      const installsChain = selectChain([]);
+      const pubsChain = selectChain([]);
+      const ratingsChain = selectChain([]);
+      selectMock
+        .mockReturnValueOnce(installsChain)
+        .mockReturnValueOnce(pubsChain)
+        .mockReturnValueOnce(ratingsChain);
+      return { installsChain, pubsChain, ratingsChain };
+    }
+
+    it("scopes the installs sub-query to the caller", async () => {
+      const { installsChain } = setupAllEmpty();
+      await getActivityForUser("user-A");
+      const { sql, params } = renderWhere(installsChain.where);
+      expect(sql).toContain('"installs"."user_id" = $');
+      expect(params).toContain("user-A");
+    });
+
+    // This is the PR #31 regression-pin. A `ready` version on a still-
+    // draft extension must NOT surface as a "published" activity event.
+    it("requires visibility = published on the published-events sub-query", async () => {
+      const { pubsChain } = setupAllEmpty();
+      await getActivityForUser("user-A");
+      const { sql, params } = renderWhere(pubsChain.where);
+      expect(sql).toContain('"extensions"."publisher_user_id" = $');
+      expect(sql).toContain('"extensions"."visibility" = $');
+      expect(sql).toContain('"extension_versions"."status" = $');
+      expect(params).toEqual(
+        expect.arrayContaining(["user-A", "published", "ready"]),
+      );
+    });
+
+    it("scopes the ratings sub-query to the caller", async () => {
+      const { ratingsChain } = setupAllEmpty();
+      await getActivityForUser("user-A");
+      const { sql, params } = renderWhere(ratingsChain.where);
+      expect(sql).toContain('"ratings"."user_id" = $');
+      expect(params).toContain("user-A");
+    });
+  });
+
+  describe("getProfileStats", () => {
+    function setupAggregates() {
+      const installsChain = selectChain([{ c: 0 }]);
+      const pubsChain = selectChain([
+        { count: 0, totalInstalls: 0, weightedStars: null },
+      ]);
+      selectMock
+        .mockReturnValueOnce(installsChain)
+        .mockReturnValueOnce(pubsChain);
+      return { installsChain, pubsChain };
+    }
+
+    it("scopes the installed-count to user + uninstalled_at IS NULL", async () => {
+      const { installsChain } = setupAggregates();
+      await getProfileStats("user-A");
+      const { sql, params } = renderWhere(installsChain.where);
+      expect(sql).toContain('"installs"."user_id" = $');
+      expect(sql).toContain('"installs"."uninstalled_at" is null');
+      expect(params).toContain("user-A");
+    });
+
+    it("scopes the published aggregates to publisher + visibility = published", async () => {
+      const { pubsChain } = setupAggregates();
+      await getProfileStats("user-A");
+      const { sql, params } = renderWhere(pubsChain.where);
+      expect(sql).toContain('"extensions"."publisher_user_id" = $');
+      expect(sql).toContain('"extensions"."visibility" = $');
+      expect(params).toEqual(expect.arrayContaining(["user-A", "published"]));
+    });
   });
 });
