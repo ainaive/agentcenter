@@ -26,6 +26,7 @@ import {
   getActivityForUser,
   getDraftsForUser,
   getInstalledForUser,
+  getProfileStats,
   getPublishedForUser,
   getSavedForUser,
 } from "@/lib/db/queries/profile";
@@ -115,6 +116,9 @@ export default async function ProfilePage({
   const activeSection = parseSection(params.section);
   const activeTab = parseSettingsTab(params.tab);
 
+  // Hero stats render on every section, so they're always loaded.
+  const stats = await getProfileStats(user.id);
+
   // Section-scoped data loads. Only fetch the active section's rows so
   // a user who only ever opens Settings never hits the other queries.
   const published =
@@ -135,6 +139,7 @@ export default async function ProfilePage({
         email={user.email}
         joinedLabel={joinedLabel}
         deptLabel={deptLabel}
+        stats={stats}
       />
       <div className="flex items-start gap-7">
         <SectionRail activeKey={activeSection} />

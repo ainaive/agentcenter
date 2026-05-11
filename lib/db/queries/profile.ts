@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
 import { installs, ratings } from "@/lib/db/schema/activity";
@@ -314,4 +314,55 @@ export async function getActivityForUser(
 
   merged.sort((a, b) => b.at.getTime() - a.at.getTime());
   return merged.slice(0, ACTIVITY_LIMIT);
+}
+
+export type ProfileStats = {
+  installedCount: number;
+  publishedCount: number;
+  totalInstallsOfMine: number;
+  avgRatingOfMine: number | null;
+};
+
+export async function getProfileStats(userId: string): Promise<ProfileStats> {
+  // Two small aggregates, run in parallel. Each is cheap (covered by
+  // existing indexes on installs.userId and extensions.publisherUserId).
+  // We avoid a single CTE because the failure mode (one half goes slow)
+  // is easier to diagnose split, and Postgres can parallelize anyway.
+  const [installedAgg, pubAgg] = await Promise.all([
+    db
+      .select({ c: sql<number>`count(*)::int` })
+      .from(installs)
+      .where(and(eq(installs.userId, userId), isNull(installs.uninstalledAt))),
+    db
+      .select({
+        count: sql<number>`count(*)::int`,
+        totalInstalls: sql<number>`coalesce(sum(${extensions.downloadsCount}),0)::int`,
+        // Weighted average so an extension with 100 ratings counts 100×
+        // more than one with a single rating. Null when no rated
+        // extensions exist; the UI surfaces "—" for that case.
+        weightedStars: sql<
+          string | null
+        >`case when sum(${extensions.ratingsCount}) = 0 then null else sum(${extensions.starsAvg}::numeric * ${extensions.ratingsCount})::numeric / sum(${extensions.ratingsCount}) end`,
+      })
+      .from(extensions)
+      .where(
+        and(
+          eq(extensions.publisherUserId, userId),
+          eq(extensions.visibility, "published"),
+        ),
+      ),
+  ]);
+
+  const pub = pubAgg[0] ?? {
+    count: 0,
+    totalInstalls: 0,
+    weightedStars: null,
+  };
+  return {
+    installedCount: installedAgg[0]?.c ?? 0,
+    publishedCount: pub.count,
+    totalInstallsOfMine: pub.totalInstalls,
+    avgRatingOfMine:
+      pub.weightedStars != null ? Number(pub.weightedStars) : null,
+  };
 }

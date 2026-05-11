@@ -7,6 +7,7 @@ import { ProfileHero } from "./profile-hero";
 // Echo the translation key so assertions can look for it directly.
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
+  useLocale: () => "en",
 }));
 
 afterEach(cleanup);
@@ -67,5 +68,44 @@ describe("ProfileHero", () => {
   it("renders the deptUnset placeholder when deptLabel is null", () => {
     render(<ProfileHero {...base} deptLabel={null} />);
     expect(screen.getByText("deptUnset")).toBeInTheDocument();
+  });
+
+  it("renders the 4 stats (installed, published, total installs, avg rating)", () => {
+    render(
+      <ProfileHero
+        {...base}
+        stats={{
+          installedCount: 7,
+          publishedCount: 3,
+          totalInstallsOfMine: 1234,
+          avgRatingOfMine: 4.5,
+        }}
+      />,
+    );
+    expect(screen.getByText("7")).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getByText(/1,234/)).toBeInTheDocument();
+    // Avg rating renders one-decimal.
+    expect(screen.getByText("4.5")).toBeInTheDocument();
+    // Stat labels come from i18n.
+    expect(screen.getByText("stats.installed")).toBeInTheDocument();
+    expect(screen.getByText("stats.published")).toBeInTheDocument();
+    expect(screen.getByText("stats.installs")).toBeInTheDocument();
+    expect(screen.getByText("stats.rating")).toBeInTheDocument();
+  });
+
+  it("renders an em-dash when avgRatingOfMine is null (no rated extensions)", () => {
+    render(
+      <ProfileHero
+        {...base}
+        stats={{
+          installedCount: 0,
+          publishedCount: 0,
+          totalInstallsOfMine: 0,
+          avgRatingOfMine: null,
+        }}
+      />,
+    );
+    expect(screen.getByText("—")).toBeInTheDocument();
   });
 });
