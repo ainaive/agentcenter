@@ -41,7 +41,9 @@ export function ProfileHero({
   const t = useTranslations("profile");
   const locale = useLocale();
   const initials = initialsFor(name, email);
-  const displayName = name ?? email;
+  // Same blank-name guard as initialsFor — `name ?? email` lets "" or "   "
+  // render an empty <h1>.
+  const displayName = name && name.trim() ? name : email;
 
   return (
     <section className="bg-card border-border mb-6 flex flex-wrap items-center gap-6 rounded-2xl border px-7 py-6">

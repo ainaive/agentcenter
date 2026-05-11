@@ -55,4 +55,53 @@ describe("SectionDrafts", () => {
     // Resume link goes to the wizard, mirroring app/[locale]/publish/page.tsx.
     expect(link).toHaveAttribute("href", "/publish/ext-d1/edit");
   });
+
+  it("hides the status badge for `pending` and `ready` (uninformative for the user)", () => {
+    const { container } = render(
+      <SectionDrafts
+        rows={[
+          {
+            extensionId: "ext-d2",
+            slug: "x",
+            name: "X",
+            category: "skills",
+            iconColor: null,
+            updatedAt: new Date(),
+            latestStatus: "pending",
+          },
+        ]}
+      />,
+    );
+    // No translation key should leak into the DOM for `pending`.
+    expect(container.textContent).not.toMatch(/draftStatus\./);
+  });
+
+  it("renders a translated status badge for `scanning` and `rejected`", () => {
+    render(
+      <SectionDrafts
+        rows={[
+          {
+            extensionId: "ext-s1",
+            slug: "s",
+            name: "S",
+            category: "skills",
+            iconColor: null,
+            updatedAt: new Date(),
+            latestStatus: "scanning",
+          },
+          {
+            extensionId: "ext-r1",
+            slug: "r",
+            name: "R",
+            category: "skills",
+            iconColor: null,
+            updatedAt: new Date(),
+            latestStatus: "rejected",
+          },
+        ]}
+      />,
+    );
+    expect(screen.getByText(/draftStatus\.scanning/)).toBeInTheDocument();
+    expect(screen.getByText(/draftStatus\.rejected/)).toBeInTheDocument();
+  });
 });

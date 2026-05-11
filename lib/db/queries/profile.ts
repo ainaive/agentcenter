@@ -250,9 +250,13 @@ export async function getActivityForUser(
         extensions,
         eq(extensions.id, extensionVersions.extensionId),
       )
+      // `status = ready` alone isn't enough: a ready version on a still-
+      // draft extension hasn't been published publicly yet, so it
+      // shouldn't surface as a "published" activity event.
       .where(
         and(
           eq(extensions.publisherUserId, userId),
+          eq(extensions.visibility, "published"),
           eq(extensionVersions.status, "ready"),
         ),
       )

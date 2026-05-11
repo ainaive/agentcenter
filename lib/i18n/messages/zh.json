@@ -345,6 +345,10 @@
       "title": "暂无草稿",
       "body": "在发布向导里开始的草稿会出现在这里，直到你正式发布。"
     },
+    "draftStatus": {
+      "scanning": "等待扫描",
+      "rejected": "已被拒"
+    },
     "emptySaved": {
       "title": "暂未收藏",
       "body": "收藏想稍后再看的扩展，会出现在这里。"

@@ -43,6 +43,21 @@ describe("ProfileHero", () => {
     expect(screen.getByText("A")).toBeInTheDocument();
   });
 
+  // The same blank-name shape must not produce an empty <h1>.
+  it("falls back to email in the heading when name is empty", () => {
+    render(<ProfileHero {...base} name="" />);
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      "alice@example.com",
+    );
+  });
+
+  it("falls back to email in the heading when name is whitespace-only", () => {
+    render(<ProfileHero {...base} name="   " />);
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+      "alice@example.com",
+    );
+  });
+
   it("collapses consecutive spaces in name before extracting initials", () => {
     render(<ProfileHero {...base} name="Alice  Bob  Carter" />);
     expect(screen.getByText("AB")).toBeInTheDocument();

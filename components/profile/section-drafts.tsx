@@ -47,8 +47,14 @@ export function SectionDrafts({ rows }: { rows: ProfileDraftRow[] }) {
               </div>
               <div className="text-muted-foreground mt-0.5 text-[12px]">
                 <span className="font-mono">{r.slug}</span>
-                {r.latestStatus && r.latestStatus !== "pending" && (
-                  <span> · {r.latestStatus}</span>
+                {/* Only surface statuses the user can act on: `scanning`
+                    (waiting on the scanner) and `rejected` (needs a fix
+                    before resubmit). `pending` and `ready` are noisy and
+                    don't add information when the row already says
+                    Continue. */}
+                {(r.latestStatus === "scanning" ||
+                  r.latestStatus === "rejected") && (
+                  <span> · {t(`draftStatus.${r.latestStatus}`)}</span>
                 )}
               </div>
             </div>
