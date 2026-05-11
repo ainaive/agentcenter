@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "1998acbd3816",
+  "strategy": "manual-commit",
+  "branch": "feat/profile-page",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "app/[locale]/profile/page.tsx",
+    "components/profile/profile-settings-form.test.tsx",
+    "components/profile/profile-settings-form.tsx",
+    "components/profile/settings-tab-link.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/19/98acbd3816/0/metadata.json",
+      "transcript": "/19/98acbd3816/0/full.jsonl",
+      "content_hash": "/19/98acbd3816/0/content_hash.txt",
+      "prompt": ""
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 48,
+    "cache_creation_tokens": 10724,
+    "cache_read_tokens": 756421,
+    "output_tokens": 8977,
+    "api_call_count": 5
+  }
+}
