@@ -61,6 +61,16 @@ Source-of-truth list of what's shipped today, organized by capability area. For 
 - **Save** — Bookmark any extension to a personal "Saved" list.
 - **Collections** — "Saved" plus user-created groups appear in the sidebar.
 
+### Profile & workspace
+
+- **My Workspace** — A personal landing page for every signed-in user, opened from the avatar dropdown. Shows name, role, department, joined month, and four headline stats: installed count, published count, total installs across your published work, and weighted average rating.
+- **Editable profile** — Change your display name, department, and a short bio from a Settings sub-tab. Email and joined date are read-only.
+- **Installed list** — Every extension you've installed, with the running version.
+- **My published extensions** — Your published work with version, install count, and rating per row.
+- **Drafts list** — In-progress publish drafts with a Continue button; surfaces "Awaiting scan" or "Rejected" only when relevant.
+- **Saved list** — Your bookmarked extensions, most recently saved first.
+- **Activity feed** — Installs, releases, and ratings you've made, merged into one timeline (most recent twenty).
+
 ### Languages & themes
 
 - **Bilingual UI** — English (default) and Chinese, with always-prefixed locale URLs (`/en`, `/zh`).
@@ -139,6 +149,16 @@ Source-of-truth list of what's shipped today, organized by capability area. For 
 
 - **收藏** ——将任意扩展加入个人"已收藏"列表。
 - **收藏夹** ——侧边栏展示"已收藏"和用户自定义分组。
+
+### 个人主页与工作台
+
+- **我的工作台** ——每位登录用户的个人主页，通过头像下拉菜单进入。展示昵称、角色、部门、加入月份，以及四项核心数据：已安装数、已发布数、你发布的扩展总安装量、加权平均评分。
+- **可编辑的资料** ——在"设置"子页里修改昵称、部门和一段简介；邮箱和加入时间为只读。
+- **已安装列表** ——你安装过的所有扩展，附当前运行版本。
+- **我发布的扩展** ——你发布过的扩展，每行带版本、安装量、评分。
+- **草稿列表** ——发布流程中的草稿，带"继续"按钮；仅在"等待扫描"或"已被拒"时显示状态。
+- **收藏列表** ——你收藏的扩展，按最近收藏排序。
+- **动态时间线** ——你的安装、发布、评分合并为一条时间线（最近 20 条）。
 
 ### 语言与主题
 

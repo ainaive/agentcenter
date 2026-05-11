@@ -8,6 +8,25 @@ What changed each day. For the current capability list, see [features.md](./feat
 
 ## English
 
+### 2026-05-11
+
+**Briefing.** Personal "My Workspace" landing page — every signed-in user now has a profile hub with editable basics, four headline stats, and six tabs.
+
+<details>
+<summary>Details</summary>
+
+- **Personal profile page** — Clicking the avatar in the top bar now reveals a new **Profile** option that opens your own workspace. The header shows your name, role, department, and the month you joined, with four numbers at a glance: how many extensions you've installed, how many you've published, total installs across your published work, and your weighted average rating. (#30, #31)
+
+- **Editable profile basics** — Inside **Settings → Profile** you can change your display name, department, and a short bio (up to 280 characters). Email and the joined date are read-only. Save shows a confirmation; reloading the page confirms it stuck. (#30)
+
+- **Six tabs of personal data** — *Installed* shows everything you've installed and what version is running. *Published* lists what you've shipped, with version, install count, and rating per row. *Drafts* mirrors the publish dashboard with a Continue button, and surfaces "Awaiting scan" or "Rejected" only when those statuses are relevant. *Saved* is your bookmark list. *Activity* merges installs, releases, and ratings into a single timeline (most recent twenty). Every section URL is shareable. (#30, #31)
+
+- **Notifications and API tokens** — Both sub-tabs render a "Coming soon" placeholder while we wire them up. (#30)
+
+</details>
+
+---
+
 ### 2026-05-10
 
 **Briefing.** Home page polish (banner, clickable cards, fixed trending row), new Creator + Publisher filters, production sign-up/sign-in fix, plus copy and layout cleanups.
@@ -34,6 +53,25 @@ What changed each day. For the current capability list, see [features.md](./feat
 ---
 
 ## 中文
+
+### 2026-05-11
+
+**简报。** 全新的"我的工作台"个人主页——每位登录用户都有一个集合页，能直接编辑基本资料、查看四项核心数据，并在六个分页之间切换。
+
+<details>
+<summary>详情</summary>
+
+- **个人主页** ——点击顶部头像，下拉菜单里多了一项 **Profile**，进入属于你自己的工作台。页头显示你的姓名、角色、部门和加入月份，旁边还有四个一眼可见的数字：已安装的扩展数、已发布的扩展数、你发布的扩展总安装量，以及加权平均评分。(#30、#31)
+
+- **可编辑的资料** ——在 **设置 → 个人资料** 里可以修改昵称、部门和一段不超过 280 字的简介。邮箱和加入时间为只读。保存后会出现成功提示；刷新页面验证数据已落库。(#30)
+
+- **六个数据分页** ——*已安装* 展示你安装过的所有扩展和当前版本号。*我发布的* 列出你发布过的扩展，每行带版本、安装量和评分。*草稿* 复用发布面板的逻辑，提供"继续"按钮，并只在"等待扫描"或"已被拒"时显示状态。*已收藏* 是书签列表。*动态* 将安装、发布、评分汇总为一条时间线（最近 20 条）。所有分页 URL 均可分享。(#30、#31)
+
+- **通知与 API 令牌** ——两个子分页暂以"即将推出"占位，相关功能正在排期中。(#30)
+
+</details>
+
+---
 
 ### 2026-05-10
 
