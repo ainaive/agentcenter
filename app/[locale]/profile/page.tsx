@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
+import { ComingSoon } from "@/components/profile/coming-soon";
 import { ProfileHero } from "@/components/profile/profile-hero";
 import { ProfileSettingsForm } from "@/components/profile/profile-settings-form";
 import {
@@ -124,7 +125,9 @@ export default async function ProfilePage({
                 joinedLabel: joinedShort,
               }}
             />
-          ) : null}
+          ) : (
+            <ComingSoon sectionLabel={t(`sections.${activeSection}`)} />
+          )}
         </div>
       </div>
     </main>
@@ -151,7 +154,16 @@ function SettingsBody({
           <SettingsTabLink key={tab} tab={tab} active={tab === activeTab} />
         ))}
       </div>
-      {activeTab === "profile" ? <ProfileSettingsForm user={user} /> : null}
+      {activeTab === "profile" ? (
+        <ProfileSettingsForm user={user} />
+      ) : (
+        <SettingsTabPlaceholder tab={activeTab} />
+      )}
     </div>
   );
+}
+
+async function SettingsTabPlaceholder({ tab }: { tab: SettingsTab }) {
+  const t = await getTranslations("profile.settings.tabs");
+  return <ComingSoon sectionLabel={t(tab)} />;
 }
