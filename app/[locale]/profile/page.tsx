@@ -3,6 +3,11 @@ import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 
 import { ProfileHero } from "@/components/profile/profile-hero";
+import {
+  PROFILE_SECTIONS,
+  SectionRail,
+  type ProfileSection,
+} from "@/components/profile/section-rail";
 import { getSession } from "@/lib/auth/session";
 import { deptPath } from "@/lib/data/departments";
 import { db } from "@/lib/db/client";
@@ -22,7 +27,20 @@ function formatJoined(date: Date, locale: Locale): string {
   }).format(date);
 }
 
-export default async function ProfilePage() {
+function parseSection(raw: string | string[] | undefined): ProfileSection {
+  if (typeof raw === "string" && (PROFILE_SECTIONS as readonly string[]).includes(raw)) {
+    return raw as ProfileSection;
+  }
+  return "installed";
+}
+
+type SearchParams = Promise<{ section?: string | string[] }>;
+
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}) {
   const session = await getSession();
   if (!session) redirect("/sign-in");
 
@@ -54,6 +72,9 @@ export default async function ProfilePage() {
     date: formatJoined(user.createdAt, locale),
   });
 
+  const params = await searchParams;
+  const activeSection = parseSection(params.section);
+
   return (
     <main className="mx-auto max-w-[1200px] px-6 py-8">
       <ProfileHero
@@ -62,6 +83,15 @@ export default async function ProfilePage() {
         joinedLabel={joinedLabel}
         deptLabel={deptLabel}
       />
+      <div className="flex items-start gap-7">
+        <SectionRail activeKey={activeSection} />
+        <div className="min-w-0 flex-1">
+          {/* Section bodies land here in steps 7–8. */}
+          <p className="text-muted-foreground text-[13px]">
+            {activeSection}
+          </p>
+        </div>
+      </div>
     </main>
   );
 }
