@@ -341,6 +341,11 @@
       "title": "还没有安装任何扩展",
       "body": "去市场浏览，安装第一个扩展后会在这里看到。"
     },
+    "emptyDrafts": {
+      "title": "暂无草稿",
+      "body": "在发布向导里开始的草稿会出现在这里，直到你正式发布。"
+    },
+    "continueDraft": "继续",
     "browse": "浏览市场",
     "errors": {
       "unauthenticated": "请重新登录。",

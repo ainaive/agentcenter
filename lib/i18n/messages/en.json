@@ -341,6 +341,11 @@
       "title": "Nothing installed yet",
       "body": "Browse the marketplace and install your first extension to see it here."
     },
+    "emptyDrafts": {
+      "title": "No drafts in progress",
+      "body": "Drafts you start in the publish wizard appear here until you ship them."
+    },
+    "continueDraft": "Continue",
     "browse": "Browse marketplace",
     "errors": {
       "unauthenticated": "Please sign in again.",
