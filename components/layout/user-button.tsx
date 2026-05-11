@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogOut, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
@@ -83,12 +83,20 @@ export function UserButton() {
               {session.user.email}
             </p>
           </div>
+          <Link
+            href="/profile"
+            onClick={() => setOpen(false)}
+            className="text-foreground hover:bg-secondary flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] transition"
+          >
+            <User className="size-3.5" aria-hidden />
+            {t("profile")}
+          </Link>
           <button
             type="button"
             onClick={handleSignOut}
             className="text-foreground hover:bg-secondary flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] transition"
           >
-            <LogOut className="size-3.5" />
+            <LogOut className="size-3.5" aria-hidden />
             {t("signOut")}
           </button>
         </div>

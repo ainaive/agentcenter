@@ -286,7 +286,55 @@
     "userMenu": {
       "signIn": "Sign in",
       "signOut": "Sign out",
+      "settings": "Settings",
+      "profile": "Profile"
+    }
+  },
+  "profile": {
+    "title": "My workspace",
+    "role": "Senior Engineer",
+    "deptUnset": "No department",
+    "joined": "Joined {date}",
+    "stats": {
+      "installed": "installed",
+      "published": "published",
+      "installs": "total installs",
+      "rating": "creator rating"
+    },
+    "sections": {
+      "installed": "Installed",
+      "published": "Published",
+      "drafts": "Drafts",
+      "saved": "Saved",
+      "activity": "Activity",
       "settings": "Settings"
+    },
+    "settings": {
+      "tabs": {
+        "profile": "Profile",
+        "notifications": "Notifications",
+        "tokens": "API tokens"
+      },
+      "fields": {
+        "name": "Display name",
+        "email": "Email",
+        "dept": "Department",
+        "joined": "Joined",
+        "bio": "Bio"
+      },
+      "save": "Save changes",
+      "saved": "Profile saved",
+      "saving": "Saving…",
+      "deptPlaceholder": "Select a department…"
+    },
+    "comingSoon": {
+      "title": "Coming soon",
+      "body": "This section is in the works — we'll surface it here once it ships."
+    },
+    "errors": {
+      "unauthenticated": "Please sign in again.",
+      "invalid_input": "Some fields need attention.",
+      "generic": "We couldn't save your profile. Please try again."
     }
   },
   "publish": {

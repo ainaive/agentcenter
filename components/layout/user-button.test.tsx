@@ -80,6 +80,26 @@ describe("UserButton", () => {
     expect(screen.getByRole("button", { name: /signOut/ })).toBeInTheDocument();
   });
 
+  it("shows a Profile link pointing to /profile, above the Sign out button", async () => {
+    mockUseSession.mockReturnValue({
+      data: { user: { name: "Alice Bob", email: "alice@example.com" } },
+    });
+    const user = userEvent.setup();
+
+    render(<UserButton />);
+    await user.click(screen.getByRole("button", { name: "userMenu" }));
+
+    const profileLink = screen.getByRole("link", { name: /profile/ });
+    expect(profileLink).toHaveAttribute("href", "/profile");
+
+    // Profile must precede Sign out in DOM order.
+    const signOut = screen.getByRole("button", { name: /signOut/ });
+    expect(
+      profileLink.compareDocumentPosition(signOut) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  });
+
   it("calls signOut and navigates home when the sign-out item is clicked", async () => {
     mockUseSession.mockReturnValue({
       data: { user: { name: "Alice Bob", email: "alice@example.com" } },
