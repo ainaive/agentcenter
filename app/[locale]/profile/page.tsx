@@ -8,6 +8,7 @@ import { ProfileSettingsForm } from "@/components/profile/profile-settings-form"
 import { SectionDrafts } from "@/components/profile/section-drafts";
 import { SectionInstalled } from "@/components/profile/section-installed";
 import { SectionPublished } from "@/components/profile/section-published";
+import { SectionSaved } from "@/components/profile/section-saved";
 import {
   PROFILE_SECTIONS,
   SectionRail,
@@ -24,6 +25,7 @@ import {
   getDraftsForUser,
   getInstalledForUser,
   getPublishedForUser,
+  getSavedForUser,
 } from "@/lib/db/queries/profile";
 import { users } from "@/lib/db/schema/auth";
 import type { Locale } from "@/types";
@@ -119,6 +121,8 @@ export default async function ProfilePage({
     activeSection === "installed" ? await getInstalledForUser(user.id) : null;
   const drafts =
     activeSection === "drafts" ? await getDraftsForUser(user.id) : null;
+  const saved =
+    activeSection === "saved" ? await getSavedForUser(user.id) : null;
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 py-8">
@@ -148,6 +152,8 @@ export default async function ProfilePage({
             <SectionInstalled rows={installed} />
           ) : activeSection === "drafts" && drafts ? (
             <SectionDrafts rows={drafts} />
+          ) : activeSection === "saved" && saved ? (
+            <SectionSaved rows={saved} />
           ) : (
             <ComingSoon sectionLabel={t(`sections.${activeSection}`)} />
           )}

@@ -2,6 +2,7 @@ import { and, desc, eq, isNull } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
 import { installs } from "@/lib/db/schema/activity";
+import { collectionItems, collections } from "@/lib/db/schema/collection";
 import {
   extensionVersions,
   extensions,
@@ -16,6 +17,43 @@ export type ProfileInstalledRow = {
   installedVersion: string;
   installedAt: Date;
 };
+
+export type ProfileSavedRow = {
+  extensionId: string;
+  slug: string;
+  name: string;
+  category: string;
+  iconColor: string | null;
+  savedAt: Date;
+};
+
+export async function getSavedForUser(
+  userId: string,
+): Promise<ProfileSavedRow[]> {
+  // Join through `collection_items` rather than reading the collection id
+  // first — one JOIN is cheaper than two round-trips, and a user without a
+  // saved collection simply returns no rows.
+  return db
+    .select({
+      extensionId: extensions.id,
+      slug: extensions.slug,
+      name: extensions.name,
+      category: extensions.category,
+      iconColor: extensions.iconColor,
+      savedAt: collectionItems.addedAt,
+    })
+    .from(collectionItems)
+    .innerJoin(
+      collections,
+      and(
+        eq(collections.id, collectionItems.collectionId),
+        eq(collections.ownerUserId, userId),
+        eq(collections.systemKind, "saved"),
+      ),
+    )
+    .innerJoin(extensions, eq(extensions.id, collectionItems.extensionId))
+    .orderBy(desc(collectionItems.addedAt));
+}
 
 export type ProfileDraftRow = {
   extensionId: string;

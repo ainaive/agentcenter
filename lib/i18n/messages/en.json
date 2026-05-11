@@ -345,6 +345,10 @@
       "title": "No drafts in progress",
       "body": "Drafts you start in the publish wizard appear here until you ship them."
     },
+    "emptySaved": {
+      "title": "Nothing saved yet",
+      "body": "Bookmark extensions you want to revisit and they'll show up here."
+    },
     "continueDraft": "Continue",
     "browse": "Browse marketplace",
     "errors": {
