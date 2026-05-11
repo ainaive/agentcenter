@@ -5,6 +5,11 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { ComingSoon } from "@/components/profile/coming-soon";
 import { ProfileHero } from "@/components/profile/profile-hero";
 import { ProfileSettingsForm } from "@/components/profile/profile-settings-form";
+import { SectionActivity } from "@/components/profile/section-activity";
+import { SectionDrafts } from "@/components/profile/section-drafts";
+import { SectionInstalled } from "@/components/profile/section-installed";
+import { SectionPublished } from "@/components/profile/section-published";
+import { SectionSaved } from "@/components/profile/section-saved";
 import {
   PROFILE_SECTIONS,
   SectionRail,
@@ -17,6 +22,14 @@ import {
 import { getSession } from "@/lib/auth/session";
 import { deptPath } from "@/lib/data/departments";
 import { db } from "@/lib/db/client";
+import {
+  getActivityForUser,
+  getDraftsForUser,
+  getInstalledForUser,
+  getProfileStats,
+  getPublishedForUser,
+  getSavedForUser,
+} from "@/lib/db/queries/profile";
 import { users } from "@/lib/db/schema/auth";
 import type { Locale } from "@/types";
 
@@ -103,6 +116,22 @@ export default async function ProfilePage({
   const activeSection = parseSection(params.section);
   const activeTab = parseSettingsTab(params.tab);
 
+  // Hero stats render on every section, so they're always loaded.
+  const stats = await getProfileStats(user.id);
+
+  // Section-scoped data loads. Only fetch the active section's rows so
+  // a user who only ever opens Settings never hits the other queries.
+  const published =
+    activeSection === "published" ? await getPublishedForUser(user.id) : null;
+  const installed =
+    activeSection === "installed" ? await getInstalledForUser(user.id) : null;
+  const drafts =
+    activeSection === "drafts" ? await getDraftsForUser(user.id) : null;
+  const saved =
+    activeSection === "saved" ? await getSavedForUser(user.id) : null;
+  const activity =
+    activeSection === "activity" ? await getActivityForUser(user.id) : null;
+
   return (
     <main className="mx-auto max-w-[1200px] px-6 py-8">
       <ProfileHero
@@ -110,6 +139,7 @@ export default async function ProfilePage({
         email={user.email}
         joinedLabel={joinedLabel}
         deptLabel={deptLabel}
+        stats={stats}
       />
       <div className="flex items-start gap-7">
         <SectionRail activeKey={activeSection} />
@@ -125,6 +155,16 @@ export default async function ProfilePage({
                 joinedLabel: joinedShort,
               }}
             />
+          ) : activeSection === "published" && published ? (
+            <SectionPublished rows={published} />
+          ) : activeSection === "installed" && installed ? (
+            <SectionInstalled rows={installed} />
+          ) : activeSection === "drafts" && drafts ? (
+            <SectionDrafts rows={drafts} />
+          ) : activeSection === "saved" && saved ? (
+            <SectionSaved rows={saved} />
+          ) : activeSection === "activity" && activity ? (
+            <SectionActivity events={activity} />
           ) : (
             <ComingSoon sectionLabel={t(`sections.${activeSection}`)} />
           )}

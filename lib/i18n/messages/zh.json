@@ -331,6 +331,39 @@
       "title": "即将推出",
       "body": "此模块正在开发中——上线后会在这里出现。"
     },
+    "installsShort": "次安装",
+    "publishOne": "发布扩展",
+    "emptyPublished": {
+      "title": "还没有发布的扩展",
+      "body": "把你的 Skill、MCP 服务、Slash 命令或插件打包发布，分享给团队。"
+    },
+    "emptyInstalled": {
+      "title": "还没有安装任何扩展",
+      "body": "去市场浏览，安装第一个扩展后会在这里看到。"
+    },
+    "emptyDrafts": {
+      "title": "暂无草稿",
+      "body": "在发布向导里开始的草稿会出现在这里，直到你正式发布。"
+    },
+    "draftStatus": {
+      "scanning": "等待扫描",
+      "rejected": "已被拒"
+    },
+    "emptySaved": {
+      "title": "暂未收藏",
+      "body": "收藏想稍后再看的扩展，会出现在这里。"
+    },
+    "emptyActivity": {
+      "title": "暂无动态",
+      "body": "你的安装、发布和评分都会陆续出现在这里。"
+    },
+    "activity": {
+      "installed": "已安装",
+      "published": "已发布",
+      "rated": "已评分"
+    },
+    "continueDraft": "继续",
+    "browse": "浏览市场",
     "errors": {
       "unauthenticated": "请重新登录。",
       "invalid_input": "部分字段需要修改。",

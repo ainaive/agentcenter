@@ -331,6 +331,39 @@
       "title": "Coming soon",
       "body": "This section is in the works — we'll surface it here once it ships."
     },
+    "installsShort": "installs",
+    "publishOne": "Publish an extension",
+    "emptyPublished": {
+      "title": "Nothing published yet",
+      "body": "Bundle your skill, MCP server, slash command, or plugin and share it with your team."
+    },
+    "emptyInstalled": {
+      "title": "Nothing installed yet",
+      "body": "Browse the marketplace and install your first extension to see it here."
+    },
+    "emptyDrafts": {
+      "title": "No drafts in progress",
+      "body": "Drafts you start in the publish wizard appear here until you ship them."
+    },
+    "draftStatus": {
+      "scanning": "Awaiting scan",
+      "rejected": "Rejected"
+    },
+    "emptySaved": {
+      "title": "Nothing saved yet",
+      "body": "Bookmark extensions you want to revisit and they'll show up here."
+    },
+    "emptyActivity": {
+      "title": "No activity yet",
+      "body": "Installs, releases, and ratings you make will appear here over time."
+    },
+    "activity": {
+      "installed": "Installed",
+      "published": "Published",
+      "rated": "Rated"
+    },
+    "continueDraft": "Continue",
+    "browse": "Browse marketplace",
     "errors": {
       "unauthenticated": "Please sign in again.",
       "invalid_input": "Some fields need attention.",
