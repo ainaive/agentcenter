@@ -34,6 +34,26 @@ describe("ProfileHero", () => {
     expect(screen.getByText("A")).toBeInTheDocument();
   });
 
+  // Empty string is a real shape we'll see in the DB (the column is nullable
+  // and better-auth sometimes round-trips `""` rather than null) — initials
+  // must not crash on it.
+  it("falls back to first email letter when name is empty", () => {
+    render(<ProfileHero {...base} name="" />);
+    expect(screen.getByText("A")).toBeInTheDocument();
+  });
+
+  it("collapses consecutive spaces in name before extracting initials", () => {
+    render(<ProfileHero {...base} name="Alice  Bob  Carter" />);
+    expect(screen.getByText("AB")).toBeInTheDocument();
+  });
+
+  it("renders a single initial for a single-token name", () => {
+    render(<ProfileHero {...base} name="Q" />);
+    // The h1 also renders "Q" when the name is one letter; scope to the
+    // avatar div so the assertion isn't ambiguous.
+    expect(screen.getByText("Q", { selector: "div" })).toBeInTheDocument();
+  });
+
   it("renders the (static) role label, the resolved dept label, and the joined label", () => {
     render(<ProfileHero {...base} />);
     // Role is a static i18n key — the echo-mock surfaces "role".

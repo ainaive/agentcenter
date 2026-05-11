@@ -8,15 +8,19 @@ type ProfileHeroProps = {
 };
 
 function initialsFor(name: string | null, email: string): string {
-  if (name) {
+  // Guard against empty / whitespace-only names (a real DB shape — the column
+  // is nullable and better-auth sometimes round-trips ""), and against
+  // consecutive spaces which would otherwise insert `undefined`s.
+  if (name && name.trim()) {
     return name
-      .split(" ")
+      .split(/\s+/)
+      .filter((w) => w.length > 0)
       .map((w) => w[0])
       .join("")
       .slice(0, 2)
       .toUpperCase();
   }
-  return email[0].toUpperCase();
+  return email[0]?.toUpperCase() ?? "?";
 }
 
 export function ProfileHero({

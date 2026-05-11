@@ -88,7 +88,7 @@ export function UserButton() {
             onClick={() => setOpen(false)}
             className="text-foreground hover:bg-secondary flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] transition"
           >
-            <User className="size-3.5" />
+            <User className="size-3.5" aria-hidden />
             {t("profile")}
           </Link>
           <button
@@ -96,7 +96,7 @@ export function UserButton() {
             onClick={handleSignOut}
             className="text-foreground hover:bg-secondary flex w-full items-center gap-2 px-3 py-2 text-left text-[12px] transition"
           >
-            <LogOut className="size-3.5" />
+            <LogOut className="size-3.5" aria-hidden />
             {t("signOut")}
           </button>
         </div>
