@@ -9,9 +9,9 @@ End-of-day skill that refreshes `docs/daily-log.md` (today's entry) and `docs/fe
 
 ## Quick start
 
-1. Get today's date: `date +%Y-%m-%d`.
-2. List today's merged PRs: `gh pr list --state merged --search "merged:>=<today>" --json number,title,body,mergedAt --limit 50`.
-3. List today's commits on `main`: `git log --since="<today> 00:00" --pretty=format:"%h %s" main`. Skip merge-only commits if redundant with the PR list.
+1. Capture today's date once: `today=$(date +%Y-%m-%d)`.
+2. List today's merged PRs: `gh pr list --state merged --search "merged:>=$today" --json number,title,body,mergedAt --limit 50`.
+3. List today's commits on `main`: `git log --since="$today 00:00" --pretty=format:"%h %s" main`. Skip merge-only commits if redundant with the PR list.
 4. Read the existing `docs/daily-log.md` and `docs/features.md` to follow their structure and avoid duplicating entries.
 5. Draft both updates, show diffs, wait for user confirmation before saving.
 
@@ -20,7 +20,7 @@ End-of-day skill that refreshes `docs/daily-log.md` (today's entry) and `docs/fe
 - **Write from a user / product manager perspective.** Describe what users notice, what was broken vs fixed, what's newly possible. The audience is a stakeholder reading at a glance, not an engineer reading a diff.
 - **No code, no file paths, no function / column / library / framework names.** If a fact only makes sense to someone who has read the source, drop it or rephrase it in product terms.
 - **Bilingual, in sync.** Every English change has a matching Chinese counterpart. Don't update one language alone.
-- **Chinese typography.** Full-width em-dash `——` (ASCII ` — ` forbidden); add a space between Latin and CJK (`热门 Skill`); use Chinese punctuation throughout (`，。：；""——`).
+- **Chinese typography.** Full-width em-dash `——` (ASCII ` — ` forbidden); add a space between Latin and CJK (`热门 Skill`); use Chinese punctuation throughout (`，。：；“”——`).
 
 ## docs/daily-log.md — today's entry
 
@@ -42,7 +42,7 @@ Shape (mirror under both `## English` and `## 中文`):
 Rules:
 
 - **Group by feature or improvement, not by PR.** Multiple PRs can roll into one bullet; one PR can split into several bullets if it touched unrelated areas.
-- Cite source PRs in parentheses at the end of each detail bullet (`(#26, #28)`).
+- Cite sources in parentheses at the end of each detail bullet — PR numbers (`(#26, #28)`) for normal merges, or short SHAs (`(commit:abc1234)`) for the rare direct-to-main commit. Every bullet has at least one citation.
 - If today's section already exists, extend it — don't duplicate bullets, refresh the briefing if needed.
 - Newest day on top, separated by `---` from the previous day if you add one.
 
@@ -68,7 +68,7 @@ Always show the proposed diff (or the full new daily section) and wait for expli
 Before declaring done:
 
 - [ ] Today's daily-log entry exists in both EN and ZH, with matching content.
-- [ ] Each detail bullet cites at least one PR number.
+- [ ] Each detail bullet cites at least one PR (or commit SHA fallback).
 - [ ] No code, file paths, or library names leaked into user-facing copy.
 - [ ] `features.md` reflects any new / changed / removed user-facing capability — and only those.
 - [ ] Chinese sections use `——`, proper spacing around Latin tokens, and Chinese punctuation.
