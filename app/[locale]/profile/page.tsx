@@ -5,6 +5,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { ComingSoon } from "@/components/profile/coming-soon";
 import { ProfileHero } from "@/components/profile/profile-hero";
 import { ProfileSettingsForm } from "@/components/profile/profile-settings-form";
+import { SectionActivity } from "@/components/profile/section-activity";
 import { SectionDrafts } from "@/components/profile/section-drafts";
 import { SectionInstalled } from "@/components/profile/section-installed";
 import { SectionPublished } from "@/components/profile/section-published";
@@ -22,6 +23,7 @@ import { getSession } from "@/lib/auth/session";
 import { deptPath } from "@/lib/data/departments";
 import { db } from "@/lib/db/client";
 import {
+  getActivityForUser,
   getDraftsForUser,
   getInstalledForUser,
   getPublishedForUser,
@@ -123,6 +125,8 @@ export default async function ProfilePage({
     activeSection === "drafts" ? await getDraftsForUser(user.id) : null;
   const saved =
     activeSection === "saved" ? await getSavedForUser(user.id) : null;
+  const activity =
+    activeSection === "activity" ? await getActivityForUser(user.id) : null;
 
   return (
     <main className="mx-auto max-w-[1200px] px-6 py-8">
@@ -154,6 +158,8 @@ export default async function ProfilePage({
             <SectionDrafts rows={drafts} />
           ) : activeSection === "saved" && saved ? (
             <SectionSaved rows={saved} />
+          ) : activeSection === "activity" && activity ? (
+            <SectionActivity events={activity} />
           ) : (
             <ComingSoon sectionLabel={t(`sections.${activeSection}`)} />
           )}

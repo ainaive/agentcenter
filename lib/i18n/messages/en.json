@@ -349,6 +349,15 @@
       "title": "Nothing saved yet",
       "body": "Bookmark extensions you want to revisit and they'll show up here."
     },
+    "emptyActivity": {
+      "title": "No activity yet",
+      "body": "Installs, releases, and ratings you make will appear here over time."
+    },
+    "activity": {
+      "installed": "Installed",
+      "published": "Published",
+      "rated": "Rated"
+    },
     "continueDraft": "Continue",
     "browse": "Browse marketplace",
     "errors": {

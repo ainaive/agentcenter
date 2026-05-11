@@ -349,6 +349,15 @@
       "title": "暂未收藏",
       "body": "收藏想稍后再看的扩展，会出现在这里。"
     },
+    "emptyActivity": {
+      "title": "暂无动态",
+      "body": "你的安装、发布和评分都会陆续出现在这里。"
+    },
+    "activity": {
+      "installed": "已安装",
+      "published": "已发布",
+      "rated": "已评分"
+    },
     "continueDraft": "继续",
     "browse": "浏览市场",
     "errors": {

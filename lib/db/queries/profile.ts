@@ -1,7 +1,7 @@
 import { and, desc, eq, isNull } from "drizzle-orm";
 
 import { db } from "@/lib/db/client";
-import { installs } from "@/lib/db/schema/activity";
+import { installs, ratings } from "@/lib/db/schema/activity";
 import { collectionItems, collections } from "@/lib/db/schema/collection";
 import {
   extensionVersions,
@@ -186,4 +186,132 @@ export async function getPublishedForUser(
     out.push(r);
   }
   return out;
+}
+
+export type ProfileActivityEvent =
+  | {
+      kind: "installed";
+      at: Date;
+      extensionId: string;
+      slug: string;
+      name: string;
+      version: string;
+    }
+  | {
+      kind: "published";
+      at: Date;
+      extensionId: string;
+      slug: string;
+      name: string;
+      version: string;
+    }
+  | {
+      kind: "rated";
+      at: Date;
+      extensionId: string;
+      slug: string;
+      name: string;
+      stars: number;
+    };
+
+const ACTIVITY_LIMIT = 20;
+
+export async function getActivityForUser(
+  userId: string,
+): Promise<ProfileActivityEvent[]> {
+  // No dedicated activity_log table yet. Activity is a union of three event
+  // sources (installs, my published versions, my ratings). Each source is
+  // indexed by user — pull the most-recent N from each and merge in memory
+  // rather than a heavyweight UNION ALL.
+  const [installRows, pubRows, ratingRows] = await Promise.all([
+    db
+      .select({
+        at: installs.installedAt,
+        extensionId: extensions.id,
+        slug: extensions.slug,
+        name: extensions.name,
+        version: installs.version,
+      })
+      .from(installs)
+      .innerJoin(extensions, eq(extensions.id, installs.extensionId))
+      .where(eq(installs.userId, userId))
+      .orderBy(desc(installs.installedAt))
+      .limit(ACTIVITY_LIMIT),
+    db
+      .select({
+        at: extensionVersions.publishedAt,
+        extensionId: extensions.id,
+        slug: extensions.slug,
+        name: extensions.name,
+        version: extensionVersions.version,
+      })
+      .from(extensionVersions)
+      .innerJoin(
+        extensions,
+        eq(extensions.id, extensionVersions.extensionId),
+      )
+      .where(
+        and(
+          eq(extensions.publisherUserId, userId),
+          eq(extensionVersions.status, "ready"),
+        ),
+      )
+      .orderBy(desc(extensionVersions.publishedAt))
+      .limit(ACTIVITY_LIMIT),
+    db
+      .select({
+        at: ratings.createdAt,
+        extensionId: extensions.id,
+        slug: extensions.slug,
+        name: extensions.name,
+        stars: ratings.stars,
+      })
+      .from(ratings)
+      .innerJoin(extensions, eq(extensions.id, ratings.extensionId))
+      .where(eq(ratings.userId, userId))
+      .orderBy(desc(ratings.createdAt))
+      .limit(ACTIVITY_LIMIT),
+  ]);
+
+  const merged: ProfileActivityEvent[] = [
+    ...installRows
+      .filter((r) => r.at != null)
+      .map(
+        (r): ProfileActivityEvent => ({
+          kind: "installed",
+          at: r.at as Date,
+          extensionId: r.extensionId,
+          slug: r.slug,
+          name: r.name,
+          version: r.version,
+        }),
+      ),
+    ...pubRows
+      .filter((r) => r.at != null)
+      .map(
+        (r): ProfileActivityEvent => ({
+          kind: "published",
+          at: r.at as Date,
+          extensionId: r.extensionId,
+          slug: r.slug,
+          name: r.name,
+          version: r.version,
+        }),
+      ),
+    ...ratingRows
+      .filter((r) => r.at != null)
+      .map(
+        (r): ProfileActivityEvent => ({
+          kind: "rated",
+          at: r.at as Date,
+          extensionId: r.extensionId,
+          slug: r.slug,
+          name: r.name,
+          stars: r.stars,
+        }),
+      ),
+  ];
+
+  merged.sort((a, b) => b.at.getTime() - a.at.getTime());
+  return merged.slice(0, ACTIVITY_LIMIT);
 }
