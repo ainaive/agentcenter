@@ -26,7 +26,7 @@ End-of-day skill that refreshes `docs/daily-log.md` (today's entry) and `docs/fe
 
 Shape (mirror under both `## English` and `## 中文`):
 
-```
+```markdown
 ### YYYY-MM-DD
 
 **Briefing.** One sentence summarizing the day's changes at a high level.
