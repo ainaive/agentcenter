@@ -169,7 +169,7 @@ App Router, single Next.js app, server components by default. Routes are localiz
 | `/[locale]/publish/new` | Upload wizard — new draft | **P0** |
 | `/[locale]/publish/[id]/edit` | Upload wizard — resume / edit an existing draft | **P0** |
 | `/[locale]/cli/auth` | Device-code authorization page (CLI displays code, user enters here) | **P0** |
-| `/[locale]/settings` | Profile, dept, language, theme | P1 |
+| `/[locale]/profile` | My Workspace — profile, settings, installed / published / drafts / saved / activity | **P0** |
 | `/[locale]/admin` | Moderate, feature, ban | P1 |
 | `/[locale]/docs/[[...slug]]` | MDX docs | P2 |
 
@@ -181,7 +181,7 @@ All in `lib/db/schema/`. `withTimezone: true, defaultNow()` on every timestamp. 
 
 ```ts
 // schema/auth.ts — Better Auth shape
-users: id (text pk), email (unique), emailVerified, name, image,
+users: id (text pk), email (unique), emailVerified, name, image, bio,
        locale ('en'|'zh' default 'en'), themePreference ('ivory'|'dark'|'system'),
        defaultDeptId (fk departments.id, nullable), createdAt, updatedAt
 sessions, accounts, verifications: per Better Auth spec
