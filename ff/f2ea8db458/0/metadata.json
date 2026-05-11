@@ -1,0 +1,38 @@
+{
+  "cli_version": "0.6.1",
+  "checkpoint_id": "fff2ea8db458",
+  "session_id": "763320e2-4685-4ef0-8bea-f01986ec01b3",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-11T03:23:30.387363Z",
+  "branch": "feat/profile-page",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "components/profile/section-rail.test.tsx",
+    "components/profile/section-rail.tsx",
+    "app/[locale]/profile/page.tsx"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7[1m]",
+  "turn_id": "97ff8a29968d",
+  "checkpoint_transcript_start": 341,
+  "transcript_lines_at_start": 341,
+  "token_usage": {
+    "input_tokens": 48,
+    "cache_creation_tokens": 5900,
+    "cache_read_tokens": 719049,
+    "output_tokens": 4212,
+    "api_call_count": 5
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-11T03:23:30.358018Z",
+    "agent_lines": 187,
+    "agent_removed": 1,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 187,
+    "total_lines_changed": 188,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
