@@ -1,0 +1,5 @@
+let's plan to implement the user's profile page, I have made a design at: https://api.anthropic.com/v1/design/h/aDzxg1UdcE9fAYqz4wtfoQ?open_file=AgentCenter.html  but should notice: 1. click the user's avatar then dropdown to enter the profile page. 2. test driven development. 3. commit on each step
+
+---
+
+try this url: https://api.anthropic.com/v1/design/h/d0hS3CzPVAe2zbeQJ5jh3Q?open_file=AgentCenter.html
